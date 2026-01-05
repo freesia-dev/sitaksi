@@ -8,8 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { FORMULAS, formatCurrency, DetailAgunanTanah } from '@/types';
-import { Calculator, Save, ArrowLeft, MapPin, Ruler, DollarSign } from 'lucide-react';
+import { FORMULAS, formatCurrency, formatTerbilang, generateNomorDokumen, DetailAgunanTanah } from '@/types';
+import { Calculator, Save, ArrowLeft, MapPin, Ruler, DollarSign, User, Building } from 'lucide-react';
 
 export default function TaksasiTanah() {
   const { user } = useAuth();
@@ -22,11 +22,16 @@ export default function TaksasiTanah() {
     alamat: '',
     luas_tanah: '',
     harga_per_meter: '',
+    kantor_cabang: 'KANTOR CABANG PEMBANTU TELIHAN',
+    alamat_cabang: 'JL.S.PARMAN NO.14-15 KEL.GN.TELIHAN KEC.BONTANG BARAT-75383',
+    pimpinan: '',
+    jabatan_pimpinan: 'Pemimpin Capem',
   });
 
   const [hasil, setHasil] = useState<{
     nilai_taksasi: number;
     nilai_likuidasi: number;
+    terbilang: string;
   } | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -56,6 +61,7 @@ export default function TaksasiTanah() {
     setHasil({
       nilai_taksasi: nilaiTaksasi,
       nilai_likuidasi: nilaiLikuidasi,
+      terbilang: formatTerbilang(nilaiTaksasi),
     });
   };
 
@@ -85,16 +91,30 @@ export default function TaksasiTanah() {
 
     addTaksasi({
       id_user: user?.id || '',
+      nomor_dokumen: generateNomorDokumen('TLH'),
       jenis_agunan: 'Tanah',
       nama_nasabah: formData.nama_nasabah,
       alamat: formData.alamat,
       nilai_pasar: hasil.nilai_taksasi,
       nilai_taksasi: hasil.nilai_taksasi,
+      nilai_taksasi_pembulatan: hasil.nilai_taksasi,
       nilai_likuidasi: hasil.nilai_likuidasi,
+      nilai_likuidasi_pembulatan: hasil.nilai_likuidasi,
+      safety_margin: FORMULAS.tanah.safetyMargin,
+      terbilang: hasil.terbilang,
       status_otorisasi: 'Menunggu',
       detail_agunan: detailAgunan,
       tanggal: new Date().toISOString().split('T')[0],
       petugas: user?.nama || '',
+      jabatan_petugas: 'Officer Relationship Kredit',
+      kantor_cabang: formData.kantor_cabang,
+      alamat_cabang: formData.alamat_cabang,
+      pimpinan: formData.pimpinan,
+      jabatan_pimpinan: formData.jabatan_pimpinan,
+      tim_penilai: [
+        { nama: formData.pimpinan, jabatan: formData.jabatan_pimpinan },
+        { nama: user?.nama || '', jabatan: 'Officer Relationship Kredit' },
+      ],
     });
 
     toast({
@@ -102,7 +122,7 @@ export default function TaksasiTanah() {
       description: 'Data taksasi tanah telah disimpan dan menunggu otorisasi',
     });
 
-    navigate('/dashboard');
+    navigate('/riwayat');
   };
 
   return (
@@ -190,6 +210,64 @@ export default function TaksasiTanah() {
           </Button>
         </div>
 
+        {/* TIM PENILAI */}
+        <div className="rounded-xl border bg-card p-6 shadow-card animate-slide-up" style={{ animationDelay: '0.15s' }}>
+          <h3 className="font-semibold mb-4 flex items-center gap-2">
+            <User size={18} className="text-primary" />
+            TIM PENILAI
+          </h3>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="pimpinan">Nama Pimpinan</Label>
+              <Input
+                id="pimpinan"
+                name="pimpinan"
+                placeholder="Nama pimpinan cabang"
+                value={formData.pimpinan}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <Label htmlFor="jabatan_pimpinan">Jabatan Pimpinan</Label>
+              <Input
+                id="jabatan_pimpinan"
+                name="jabatan_pimpinan"
+                value={formData.jabatan_pimpinan}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* KANTOR CABANG */}
+        <div className="rounded-xl border bg-card p-6 shadow-card animate-slide-up" style={{ animationDelay: '0.2s' }}>
+          <h3 className="font-semibold mb-4 flex items-center gap-2">
+            <Building size={18} className="text-primary" />
+            KANTOR CABANG
+          </h3>
+          <div className="grid gap-4">
+            <div>
+              <Label htmlFor="kantor_cabang">Nama Kantor Cabang</Label>
+              <Input
+                id="kantor_cabang"
+                name="kantor_cabang"
+                value={formData.kantor_cabang}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <Label htmlFor="alamat_cabang">Alamat Kantor Cabang</Label>
+              <Textarea
+                id="alamat_cabang"
+                name="alamat_cabang"
+                value={formData.alamat_cabang}
+                onChange={handleChange}
+                rows={2}
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Hasil Perhitungan */}
         {hasil && (
           <div className="rounded-xl border bg-card p-6 shadow-card animate-scale-up">
@@ -208,6 +286,12 @@ export default function TaksasiTanah() {
                 <p className="text-2xl font-bold text-success">{formatCurrency(hasil.nilai_likuidasi)}</p>
                 <p className="text-xs text-muted-foreground mt-1">= Nilai Taksasi × 80%</p>
               </div>
+            </div>
+            <div className="mt-4 p-3 rounded-lg bg-muted/50">
+              <p className="text-sm">
+                <span className="font-medium">Terbilang: </span>
+                {hasil.terbilang}
+              </p>
             </div>
 
             <div className="mt-6 flex gap-3">
