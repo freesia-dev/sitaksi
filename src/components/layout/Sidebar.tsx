@@ -15,6 +15,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import logoBankaltimtara from '@/assets/logo-bankaltimtara.png';
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -85,9 +86,11 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
         {!isCollapsed && (
           <div className="flex items-center gap-3 animate-fade-in">
-            <div className="w-10 h-10 rounded-lg gradient-accent flex items-center justify-center shadow-glow">
-              <span className="text-sidebar-primary-foreground font-bold text-lg">B</span>
-            </div>
+            <img 
+              src={logoBankaltimtara} 
+              alt="Bankaltimtara" 
+              className="w-12 h-12 object-contain"
+            />
             <div>
               <h1 className="font-bold text-sidebar-foreground text-sm">BANKALTIMTARA</h1>
               <p className="text-xs text-sidebar-foreground/60">Sistem Taksasi Agunan</p>
@@ -95,9 +98,11 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           </div>
         )}
         {isCollapsed && (
-          <div className="w-10 h-10 mx-auto rounded-lg gradient-accent flex items-center justify-center">
-            <span className="text-sidebar-primary-foreground font-bold text-lg">B</span>
-          </div>
+          <img 
+            src={logoBankaltimtara} 
+            alt="Bankaltimtara" 
+            className="w-10 h-10 mx-auto object-contain"
+          />
         )}
       </div>
 
