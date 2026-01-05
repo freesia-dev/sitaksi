@@ -253,3 +253,88 @@
     }
   }
 }
+
+/* Print Styles - Only print the content area */
+@media print {
+  /* Hide everything by default */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Show only the printable content */
+  .print-area,
+  .print-area * {
+    visibility: visible !important;
+  }
+
+  /* Position print area at top-left */
+  .print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Hide non-printable elements */
+  aside,
+  nav,
+  header,
+  .no-print,
+  button,
+  .tabs-list,
+  [role="tablist"] {
+    display: none !important;
+  }
+
+  /* Reset backgrounds for print */
+  .print-area {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Page setup */
+  @page {
+    size: A4;
+    margin: 15mm 10mm;
+  }
+
+  /* Prevent page breaks inside important elements */
+  table,
+  .print-section {
+    page-break-inside: avoid;
+  }
+
+  /* Ensure tables have borders for print */
+  .print-area table {
+    border-collapse: collapse;
+  }
+
+  .print-area th,
+  .print-area td {
+    border: 1px solid #333 !important;
+  }
+
+  /* Remove shadows and effects */
+  .print-area .shadow-card,
+  .print-area .shadow-soft,
+  .print-area .shadow-elevated {
+    box-shadow: none !important;
+  }
+
+  .print-area .rounded-xl {
+    border-radius: 0 !important;
+  }
+
+  /* Ensure text is black */
+  .print-area p,
+  .print-area span,
+  .print-area td,
+  .print-area th,
+  .print-area h1,
+  .print-area h2,
+  .print-area h3 {
+    color: black !important;
+  }
+}

@@ -2,8 +2,8 @@ import React from 'react';
 import { 
   Taksasi, 
   DetailAgunanKendaraan, 
-  DetailAgunanTanah,
-  DetailAgunanTB,
+  DetailAgunanTanahSimple,
+  DetailAgunanTBSimple,
   formatCurrency, 
   formatCurrencyWithDecimals,
   formatDate 
@@ -20,8 +20,8 @@ export function ExportFormTaksasi({ taksasi, logo }: ExportFormTaksasiProps) {
   const isTB = taksasi.jenis_agunan === 'Tanah & Bangunan';
   
   const detailKendaraan = isKendaraan ? taksasi.detail_agunan as DetailAgunanKendaraan : null;
-  const detailTanah = isTanah ? taksasi.detail_agunan as DetailAgunanTanah : null;
-  const detailTB = isTB ? taksasi.detail_agunan as DetailAgunanTB : null;
+  const detailTanah = isTanah ? taksasi.detail_agunan as DetailAgunanTanahSimple : null;
+  const detailTB = isTB ? taksasi.detail_agunan as DetailAgunanTBSimple : null;
 
   return (
     <div className="bg-white rounded-xl border shadow-card p-8 print:shadow-none print:border-none">

@@ -10,7 +10,8 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  ClipboardCheck
+  ClipboardCheck,
+  Info
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -72,6 +73,12 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       icon: Users,
       href: '/admin/users',
       show: isAdmin,
+    },
+    {
+      label: 'Tentang',
+      icon: Info,
+      href: '/about',
+      show: true,
     },
   ];
 
