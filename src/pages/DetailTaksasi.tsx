@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTaksasi } from '@/context/TaksasiContext';
 import { useAuth } from '@/context/AuthContext';
@@ -8,21 +8,12 @@ import { Button } from '@/components/ui/button';
 import { 
   formatCurrency, 
   formatDate, 
-  formatDateWithDay,
-  DetailAgunanKendaraan,
-  DetailAgunanTanah,
-  DetailAgunanTB
 } from '@/types';
 import { 
   ArrowLeft, 
   FileText, 
   Download,
   Eye,
-  Car,
-  MapPin,
-  Building,
-  User,
-  DollarSign,
   Printer
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -38,6 +29,7 @@ export default function DetailTaksasi() {
   const { getTaksasiById } = useTaksasi();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('cover');
+  const printRef = useRef<HTMLDivElement>(null);
 
   const taksasi = getTaksasiById(id || '');
 
@@ -53,16 +45,103 @@ export default function DetailTaksasi() {
     );
   }
 
-  const isKendaraan = taksasi.jenis_agunan === 'Kendaraan';
-  const detail = taksasi.detail_agunan as DetailAgunanKendaraan;
-
   const handlePrint = () => {
-    window.print();
+    const printContent = printRef.current;
+    if (!printContent) return;
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const styles = Array.from(document.styleSheets)
+      .map(styleSheet => {
+        try {
+          return Array.from(styleSheet.cssRules)
+            .map(rule => rule.cssText)
+            .join('\n');
+        } catch (e) {
+          return '';
+        }
+      })
+      .join('\n');
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Taksasi Agunan - ${taksasi.nama_nasabah}</title>
+          <style>
+            ${styles}
+            @page {
+              size: A4;
+              margin: 15mm 10mm;
+            }
+            body {
+              font-family: 'Plus Jakarta Sans', sans-serif;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+              margin: 0;
+              padding: 20px;
+              background: white !important;
+            }
+            .print-container {
+              max-width: 210mm;
+              margin: 0 auto;
+            }
+            table {
+              border-collapse: collapse;
+              width: 100%;
+            }
+            th, td {
+              border: 1px solid #333 !important;
+              padding: 8px;
+            }
+            .bg-muted {
+              background: #f5f5f5 !important;
+            }
+            h1, h2, h3 {
+              color: black !important;
+            }
+            p, span, td, th {
+              color: black !important;
+            }
+            @media print {
+              body { background: white !important; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="print-container">
+            ${printContent.innerHTML}
+          </div>
+        </body>
+      </html>
+    `);
+
+    printWindow.document.close();
+    
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 500);
   };
 
-  const handleExportPDF = async () => {
-    // For now, use browser print to PDF
-    window.print();
+  const handleExportPDF = () => {
+    handlePrint();
+  };
+
+  const getCurrentTabContent = () => {
+    switch (activeTab) {
+      case 'cover':
+        return <ExportCover taksasi={taksasi} logo={logoBankaltimtara} />;
+      case 'form':
+        return <ExportFormTaksasi taksasi={taksasi} logo={logoBankaltimtara} />;
+      case 'berita-acara':
+        return <ExportBeritaAcara taksasi={taksasi} logo={logoBankaltimtara} />;
+      case 'dokumentasi':
+        return <ExportDokumentasi taksasi={taksasi} logo={logoBankaltimtara} />;
+      default:
+        return null;
+    }
   };
 
   return (
@@ -71,7 +150,7 @@ export default function DetailTaksasi() {
         title="Detail Taksasi Agunan"
         description={`${taksasi.jenis_agunan} - ${taksasi.nama_nasabah}`}
         actions={
-          <div className="flex gap-2">
+          <div className="flex gap-2 no-print">
             <Button variant="ghost" onClick={() => navigate(-1)}>
               <ArrowLeft className="mr-2" size={16} />
               Kembali
@@ -89,7 +168,7 @@ export default function DetailTaksasi() {
       />
 
       {/* Summary Card */}
-      <div className="rounded-xl border bg-card p-6 shadow-card">
+      <div className="rounded-xl border bg-card p-6 shadow-card no-print">
         <div className="flex flex-wrap gap-6 justify-between">
           <div>
             <p className="text-sm text-muted-foreground">Nomor Dokumen</p>
@@ -116,7 +195,7 @@ export default function DetailTaksasi() {
 
       {/* Tabs for different views */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-4 no-print">
           <TabsTrigger value="cover" className="flex items-center gap-2">
             <FileText size={16} />
             Cover
@@ -135,6 +214,12 @@ export default function DetailTaksasi() {
           </TabsTrigger>
         </TabsList>
 
+        {/* Hidden print area */}
+        <div ref={printRef} className="print-area hidden">
+          {getCurrentTabContent()}
+        </div>
+
+        {/* Visible content */}
         <TabsContent value="cover">
           <ExportCover taksasi={taksasi} logo={logoBankaltimtara} />
         </TabsContent>

@@ -11,18 +11,139 @@ export type JenisAgunan = 'Tanah' | 'Tanah & Bangunan' | 'Kendaraan';
 
 export type StatusOtorisasi = 'Menunggu' | 'Disetujui' | 'Ditolak';
 
-export interface DetailAgunanTanah {
+// ============ TANAH TYPES ============
+export interface HargaPembandingTanah {
+  harga: number;
+  sumber: string;
+}
+
+// Simple legacy type for backward compatibility
+export interface DetailAgunanTanahSimple {
   luas_tanah: number;
   harga_per_meter: number;
 }
 
-export interface DetailAgunanTB {
+export interface SafetyMarginTanah {
+  lokasi_daerah: { kondisi: string; margin: number };
+  topography: { kondisi: string; margin: number };
+  ukuran_bentuk: { kondisi: string; margin: number };
+  bukti_kepemilikan: { kondisi: string; margin: number };
+  lingkungan_sekitar: { kondisi: string; margin: number };
+  permasalahan: { kondisi: string; margin: number };
+}
+
+export interface DetailAgunanTanah {
+  // Profil
+  bukti_kepemilikan: string;
+  nomor_bukti: string;
+  tanggal_bukti: string;
+  masa_berlaku: string;
+  nama_pemegang_hak: string;
+  hubungan_dengan_debitur: string;
+  nomor_gambar_situasi: string;
+  nomor_induk_bidang: string;
+  luas_tanah: number;
+  tempat_didaftarkan: string;
+
+  // Hasil Pemeriksaan Fisik
+  letak_tanah: string;
+  bentuk_tanah: string;
+  luas_tanah_fisik: number;
+  arah_menghadap: string;
+  lebar_jalan_depan: string;
+  bahan_jalan: string;
+  batas_depan: string;
+  batas_belakang: string;
+  batas_kanan: string;
+  batas_kiri: string;
+  keterangan_fisik: string;
+
+  // Analisa Lingkungan
+  kondisi_lalu_lintas: string;
+  kelas_jalan: string;
+  listrik_pln: string;
+  air_bersih: string;
+  saluran_telepon: string;
+  fasilitas_penunjang: string[];
+  keterangan_lingkungan: string;
+
+  // Harga Pasar
+  harga_pembanding: HargaPembandingTanah[];
+
+  // Safety Margin
+  safety_margin_details: SafetyMarginTanah;
+}
+
+// ============ BANGUNAN TYPES ============
+export interface SafetyMarginBangunan {
+  design: { kondisi: string; margin: number };
+  umur: { kondisi: string; margin: number };
+  peruntukkan: { kondisi: string; margin: number };
+  imb: { kondisi: string; margin: number };
+  kesesuaian_lahan: { kondisi: string; margin: number };
+  permasalahan: { kondisi: string; margin: number };
+}
+
+export interface DetailBangunan {
+  id: string;
+  peruntukkan: string;
+  
+  // Profil IMB
+  imb_ada: boolean;
+  nomor_imb: string;
+  tanggal_imb: string;
+  nama_di_imb: string;
+  luas_sesuai_imb: number;
+  tinggi_sesuai_imb: number;
+
+  // Hasil Pemeriksaan Fisik
+  konstruksi: string;
+  pondasi: string;
+  tinggi_lantai: number;
+  atap: string;
+  dinding: string;
+  plester_dinding: boolean;
+  plafon: string;
+  lantai: string;
+  tiang: string;
+  luas_bangunan: number;
+  keterangan_fisik: string;
+
+  // Harga Pasar
+  harga_pembanding: HargaPembandingTanah[];
+
+  // Safety Margin
+  safety_margin_details: SafetyMarginBangunan;
+
+  // Calculated values
+  harga_rata_rata: number;
+  nilai_pasar: number;
+  nilai_likuidasi: number;
+}
+
+// Simple legacy type for backward compatibility
+export interface DetailAgunanTBSimple {
   luas_tanah: number;
   harga_tanah_per_meter: number;
   luas_bangunan: number;
   harga_bangunan_per_meter: number;
 }
 
+export interface DetailAgunanTB {
+  // Data Tanah
+  tanah?: DetailAgunanTanah;
+  
+  // Multiple Bangunan
+  bangunan_list?: DetailBangunan[];
+  
+  // Legacy fields for backward compatibility
+  luas_tanah: number;
+  harga_tanah_per_meter: number;
+  luas_bangunan: number;
+  harga_bangunan_per_meter: number;
+}
+
+// ============ KENDARAAN TYPES ============
 export interface HargaPembanding {
   harga: number;
   sumber: string;
@@ -59,7 +180,7 @@ export interface DetailAgunanKendaraan {
   dokumentasi?: DokumentasiAgunan;
 }
 
-export type DetailAgunan = DetailAgunanTanah | DetailAgunanTB | DetailAgunanKendaraan;
+export type DetailAgunan = DetailAgunanTanah | DetailAgunanTanahSimple | DetailAgunanTB | DetailAgunanTBSimple | DetailAgunanKendaraan;
 
 export interface TimPenilai {
   nama: string;
@@ -91,14 +212,21 @@ export interface Taksasi {
   pimpinan: string;
   jabatan_pimpinan: string;
   tim_penilai: TimPenilai[];
+  marketability?: string;
+  catatan_marketability?: string[];
+  dokumentasi?: DokumentasiAgunan;
 }
 
 // Calculation formulas based on the documents
 export const FORMULAS = {
   tanah: {
     // Nilai Taksasi = Luas Tanah × Harga per m²
-    // Nilai Likuidasi = Nilai Taksasi × 80%
+    // Nilai Likuidasi = Nilai Taksasi × Safety Margin
     calculateTaksasi: (luasTanah: number, hargaPerMeter: number) => luasTanah * hargaPerMeter,
+    calculateHargaRataRata: (hargaPembanding: number[]) => {
+      if (hargaPembanding.length === 0) return 0;
+      return hargaPembanding.reduce((a, b) => a + b, 0) / hargaPembanding.length;
+    },
     likuidasiRatio: 0.8,
     safetyMargin: 20,
   },
@@ -111,6 +239,10 @@ export const FORMULAS = {
       luasBangunan: number,
       hargaBangunanPerMeter: number
     ) => (luasTanah * hargaTanahPerMeter) + (luasBangunan * hargaBangunanPerMeter),
+    calculateHargaRataRata: (hargaPembanding: number[]) => {
+      if (hargaPembanding.length === 0) return 0;
+      return hargaPembanding.reduce((a, b) => a + b, 0) / hargaPembanding.length;
+    },
     likuidasiRatio: 0.8,
     safetyMargin: 20,
   },
@@ -192,4 +324,16 @@ export const generateNomorDokumen = (cabang: string = 'TLH'): string => {
   const bulanRomawi = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
   const random = Math.floor(Math.random() * 1000);
   return `${random}/F-3/BPD-${cabang}/${bulanRomawi[now.getMonth()]}/${now.getFullYear()}`;
+};
+
+// Calculate average safety margin
+export const calculateAverageSafetyMargin = (margins: { margin: number }[]): number => {
+  if (margins.length === 0) return 80;
+  const total = margins.reduce((acc, item) => acc + item.margin, 0);
+  return Math.round(total / margins.length);
+};
+
+// Generate unique ID
+export const generateId = (): string => {
+  return Math.random().toString(36).substring(2, 9);
 };

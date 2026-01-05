@@ -16,6 +16,7 @@ import Riwayat from "@/pages/Riwayat";
 import Otorisasi from "@/pages/Otorisasi";
 import AdminUsers from "@/pages/AdminUsers";
 import DetailTaksasi from "@/pages/DetailTaksasi";
+import About from "@/pages/About";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
                 <Route path="/otorisasi" element={<Otorisasi />} />
                 <Route path="/admin/users" element={<AdminUsers />} />
                 <Route path="/taksasi/:id" element={<DetailTaksasi />} />
+                <Route path="/about" element={<About />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>

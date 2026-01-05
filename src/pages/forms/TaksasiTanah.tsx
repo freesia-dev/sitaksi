@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { FORMULAS, formatCurrency, formatTerbilang, generateNomorDokumen, DetailAgunanTanah } from '@/types';
+import { FORMULAS, formatCurrency, formatTerbilang, generateNomorDokumen, DetailAgunanTanahSimple } from '@/types';
 import { Calculator, Save, ArrowLeft, MapPin, Ruler, DollarSign, User, Building } from 'lucide-react';
 
 export default function TaksasiTanah() {
@@ -84,7 +84,7 @@ export default function TaksasiTanah() {
       return;
     }
 
-    const detailAgunan: DetailAgunanTanah = {
+    const detailAgunan: DetailAgunanTanahSimple = {
       luas_tanah: parseFloat(formData.luas_tanah),
       harga_per_meter: parseFloat(formData.harga_per_meter),
     };

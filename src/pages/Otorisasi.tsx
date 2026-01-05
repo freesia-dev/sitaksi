@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { formatCurrency, formatDate, DetailAgunanKendaraan, DetailAgunanTanah, DetailAgunanTB } from '@/types';
+import { formatCurrency, formatDate, DetailAgunanKendaraan, DetailAgunanTanahSimple, DetailAgunanTBSimple } from '@/types';
 import { CheckCircle2, XCircle, Eye } from 'lucide-react';
 import {
   Dialog,
@@ -74,7 +74,7 @@ export default function Otorisasi() {
     if (!selectedTaksasi) return null;
 
     if (selectedTaksasi.jenis_agunan === 'Tanah') {
-      const detail = selectedTaksasi.detail_agunan as DetailAgunanTanah;
+      const detail = selectedTaksasi.detail_agunan as DetailAgunanTanahSimple;
       return (
         <div className="grid grid-cols-2 gap-3">
           <div className="p-3 rounded-lg bg-muted/50">
@@ -83,14 +83,14 @@ export default function Otorisasi() {
           </div>
           <div className="p-3 rounded-lg bg-muted/50">
             <p className="text-xs text-muted-foreground">Harga per m²</p>
-            <p className="font-semibold">{formatCurrency(detail.harga_per_meter)}</p>
+            <p className="font-semibold">{formatCurrency(detail.harga_per_meter || 0)}</p>
           </div>
         </div>
       );
     }
 
     if (selectedTaksasi.jenis_agunan === 'Tanah & Bangunan') {
-      const detail = selectedTaksasi.detail_agunan as DetailAgunanTB;
+      const detail = selectedTaksasi.detail_agunan as DetailAgunanTBSimple;
       return (
         <div className="grid grid-cols-2 gap-3">
           <div className="p-3 rounded-lg bg-muted/50">
