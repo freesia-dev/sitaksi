@@ -43,11 +43,12 @@ export default function Riwayat() {
   });
 
   const handleEdit = (taksasi: typeof taksasiList[0]) => {
-    if (taksasi.jenis_agunan === 'Tanah') {
+    const jenisLower = taksasi.jenis_agunan.toLowerCase();
+    if (jenisLower === 'tanah') {
       navigate(`/taksasi/tanah/edit/${taksasi.id}`);
-    } else if (taksasi.jenis_agunan === 'Tanah & Bangunan') {
+    } else if (jenisLower === 'tanah & bangunan' || jenisLower === 'tanah_bangunan') {
       navigate(`/taksasi/tanah-bangunan/edit/${taksasi.id}`);
-    } else if (taksasi.jenis_agunan === 'Kendaraan') {
+    } else if (jenisLower === 'kendaraan') {
       navigate(`/taksasi/kendaraan/edit/${taksasi.id}`);
     }
   };
