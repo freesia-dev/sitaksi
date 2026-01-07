@@ -50,8 +50,11 @@ export default function Login() {
             <img
               src={logoSitaksi}
               alt="Logo SITAKSI"
-              className="w-72 h-auto xl:w-96 object-contain mb-6"
+              className="w-72 h-auto xl:w-96 object-contain mb-4"
             />
+            <p className="text-primary-foreground/90 italic text-lg xl:text-xl">
+              "Akurasi bukan pilihan, tapi standar. Masuk untuk memulai."
+            </p>
           </div>
 
           <div className="mt-8 xl:mt-12 space-y-3 xl:space-y-4" style={{ animationDelay: '0.1s' }}>
