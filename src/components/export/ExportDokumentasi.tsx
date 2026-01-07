@@ -55,11 +55,11 @@ export function ExportDokumentasi({ taksasi, logo }: ExportDokumentasiProps) {
   const isKendaraan = jenisLower === 'kendaraan';
   const detailKendaraan = isKendaraan ? taksasi.detail_agunan as DetailAgunanKendaraan : null;
 
-  // Check both dokumentasi object and dokumentasi_urls array
-  const dokumentasiObj = detailKendaraan?.dokumentasi;
+  // Get documentation data
   const dokumentasiUrls = detailKendaraan?.dokumentasi_urls || [];
-
-  const dokumentasiLabels = [
+  const savedLabels = detailKendaraan?.dokumentasi_labels || [];
+  
+  const defaultLabels = [
     'Tampak Depan',
     'Tampak Belakang',
     'Tampak Samping Kiri',
@@ -69,28 +69,12 @@ export function ExportDokumentasi({ taksasi, logo }: ExportDokumentasiProps) {
     'Nomor Mesin',
   ];
 
-  const dokumentasiKeys = [
-    'tampak_depan',
-    'tampak_belakang',
-    'tampak_samping_kiri',
-    'tampak_samping_kanan',
-    'speedometer',
-    'nomor_rangka',
-    'nomor_mesin',
-  ];
+  // Build items array from available images
+  const dokumentasiItems = dokumentasiUrls.map((url, index) => ({
+    url,
+    label: savedLabels[index] || defaultLabels[index] || `Foto ${index + 1}`,
+  }));
 
-  // Get image URL from either dokumentasi object or dokumentasi_urls array
-  const getImageUrl = (index: number, key: string): string | undefined => {
-    // First check dokumentasi object
-    if (dokumentasiObj && dokumentasiObj[key as keyof typeof dokumentasiObj]) {
-      return dokumentasiObj[key as keyof typeof dokumentasiObj] as string;
-    }
-    // Fallback to dokumentasi_urls array
-    if (dokumentasiUrls.length > index) {
-      return dokumentasiUrls[index];
-    }
-    return undefined;
-  };
 
   return (
     <div className="bg-white rounded-xl border shadow-card p-8 print:shadow-none print:border-none">
@@ -120,26 +104,23 @@ export function ExportDokumentasi({ taksasi, logo }: ExportDokumentasiProps) {
         </div>
 
         {/* Grid Foto */}
-        <div className="grid grid-cols-2 gap-4">
-          {dokumentasiLabels.map((label, index) => {
-            const imageUrl = getImageUrl(index, dokumentasiKeys[index]);
-            return (
+        {dokumentasiItems.length > 0 ? (
+          <div className="grid grid-cols-2 gap-4">
+            {dokumentasiItems.map((item, index) => (
               <div key={index} className="space-y-2">
                 <div className="aspect-video bg-muted rounded-lg overflow-hidden flex items-center justify-center border relative">
-                  {imageUrl ? (
-                    <ImageWithFallback src={imageUrl} alt={label} />
-                  ) : (
-                    <div className="text-muted-foreground text-sm text-center p-4 flex flex-col items-center justify-center">
-                      <ImageOff size={32} className="mb-2 opacity-50" />
-                      <p>Foto tidak tersedia</p>
-                    </div>
-                  )}
+                  <ImageWithFallback src={item.url} alt={item.label} />
                 </div>
-                <p className="text-center text-sm font-medium">{label}</p>
+                <p className="text-center text-sm font-medium">{item.label}</p>
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-muted-foreground">
+            <ImageOff size={48} className="mx-auto mb-2 opacity-50" />
+            <p>Belum ada dokumentasi</p>
+          </div>
+        )}
 
         {/* Speedometer Reading */}
         {isKendaraan && (

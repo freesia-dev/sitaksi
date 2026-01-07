@@ -182,6 +182,7 @@ export interface DetailAgunanKendaraan {
   keterangan: string[];
   dokumentasi?: DokumentasiAgunan;
   dokumentasi_urls?: string[];
+  dokumentasi_labels?: string[];
 }
 
 export type DetailAgunan = DetailAgunanTanah | DetailAgunanTanahSimple | DetailAgunanTB | DetailAgunanTBSimple | DetailAgunanKendaraan;
