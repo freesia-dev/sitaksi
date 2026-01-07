@@ -21,6 +21,9 @@ type ImageWithFallbackProps = {
 function ImageWithFallback({ src, alt, className }: ImageWithFallbackProps) {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [attempt, setAttempt] = useState(0);
+
+  const cacheBustedSrc = attempt === 0 ? src : `${src}${src.includes('?') ? '&' : '?'}_cb=${attempt}`;
 
   if (hasError) {
     return (
@@ -33,17 +36,20 @@ function ImageWithFallback({ src, alt, className }: ImageWithFallbackProps) {
 
   return (
     <>
-      {isLoading && (
-        <div className="absolute inset-0 bg-muted animate-pulse" />
-      )}
+      {isLoading && <div className="absolute inset-0 bg-muted animate-pulse" />}
       <img
-        src={src}
+        src={cacheBustedSrc}
         alt={alt}
         loading="lazy"
-        crossOrigin="anonymous"
+        referrerPolicy="no-referrer"
         className={className}
         onLoad={() => setIsLoading(false)}
         onError={() => {
+          // Retry once with cache-busting + without referrer (helps some hotlink protections)
+          if (attempt < 1) {
+            setAttempt((v) => v + 1);
+            return;
+          }
           setHasError(true);
           setIsLoading(false);
         }}

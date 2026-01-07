@@ -19,6 +19,9 @@ interface ImageWithFallbackProps {
 function ImageWithFallback({ src, alt }: ImageWithFallbackProps) {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [attempt, setAttempt] = useState(0);
+
+  const cacheBustedSrc = attempt === 0 ? src : `${src}${src.includes('?') ? '&' : '?'}_cb=${attempt}`;
 
   if (hasError) {
     return (
@@ -37,11 +40,17 @@ function ImageWithFallback({ src, alt }: ImageWithFallbackProps) {
         </div>
       )}
       <img 
-        src={src} 
+        src={cacheBustedSrc} 
         alt={alt} 
         className="w-full h-full object-cover"
+        loading="lazy"
+        referrerPolicy="no-referrer"
         onLoad={() => setIsLoading(false)}
         onError={() => {
+          if (attempt < 1) {
+            setAttempt((v) => v + 1);
+            return;
+          }
           setHasError(true);
           setIsLoading(false);
         }}
