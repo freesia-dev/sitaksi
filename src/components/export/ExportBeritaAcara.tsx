@@ -13,7 +13,8 @@ interface ExportBeritaAcaraProps {
 }
 
 export function ExportBeritaAcara({ taksasi, logo }: ExportBeritaAcaraProps) {
-  const isKendaraan = taksasi.jenis_agunan === 'Kendaraan';
+  const jenisLower = taksasi.jenis_agunan.toLowerCase();
+  const isKendaraan = jenisLower === 'kendaraan';
   const detailKendaraan = isKendaraan ? taksasi.detail_agunan as DetailAgunanKendaraan : null;
 
   const getJaminanDescription = () => {
