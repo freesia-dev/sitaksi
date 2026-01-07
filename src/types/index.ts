@@ -181,6 +181,7 @@ export interface DetailAgunanKendaraan {
   harga_pembanding: HargaPembanding[];
   keterangan: string[];
   dokumentasi?: DokumentasiAgunan;
+  dokumentasi_urls?: string[];
 }
 
 export type DetailAgunan = DetailAgunanTanah | DetailAgunanTanahSimple | DetailAgunanTB | DetailAgunanTBSimple | DetailAgunanKendaraan;
@@ -321,12 +322,12 @@ export const formatTerbilang = (nilai: number): string => {
   return terbilang(nilai).replace(/\s+/g, ' ').trim() + ' Rupiah';
 };
 
-// Generate document number
-export const generateNomorDokumen = (cabang: string = 'TLH'): string => {
+// Generate document number with user-provided number
+export const generateNomorDokumen = (cabang: string = 'TLH', nomorInput?: string): string => {
   const now = new Date();
   const bulanRomawi = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
-  const random = Math.floor(Math.random() * 1000);
-  return `${random}/F-3/BPD-${cabang}/${bulanRomawi[now.getMonth()]}/${now.getFullYear()}`;
+  const nomor = nomorInput ? nomorInput.padStart(3, '0') : Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+  return `${nomor}/F-3/BPD-${cabang}/${bulanRomawi[now.getMonth()]}/${now.getFullYear()}`;
 };
 
 // Calculate average safety margin

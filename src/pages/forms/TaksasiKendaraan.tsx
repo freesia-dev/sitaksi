@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTaksasi } from '@/context/TaksasiContext';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { ImageUploader } from '@/components/shared/ImageUploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -30,7 +31,8 @@ import {
   Camera,
   Upload,
   User,
-  Building
+  Building,
+  Hash
 } from 'lucide-react';
 import {
   Select,
@@ -52,6 +54,7 @@ export default function TaksasiKendaraan() {
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
+    nomor_dokumen: '',
     nama_nasabah: '',
     alamat: '',
     jenis: '',
@@ -77,7 +80,7 @@ export default function TaksasiKendaraan() {
     jabatan_pimpinan: 'Pemimpin Capem',
   });
 
-  const [dokumentasi, setDokumentasi] = useState<DokumentasiAgunan>({});
+  const [dokumentasi, setDokumentasi] = useState<string[]>([]);
 
   const [hargaPembanding, setHargaPembanding] = useState<HargaPembanding[]>([
     { harga: '', sumber: '' },
@@ -130,18 +133,8 @@ export default function TaksasiKendaraan() {
     }
   };
 
-  const handleFileChange = (field: keyof DokumentasiAgunan, e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setDokumentasi(prev => ({
-          ...prev,
-          [field]: reader.result as string,
-        }));
-      };
-      reader.readAsDataURL(file);
-    }
+  const handleDokumentasiChange = (urls: string[]) => {
+    setDokumentasi(urls);
   };
 
   const handleHitung = () => {
@@ -224,12 +217,12 @@ export default function TaksasiKendaraan() {
       harga_pasar: hasil.rata_rata,
       harga_pembanding: validPembanding,
       keterangan: keterangan,
-      dokumentasi: dokumentasi,
+      dokumentasi_urls: dokumentasi,
     };
 
     addTaksasi({
       id_user: user?.id || '',
-      nomor_dokumen: generateNomorDokumen('TLH'),
+      nomor_dokumen: generateNomorDokumen('TLH', formData.nomor_dokumen),
       jenis_agunan: 'Kendaraan',
       nama_nasabah: formData.nama_nasabah,
       alamat: formData.alamat,
@@ -286,14 +279,26 @@ export default function TaksasiKendaraan() {
           <div className="grid gap-4">
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="jenis">Jenis Agunan</Label>
-                <Input
-                  id="jenis"
-                  name="jenis"
-                  placeholder="BARANG BERGERAK / KENDARAAN RODA 2"
-                  value={formData.jenis}
-                  onChange={handleChange}
-                />
+                <Label htmlFor="nomor_dokumen" className="flex items-center gap-1">
+                  <Hash size={14} />
+                  Nomor Dokumen
+                </Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="nomor_dokumen"
+                    name="nomor_dokumen"
+                    type="number"
+                    placeholder="001"
+                    className="w-24"
+                    value={formData.nomor_dokumen}
+                    onChange={handleChange}
+                    max={999}
+                    min={1}
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    /F-3/BPD-TLH/{['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'][new Date().getMonth()]}/{new Date().getFullYear()}
+                  </span>
+                </div>
               </div>
               <div>
                 <Label htmlFor="tanggal_penilaian">Tanggal Penilaian</Label>
@@ -303,6 +308,18 @@ export default function TaksasiKendaraan() {
                   defaultValue={new Date().toISOString().split('T')[0]}
                   disabled
                   className="bg-muted"
+                />
+              </div>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="jenis">Jenis Agunan</Label>
+                <Input
+                  id="jenis"
+                  name="jenis"
+                  placeholder="BARANG BERGERAK / KENDARAAN RODA 2"
+                  value={formData.jenis}
+                  onChange={handleChange}
                 />
               </div>
             </div>
@@ -662,53 +679,13 @@ export default function TaksasiKendaraan() {
         <div className="rounded-xl border bg-card p-6 shadow-card animate-slide-up" style={{ animationDelay: '0.4s' }}>
           <h3 className="font-semibold mb-4 flex items-center gap-2 text-lg">
             <Camera size={20} className="text-accent" />
-            DOKUMENTASI JAMINAN
+            DOKUMENTASI JAMINAN (Max 8 Foto)
           </h3>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[
-              { key: 'tampak_depan', label: 'Tampak Depan' },
-              { key: 'tampak_belakang', label: 'Tampak Belakang' },
-              { key: 'tampak_samping_kiri', label: 'Tampak Samping Kiri' },
-              { key: 'tampak_samping_kanan', label: 'Tampak Samping Kanan' },
-              { key: 'speedometer', label: 'Speedometer' },
-              { key: 'nomor_rangka', label: 'Nomor Rangka' },
-              { key: 'nomor_mesin', label: 'Nomor Mesin' },
-            ].map(({ key, label }) => (
-              <div key={key} className="space-y-2">
-                <Label>{label}</Label>
-                <div className="relative border-2 border-dashed rounded-lg p-4 text-center hover:border-primary transition-colors">
-                  {dokumentasi[key as keyof DokumentasiAgunan] ? (
-                    <div className="relative">
-                      <img 
-                        src={dokumentasi[key as keyof DokumentasiAgunan] as string} 
-                        alt={label}
-                        className="w-full h-32 object-cover rounded"
-                      />
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        className="absolute top-1 right-1 h-6 w-6"
-                        onClick={() => setDokumentasi(prev => ({ ...prev, [key]: undefined }))}
-                      >
-                        <Trash2 size={12} />
-                      </Button>
-                    </div>
-                  ) : (
-                    <label className="cursor-pointer block">
-                      <Upload className="mx-auto mb-2 text-muted-foreground" size={24} />
-                      <span className="text-xs text-muted-foreground">Upload foto</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => handleFileChange(key as keyof DokumentasiAgunan, e)}
-                      />
-                    </label>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+          <ImageUploader
+            images={dokumentasi}
+            onChange={handleDokumentasiChange}
+            maxImages={8}
+          />
         </div>
 
         {/* Hasil Perhitungan */}
