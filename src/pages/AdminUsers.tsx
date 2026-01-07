@@ -27,10 +27,10 @@ import {
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { User, UserRole } from '@/types';
-import { Plus, Pencil, Trash2, Shield, UserCircle, Users as UsersIcon } from 'lucide-react';
+import { Plus, Pencil, Trash2, Shield, UserCircle, Users as UsersIcon, KeyRound } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-// Demo users state
+// Demo users state - matched with AuthContext
 const INITIAL_USERS: User[] = [
   { id: '1', nama: 'Admin Bankaltimtara', email: 'admin@bankaltimtara.id', role: 'Admin' },
   { id: '2', nama: 'Kepala Cabang', email: 'pimpinan@bankaltimtara.id', role: 'Pimpinan' },
@@ -41,13 +41,17 @@ export default function AdminUsers() {
   const { toast } = useToast();
   const [users, setUsers] = useState<User[]>(INITIAL_USERS);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isResetPasswordOpen, setIsResetPasswordOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [resetPasswordUser, setResetPasswordUser] = useState<User | null>(null);
   const [formData, setFormData] = useState({
     nama: '',
     email: '',
     role: 'Officer' as UserRole,
     password: '',
   });
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleOpenDialog = (user?: User) => {
     if (user) {
@@ -68,6 +72,49 @@ export default function AdminUsers() {
       });
     }
     setIsDialogOpen(true);
+  };
+
+  const handleOpenResetPassword = (user: User) => {
+    setResetPasswordUser(user);
+    setNewPassword('');
+    setConfirmPassword('');
+    setIsResetPasswordOpen(true);
+  };
+
+  const handleResetPassword = () => {
+    if (!newPassword || !confirmPassword) {
+      toast({
+        title: 'Data tidak lengkap',
+        description: 'Password baru dan konfirmasi wajib diisi',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: 'Password tidak cocok',
+        description: 'Password baru dan konfirmasi harus sama',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      toast({
+        title: 'Password terlalu pendek',
+        description: 'Password minimal 6 karakter',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // In real implementation, this would call an API
+    toast({
+      title: 'Password berhasil direset',
+      description: `Password untuk ${resetPasswordUser?.nama} telah diperbarui`,
+    });
+    setIsResetPasswordOpen(false);
   };
 
   const handleSave = () => {
@@ -198,7 +245,16 @@ export default function AdminUsers() {
                     <Button
                       variant="ghost"
                       size="sm"
+                      onClick={() => handleOpenResetPassword(user)}
+                      title="Reset Password"
+                    >
+                      <KeyRound size={16} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => handleOpenDialog(user)}
+                      title="Edit User"
                     >
                       <Pencil size={16} />
                     </Button>
@@ -207,6 +263,7 @@ export default function AdminUsers() {
                       size="sm"
                       className="text-destructive hover:bg-destructive/10"
                       onClick={() => handleDelete(user)}
+                      title="Hapus User"
                     >
                       <Trash2 size={16} />
                     </Button>
@@ -218,7 +275,7 @@ export default function AdminUsers() {
         </Table>
       </div>
 
-      {/* Dialog */}
+      {/* Edit/Add User Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -278,6 +335,44 @@ export default function AdminUsers() {
             <Button onClick={handleSave}>
               {editingUser ? 'Simpan Perubahan' : 'Tambah User'}
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reset Password Dialog */}
+      <Dialog open={isResetPasswordOpen} onOpenChange={setIsResetPasswordOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reset Password</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <p className="text-sm text-muted-foreground">
+              Reset password untuk user: <span className="font-medium text-foreground">{resetPasswordUser?.nama}</span>
+            </p>
+            <div>
+              <Label htmlFor="newPassword">Password Baru</Label>
+              <Input
+                id="newPassword"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Masukkan password baru"
+              />
+            </div>
+            <div>
+              <Label htmlFor="confirmPassword">Konfirmasi Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Ulangi password baru"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setIsResetPasswordOpen(false)}>Batal</Button>
+            <Button onClick={handleResetPassword}>Reset Password</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

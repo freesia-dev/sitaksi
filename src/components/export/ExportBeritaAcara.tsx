@@ -116,9 +116,10 @@ Nomor Polisi / Nomor Plat : ${detailKendaraan.nomor_polisi}`;
 
           {/* Pimpinan Signature */}
           <div className="text-center">
-            <p>PT Bank Pembangunan Daerah</p>
-            <p>Kalimantan Timur dan Kalimantan Utara</p>
-            <p>{taksasi.kantor_cabang}</p>
+            <p className="text-sm mb-2">{formatDate(taksasi.tanggal)}</p>
+            <p>PT BANK PEMBANGUNAN DAERAH</p>
+            <p>KALIMANTAN TIMUR DAN KALIMANTAN UTARA</p>
+            <p>{taksasi.kantor_cabang.toUpperCase()}</p>
 
             {/* Area tanda tangan - 4 baris space */}
             <div className="mt-4">

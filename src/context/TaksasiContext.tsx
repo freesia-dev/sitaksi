@@ -1,15 +1,12 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { Taksasi, StatusOtorisasi, generateNomorDokumen } from '@/types';
+import { Taksasi, generateNomorDokumen } from '@/types';
 
 interface TaksasiContextType {
   taksasiList: Taksasi[];
   addTaksasi: (taksasi: Omit<Taksasi, 'id'>) => void;
   updateTaksasi: (id: string, updates: Partial<Taksasi>) => void;
   getTaksasiByUser: (userId: string) => Taksasi[];
-  getTaksasiByStatus: (status: StatusOtorisasi) => Taksasi[];
   getTaksasiById: (id: string) => Taksasi | undefined;
-  approveTaksasi: (id: string, catatan?: string) => void;
-  rejectTaksasi: (id: string, catatan: string) => void;
 }
 
 const TaksasiContext = createContext<TaksasiContextType | undefined>(undefined);
@@ -30,7 +27,7 @@ const INITIAL_TAKSASI: Taksasi[] = [
     nilai_likuidasi_pembulatan: 10500000,
     safety_margin: 25,
     terbilang: 'Empat Belas Juta Rupiah',
-    status_otorisasi: 'Menunggu',
+    status_otorisasi: 'Selesai',
     detail_agunan: {
       jenis: 'BARANG BERGERAK / KENDARAAN RODA 2 HONDA CBR 150 2018',
       merk: 'HONDA',
@@ -84,8 +81,7 @@ const INITIAL_TAKSASI: Taksasi[] = [
     nilai_likuidasi_pembulatan: 400000000,
     safety_margin: 20,
     terbilang: 'Lima Ratus Juta Rupiah',
-    status_otorisasi: 'Disetujui',
-    catatan_pimpinan: 'Lokasi strategis, nilai wajar.',
+    status_otorisasi: 'Selesai',
     detail_agunan: {
       luas_tanah: 500,
       harga_per_meter: 1000000,
@@ -116,7 +112,7 @@ const INITIAL_TAKSASI: Taksasi[] = [
     nilai_likuidasi_pembulatan: 680000000,
     safety_margin: 20,
     terbilang: 'Delapan Ratus Lima Puluh Juta Rupiah',
-    status_otorisasi: 'Menunggu',
+    status_otorisasi: 'Selesai',
     detail_agunan: {
       luas_tanah: 200,
       harga_tanah_per_meter: 2500000,
@@ -158,33 +154,9 @@ export function TaksasiProvider({ children }: { children: ReactNode }) {
     return taksasiList.filter(t => t.id_user === userId);
   }, [taksasiList]);
 
-  const getTaksasiByStatus = useCallback((status: StatusOtorisasi) => {
-    return taksasiList.filter(t => t.status_otorisasi === status);
-  }, [taksasiList]);
-
   const getTaksasiById = useCallback((id: string) => {
     return taksasiList.find(t => t.id === id);
   }, [taksasiList]);
-
-  const approveTaksasi = useCallback((id: string, catatan?: string) => {
-    setTaksasiList(prev =>
-      prev.map(t =>
-        t.id === id
-          ? { ...t, status_otorisasi: 'Disetujui' as StatusOtorisasi, catatan_pimpinan: catatan }
-          : t
-      )
-    );
-  }, []);
-
-  const rejectTaksasi = useCallback((id: string, catatan: string) => {
-    setTaksasiList(prev =>
-      prev.map(t =>
-        t.id === id
-          ? { ...t, status_otorisasi: 'Ditolak' as StatusOtorisasi, catatan_pimpinan: catatan }
-          : t
-      )
-    );
-  }, []);
 
   return (
     <TaksasiContext.Provider
@@ -193,10 +165,7 @@ export function TaksasiProvider({ children }: { children: ReactNode }) {
         addTaksasi,
         updateTaksasi,
         getTaksasiByUser,
-        getTaksasiByStatus,
         getTaksasiById,
-        approveTaksasi,
-        rejectTaksasi,
       }}
     >
       {children}
