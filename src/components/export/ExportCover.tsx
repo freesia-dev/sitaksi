@@ -1,5 +1,5 @@
 import React from 'react';
-import { Taksasi, DetailAgunanKendaraan, formatDate } from '@/types';
+import { Taksasi, DetailAgunanKendaraan, DetailAgunanTBSimple, formatDate } from '@/types';
 
 interface ExportCoverProps {
   taksasi: Taksasi;
@@ -8,7 +8,33 @@ interface ExportCoverProps {
 
 export function ExportCover({ taksasi, logo }: ExportCoverProps) {
   const isKendaraan = taksasi.jenis_agunan === 'Kendaraan';
-  const detail = taksasi.detail_agunan as DetailAgunanKendaraan;
+  const isTanah = taksasi.jenis_agunan === 'Tanah';
+  const isTanahBangunan = taksasi.jenis_agunan === 'Tanah & Bangunan';
+  
+  const detailKendaraan = isKendaraan ? taksasi.detail_agunan as DetailAgunanKendaraan : null;
+
+  // Get the front photo from dokumentasi
+  const getFrontPhoto = (): string | undefined => {
+    if (taksasi.dokumentasi?.tampak_depan) {
+      return taksasi.dokumentasi.tampak_depan;
+    }
+    if (isKendaraan && detailKendaraan?.dokumentasi?.tampak_depan) {
+      return detailKendaraan.dokumentasi.tampak_depan;
+    }
+    return undefined;
+  };
+
+  const frontPhoto = getFrontPhoto();
+
+  const getJenisAgunanTitle = () => {
+    if (isKendaraan && detailKendaraan) {
+      return 'KENDARAAN BERMOTOR';
+    }
+    if (isTanahBangunan) {
+      return 'TANAH DAN BANGUNAN';
+    }
+    return 'TANAH';
+  };
 
   return (
     <div className="bg-white rounded-xl border shadow-card p-8 print:shadow-none print:border-none">
@@ -24,17 +50,45 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
 
         {/* Jenis Agunan */}
         <div className="py-8 space-y-4">
-          <h3 className="text-xl font-bold">KENDARAAN BERMOTOR</h3>
-          {isKendaraan && (
+          <h3 className="text-xl font-bold">{getJenisAgunanTitle()}</h3>
+          
+          {isKendaraan && detailKendaraan && (
             <>
-              <p className="text-lg font-semibold">{detail.jenis}</p>
+              <p className="text-lg font-semibold">{detailKendaraan.jenis}</p>
               <p className="text-base">
-                {detail.bukti_kepemilikan} No. {detail.nomor_bukti_kepemilikan} Tanggal {formatDate(detail.tanggal_bukti_kepemilikan)} An. {detail.nama_kepemilikan}
+                {detailKendaraan.bukti_kepemilikan} No. {detailKendaraan.nomor_bukti_kepemilikan} Tanggal {formatDate(detailKendaraan.tanggal_bukti_kepemilikan)} An. {detailKendaraan.nama_kepemilikan}
               </p>
               <p className="text-2xl font-bold text-primary mt-4">
-                {detail.nomor_polisi}
+                {detailKendaraan.nomor_polisi}
               </p>
             </>
+          )}
+
+          {(isTanah || isTanahBangunan) && (
+            <>
+              <p className="text-base">{taksasi.alamat}</p>
+            </>
+          )}
+
+          {/* Front Photo - Center of document */}
+          {frontPhoto && (
+            <div className="py-6">
+              <img 
+                src={frontPhoto} 
+                alt="Tampak Depan Agunan" 
+                className="cover-image mx-auto max-w-[300px] max-h-[200px] object-cover rounded-lg border shadow-md"
+              />
+              <p className="text-sm text-muted-foreground mt-2">Tampak Depan Agunan</p>
+            </div>
+          )}
+
+          {/* Placeholder if no photo */}
+          {!frontPhoto && (
+            <div className="py-6">
+              <div className="mx-auto w-[300px] h-[200px] bg-muted/30 border-2 border-dashed border-muted-foreground/30 rounded-lg flex items-center justify-center">
+                <p className="text-muted-foreground text-sm">Foto Agunan</p>
+              </div>
+            </div>
           )}
         </div>
 

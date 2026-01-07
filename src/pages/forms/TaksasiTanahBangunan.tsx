@@ -17,6 +17,12 @@ import {
   generateId 
 } from '@/types';
 import { 
+  SAFETY_MARGIN_TANAH,
+  SAFETY_MARGIN_BANGUNAN,
+  getMarginByValue,
+  getLabelByValue,
+} from '@/lib/safetyMarginConfig';
+import { 
   Calculator, 
   Save, 
   ArrowLeft, 
@@ -28,7 +34,6 @@ import {
   Building,
   Plus,
   Trash2,
-  FileCheck
 } from 'lucide-react';
 import {
   Select,
@@ -44,9 +49,13 @@ interface TanahItem {
   bukti_kepemilikan: string;
   nomor_bukti: string;
   tanggal_bukti: string;
+  masa_berlaku: string;
   nama_pemegang_hak: string;
   hubungan_dengan_debitur: string;
+  nomor_gambar_situasi: string;
+  nomor_induk_bidang: string;
   luas_tanah: string;
+  tempat_didaftarkan: string;
   lokasi: string;
   letak_tanah: string;
   bentuk_tanah: string;
@@ -57,14 +66,19 @@ interface TanahItem {
   batas_belakang: string;
   batas_kanan: string;
   batas_kiri: string;
+  kondisi_lalu_lintas: string;
+  kelas_jalan: string;
   listrik_pln: string;
   air_bersih: string;
+  saluran_telepon: string;
+  fasilitas_penunjang: string[];
   harga_pembanding_1: string;
   sumber_1: string;
   harga_pembanding_2: string;
   sumber_2: string;
   harga_pembanding_3: string;
   sumber_3: string;
+  // Safety margins as dropdown values (condition names)
   safety_lokasi: string;
   safety_topography: string;
   safety_ukuran: string;
@@ -79,6 +93,9 @@ interface BangunanItem {
   imb_ada: boolean;
   nomor_imb: string;
   tanggal_imb: string;
+  nama_di_imb: string;
+  luas_sesuai_imb: string;
+  tinggi_sesuai_imb: string;
   konstruksi: string;
   pondasi: string;
   tinggi_lantai: string;
@@ -89,12 +106,14 @@ interface BangunanItem {
   lantai: string;
   tiang: string;
   luas_bangunan: string;
+  keterangan: string;
   harga_pembanding_1: string;
   sumber_1: string;
   harga_pembanding_2: string;
   sumber_2: string;
   harga_pembanding_3: string;
   sumber_3: string;
+  // Safety margins as dropdown values (condition names)
   safety_design: string;
   safety_umur: string;
   safety_peruntukkan: string;
@@ -105,66 +124,80 @@ interface BangunanItem {
 
 const defaultTanah: TanahItem = {
   id: generateId(),
-  bukti_kepemilikan: 'Hak Milik',
+  bukti_kepemilikan: 'hak_milik',
   nomor_bukti: '',
   tanggal_bukti: '',
+  masa_berlaku: '',
   nama_pemegang_hak: '',
-  hubungan_dengan_debitur: 'Milik Sendiri',
+  hubungan_dengan_debitur: 'milik_sendiri',
+  nomor_gambar_situasi: '',
+  nomor_induk_bidang: '',
   luas_tanah: '',
+  tempat_didaftarkan: '',
   lokasi: '',
-  letak_tanah: 'Normal',
-  bentuk_tanah: 'Beraturan',
-  arah_menghadap: 'Utara',
+  letak_tanah: 'normal',
+  bentuk_tanah: 'beraturan',
+  arah_menghadap: 'utara',
   lebar_jalan_depan: '',
-  bahan_jalan: 'Aspal',
+  bahan_jalan: 'aspal',
   batas_depan: '',
   batas_belakang: '',
   batas_kanan: '',
   batas_kiri: '',
+  kondisi_lalu_lintas: '',
+  kelas_jalan: 'kampung',
   listrik_pln: '',
-  air_bersih: 'Ada',
+  air_bersih: 'ada',
+  saluran_telepon: 'tidak_ada',
+  fasilitas_penunjang: [],
   harga_pembanding_1: '',
   sumber_1: '',
   harga_pembanding_2: '',
   sumber_2: '',
   harga_pembanding_3: '',
   sumber_3: '',
-  safety_lokasi: '80',
-  safety_topography: '80',
-  safety_ukuran: '80',
-  safety_bukti: '80',
-  safety_lingkungan: '80',
-  safety_permasalahan: '80',
+  // Default safety margin conditions
+  safety_lokasi: 'cukup_strategis',
+  safety_topography: 'datar',
+  safety_ukuran: 'ideal',
+  safety_bukti: 'hak_milik',
+  safety_lingkungan: 'prospek_berkembang',
+  safety_permasalahan: 'aman',
 };
 
 const defaultBangunan: BangunanItem = {
   id: generateId(),
-  peruntukkan: 'Rumah Tempat Tinggal',
+  peruntukkan: 'rumah_tinggal',
   imb_ada: false,
   nomor_imb: '',
   tanggal_imb: '',
-  konstruksi: 'Permanent',
-  pondasi: 'Beton',
+  nama_di_imb: '',
+  luas_sesuai_imb: '',
+  tinggi_sesuai_imb: '',
+  konstruksi: 'permanent',
+  pondasi: 'beton',
   tinggi_lantai: '1',
-  atap: 'Genteng',
-  dinding: 'Batu Bata',
+  atap: 'genteng',
+  dinding: 'batu_bata',
   plester_dinding: true,
-  plafon: 'Gypsum',
-  lantai: 'Keramik',
-  tiang: 'Beton',
+  plafon: 'gypsum',
+  lantai: 'keramik',
+  tiang: 'beton',
   luas_bangunan: '',
+  keterangan: '',
   harga_pembanding_1: '',
   sumber_1: '',
   harga_pembanding_2: '',
   sumber_2: '',
   harga_pembanding_3: '',
   sumber_3: '',
-  safety_design: '70',
-  safety_umur: '70',
-  safety_peruntukkan: '80',
-  safety_imb: '80',
-  safety_kesesuaian: '80',
-  safety_permasalahan: '80',
+  // Default safety margin conditions
+  safety_design: 'semi_modern',
+  safety_umur: 'muda',
+  safety_peruntukkan: 'non_produktif',
+  safety_imb: 'tidak_ada_non_produktif',
+  safety_kesesuaian: 'ideal',
+  safety_permasalahan: 'aman',
 };
 
 export default function TaksasiTanahBangunan() {
@@ -179,7 +212,7 @@ export default function TaksasiTanahBangunan() {
     alamat_cabang: 'JL.S.PARMAN NO.14-15 KEL.GN.TELIHAN KEC.BONTANG BARAT-75383',
     pimpinan: '',
     jabatan_pimpinan: 'Pemimpin Capem',
-    marketability: 'Cukup Marketable',
+    marketability: 'cukup_marketable',
     catatan_marketability_1: '',
     catatan_marketability_2: '',
     catatan_marketability_3: '',
@@ -194,8 +227,8 @@ export default function TaksasiTanahBangunan() {
     nilai_taksasi: number;
     nilai_likuidasi: number;
     terbilang: string;
-    detail_tanah: { nilai_pasar: number; nilai_likuidasi: number }[];
-    detail_bangunan: { nilai_pasar: number; nilai_likuidasi: number }[];
+    detail_tanah: { nilai_pasar: number; nilai_likuidasi: number; avg_safety: number }[];
+    detail_bangunan: { nilai_pasar: number; nilai_likuidasi: number; avg_safety: number }[];
   } | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -206,7 +239,7 @@ export default function TaksasiTanahBangunan() {
     setHasil(null);
   };
 
-  const updateTanah = (index: number, field: keyof TanahItem, value: string | boolean) => {
+  const updateTanah = (index: number, field: keyof TanahItem, value: string | boolean | string[]) => {
     setTanahList(prev => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: value };
@@ -245,7 +278,7 @@ export default function TaksasiTanahBangunan() {
   };
 
   const handleHitung = () => {
-    // Calculate tanah values
+    // Calculate tanah values using condition-based safety margins
     const detailTanah = tanahList.map(t => {
       const hargaList = [
         parseFloat(t.harga_pembanding_1) || 0,
@@ -260,21 +293,22 @@ export default function TaksasiTanahBangunan() {
       const luas = parseFloat(t.luas_tanah) || 0;
       const nilaiPasar = luas * hargaRataRata;
       
+      // Get safety margins from condition values
       const safetyMargins = [
-        parseFloat(t.safety_lokasi) || 80,
-        parseFloat(t.safety_topography) || 80,
-        parseFloat(t.safety_ukuran) || 80,
-        parseFloat(t.safety_bukti) || 80,
-        parseFloat(t.safety_lingkungan) || 80,
-        parseFloat(t.safety_permasalahan) || 80,
+        getMarginByValue(SAFETY_MARGIN_TANAH.lokasi_daerah, t.safety_lokasi),
+        getMarginByValue(SAFETY_MARGIN_TANAH.topography, t.safety_topography),
+        getMarginByValue(SAFETY_MARGIN_TANAH.ukuran_bentuk, t.safety_ukuran),
+        getMarginByValue(SAFETY_MARGIN_TANAH.bukti_kepemilikan, t.safety_bukti),
+        getMarginByValue(SAFETY_MARGIN_TANAH.lingkungan_sekitar, t.safety_lingkungan),
+        getMarginByValue(SAFETY_MARGIN_TANAH.permasalahan, t.safety_permasalahan),
       ];
       const avgSafety = safetyMargins.reduce((a, b) => a + b, 0) / safetyMargins.length / 100;
       const nilaiLikuidasi = nilaiPasar * avgSafety;
       
-      return { nilai_pasar: nilaiPasar, nilai_likuidasi: nilaiLikuidasi };
+      return { nilai_pasar: nilaiPasar, nilai_likuidasi: nilaiLikuidasi, avg_safety: avgSafety * 100 };
     });
 
-    // Calculate bangunan values
+    // Calculate bangunan values using condition-based safety margins
     const detailBangunan = bangunanList.map(b => {
       const hargaList = [
         parseFloat(b.harga_pembanding_1) || 0,
@@ -289,18 +323,19 @@ export default function TaksasiTanahBangunan() {
       const luas = parseFloat(b.luas_bangunan) || 0;
       const nilaiPasar = luas * hargaRataRata;
       
+      // Get safety margins from condition values
       const safetyMargins = [
-        parseFloat(b.safety_design) || 70,
-        parseFloat(b.safety_umur) || 70,
-        parseFloat(b.safety_peruntukkan) || 80,
-        parseFloat(b.safety_imb) || 80,
-        parseFloat(b.safety_kesesuaian) || 80,
-        parseFloat(b.safety_permasalahan) || 80,
+        getMarginByValue(SAFETY_MARGIN_BANGUNAN.design, b.safety_design),
+        getMarginByValue(SAFETY_MARGIN_BANGUNAN.umur, b.safety_umur),
+        getMarginByValue(SAFETY_MARGIN_BANGUNAN.peruntukkan, b.safety_peruntukkan),
+        getMarginByValue(SAFETY_MARGIN_BANGUNAN.imb, b.safety_imb),
+        getMarginByValue(SAFETY_MARGIN_BANGUNAN.kesesuaian_lahan, b.safety_kesesuaian),
+        getMarginByValue(SAFETY_MARGIN_BANGUNAN.permasalahan, b.safety_permasalahan),
       ];
       const avgSafety = safetyMargins.reduce((a, b) => a + b, 0) / safetyMargins.length / 100;
       const nilaiLikuidasi = nilaiPasar * avgSafety;
       
-      return { nilai_pasar: nilaiPasar, nilai_likuidasi: nilaiLikuidasi };
+      return { nilai_pasar: nilaiPasar, nilai_likuidasi: nilaiLikuidasi, avg_safety: avgSafety * 100 };
     });
 
     const totalNilaiTanah = detailTanah.reduce((sum, d) => sum + d.nilai_pasar, 0);
@@ -453,10 +488,11 @@ export default function TaksasiTanahBangunan() {
                   <Select value={tanah.bukti_kepemilikan} onValueChange={(v) => updateTanah(index, 'bukti_kepemilikan', v)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Hak Milik">Hak Milik</SelectItem>
-                      <SelectItem value="HGB">HGB</SelectItem>
-                      <SelectItem value="HGU">HGU</SelectItem>
-                      <SelectItem value="Girik">Girik</SelectItem>
+                      <SelectItem value="hak_milik">Hak Milik</SelectItem>
+                      <SelectItem value="hgb">HGB</SelectItem>
+                      <SelectItem value="hgu">HGU</SelectItem>
+                      <SelectItem value="hak_pakai">Hak Pakai</SelectItem>
+                      <SelectItem value="girik">Girik</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -469,6 +505,10 @@ export default function TaksasiTanahBangunan() {
                   <Input type="date" value={tanah.tanggal_bukti} onChange={(e) => updateTanah(index, 'tanggal_bukti', e.target.value)} />
                 </div>
                 <div>
+                  <Label>Masa Berlaku Bukti Kepemilikan</Label>
+                  <Input type="date" value={tanah.masa_berlaku} onChange={(e) => updateTanah(index, 'masa_berlaku', e.target.value)} placeholder="Kosongkan jika tidak ada" />
+                </div>
+                <div>
                   <Label>Nama Pemegang Hak</Label>
                   <Input value={tanah.nama_pemegang_hak} onChange={(e) => updateTanah(index, 'nama_pemegang_hak', e.target.value)} placeholder="Nama di sertifikat" />
                 </div>
@@ -477,15 +517,27 @@ export default function TaksasiTanahBangunan() {
                   <Select value={tanah.hubungan_dengan_debitur} onValueChange={(v) => updateTanah(index, 'hubungan_dengan_debitur', v)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Milik Sendiri">Milik Sendiri</SelectItem>
-                      <SelectItem value="Kerabat/ Keluarga">Kerabat/ Keluarga</SelectItem>
-                      <SelectItem value="Pihak Ketiga">Pihak Ketiga</SelectItem>
+                      <SelectItem value="milik_sendiri">Milik Sendiri</SelectItem>
+                      <SelectItem value="kerabat">Kerabat/ Keluarga</SelectItem>
+                      <SelectItem value="pihak_ketiga">Pihak Ketiga</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
+                  <Label>Nomor Gambar Situasi</Label>
+                  <Input value={tanah.nomor_gambar_situasi} onChange={(e) => updateTanah(index, 'nomor_gambar_situasi', e.target.value)} placeholder="Nomor gambar situasi" />
+                </div>
+                <div>
+                  <Label>Nomor Induk Bidang</Label>
+                  <Input value={tanah.nomor_induk_bidang} onChange={(e) => updateTanah(index, 'nomor_induk_bidang', e.target.value)} placeholder="NIB" />
+                </div>
+                <div>
                   <Label>Luas Tanah (m²)</Label>
                   <Input type="number" value={tanah.luas_tanah} onChange={(e) => updateTanah(index, 'luas_tanah', e.target.value)} placeholder="0" />
+                </div>
+                <div>
+                  <Label>Tempat Didaftarkan</Label>
+                  <Input value={tanah.tempat_didaftarkan} onChange={(e) => updateTanah(index, 'tempat_didaftarkan', e.target.value)} placeholder="Kantor BPN" />
                 </div>
               </div>
               <div>
@@ -501,9 +553,9 @@ export default function TaksasiTanahBangunan() {
                   <Select value={tanah.letak_tanah} onValueChange={(v) => updateTanah(index, 'letak_tanah', v)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Normal">Normal</SelectItem>
-                      <SelectItem value="Rendah">Rendah</SelectItem>
-                      <SelectItem value="Tinggi">Tinggi</SelectItem>
+                      <SelectItem value="normal">Normal</SelectItem>
+                      <SelectItem value="rendah">Rendah</SelectItem>
+                      <SelectItem value="tinggi">Tinggi</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -512,8 +564,8 @@ export default function TaksasiTanahBangunan() {
                   <Select value={tanah.bentuk_tanah} onValueChange={(v) => updateTanah(index, 'bentuk_tanah', v)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Beraturan">Beraturan</SelectItem>
-                      <SelectItem value="Tidak Beraturan">Tidak Beraturan</SelectItem>
+                      <SelectItem value="beraturan">Beraturan</SelectItem>
+                      <SelectItem value="tidak_beraturan">Tidak Beraturan</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -522,14 +574,14 @@ export default function TaksasiTanahBangunan() {
                   <Select value={tanah.arah_menghadap} onValueChange={(v) => updateTanah(index, 'arah_menghadap', v)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Utara">Utara</SelectItem>
-                      <SelectItem value="Selatan">Selatan</SelectItem>
-                      <SelectItem value="Barat">Barat</SelectItem>
-                      <SelectItem value="Timur">Timur</SelectItem>
-                      <SelectItem value="Barat Daya">Barat Daya</SelectItem>
-                      <SelectItem value="Barat Laut">Barat Laut</SelectItem>
-                      <SelectItem value="Tenggara">Tenggara</SelectItem>
-                      <SelectItem value="Timur Laut">Timur Laut</SelectItem>
+                      <SelectItem value="utara">Utara</SelectItem>
+                      <SelectItem value="selatan">Selatan</SelectItem>
+                      <SelectItem value="barat">Barat</SelectItem>
+                      <SelectItem value="timur">Timur</SelectItem>
+                      <SelectItem value="barat_daya">Barat Daya</SelectItem>
+                      <SelectItem value="barat_laut">Barat Laut</SelectItem>
+                      <SelectItem value="tenggara">Tenggara</SelectItem>
+                      <SelectItem value="timur_laut">Timur Laut</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -542,16 +594,12 @@ export default function TaksasiTanahBangunan() {
                   <Select value={tanah.bahan_jalan} onValueChange={(v) => updateTanah(index, 'bahan_jalan', v)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Aspal">Aspal</SelectItem>
-                      <SelectItem value="Cor Semen">Cor Semen</SelectItem>
-                      <SelectItem value="Tanah">Tanah</SelectItem>
-                      <SelectItem value="Paving">Paving</SelectItem>
+                      <SelectItem value="aspal">Aspal</SelectItem>
+                      <SelectItem value="cor_semen">Cor Semen</SelectItem>
+                      <SelectItem value="tanah">Tanah</SelectItem>
+                      <SelectItem value="paving">Paving</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-                <div>
-                  <Label>Listrik PLN</Label>
-                  <Input value={tanah.listrik_pln} onChange={(e) => updateTanah(index, 'listrik_pln', e.target.value)} placeholder="1.300 Watt" />
                 </div>
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
@@ -573,8 +621,54 @@ export default function TaksasiTanahBangunan() {
                 </div>
               </div>
 
+              {/* Analisa Lingkungan */}
+              <p className="text-sm font-medium text-muted-foreground pt-4">C. ANALISA LINGKUNGAN</p>
+              <div className="grid sm:grid-cols-3 gap-4">
+                <div>
+                  <Label>Kondisi Lalu Lintas</Label>
+                  <Input value={tanah.kondisi_lalu_lintas} onChange={(e) => updateTanah(index, 'kondisi_lalu_lintas', e.target.value)} placeholder="Gang dapat dilalui kendaraan roda 4" />
+                </div>
+                <div>
+                  <Label>Kelas Jalan</Label>
+                  <Select value={tanah.kelas_jalan} onValueChange={(v) => updateTanah(index, 'kelas_jalan', v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="kampung">Kampung</SelectItem>
+                      <SelectItem value="desa">Desa</SelectItem>
+                      <SelectItem value="kota">Kota</SelectItem>
+                      <SelectItem value="provinsi">Provinsi</SelectItem>
+                      <SelectItem value="nasional">Nasional</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Listrik PLN</Label>
+                  <Input value={tanah.listrik_pln} onChange={(e) => updateTanah(index, 'listrik_pln', e.target.value)} placeholder="1.300 Watt" />
+                </div>
+                <div>
+                  <Label>Air Bersih (PAM)</Label>
+                  <Select value={tanah.air_bersih} onValueChange={(v) => updateTanah(index, 'air_bersih', v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ada">Ada</SelectItem>
+                      <SelectItem value="tidak_ada">Tidak Ada</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Saluran Telepon</Label>
+                  <Select value={tanah.saluran_telepon} onValueChange={(v) => updateTanah(index, 'saluran_telepon', v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ada">Ada</SelectItem>
+                      <SelectItem value="tidak_ada">Tidak Ada</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
               {/* Harga Pasar */}
-              <p className="text-sm font-medium text-muted-foreground pt-4">C. HARGA PASAR / m²</p>
+              <p className="text-sm font-medium text-muted-foreground pt-4">D. HARGA PASAR / m²</p>
               <div className="grid sm:grid-cols-3 gap-4">
                 <div>
                   <Label>Harga Pasar 1</Label>
@@ -593,32 +687,86 @@ export default function TaksasiTanahBangunan() {
                 </div>
               </div>
 
-              {/* Safety Margin Tanah */}
-              <p className="text-sm font-medium text-muted-foreground pt-4">D. FAKTOR PENYESUAIAN (Safety Margin %)</p>
-              <div className="grid sm:grid-cols-3 gap-4">
+              {/* Safety Margin Tanah - Now with Dropdowns */}
+              <p className="text-sm font-medium text-muted-foreground pt-4">E. FAKTOR PENYESUAIAN (Pilih Kondisi)</p>
+              <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <Label>Lokasi/Daerah</Label>
-                  <Input type="number" value={tanah.safety_lokasi} onChange={(e) => updateTanah(index, 'safety_lokasi', e.target.value)} placeholder="80" />
+                  <Select value={tanah.safety_lokasi} onValueChange={(v) => updateTanah(index, 'safety_lokasi', v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {SAFETY_MARGIN_TANAH.lokasi_daerah.map(opt => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label} ({opt.margin}%)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label>Topography</Label>
-                  <Input type="number" value={tanah.safety_topography} onChange={(e) => updateTanah(index, 'safety_topography', e.target.value)} placeholder="80" />
+                  <Select value={tanah.safety_topography} onValueChange={(v) => updateTanah(index, 'safety_topography', v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {SAFETY_MARGIN_TANAH.topography.map(opt => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label} ({opt.margin}%)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label>Ukuran & Bentuk</Label>
-                  <Input type="number" value={tanah.safety_ukuran} onChange={(e) => updateTanah(index, 'safety_ukuran', e.target.value)} placeholder="80" />
+                  <Select value={tanah.safety_ukuran} onValueChange={(v) => updateTanah(index, 'safety_ukuran', v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {SAFETY_MARGIN_TANAH.ukuran_bentuk.map(opt => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label} ({opt.margin}%)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label>Bukti Kepemilikan</Label>
-                  <Input type="number" value={tanah.safety_bukti} onChange={(e) => updateTanah(index, 'safety_bukti', e.target.value)} placeholder="80" />
+                  <Select value={tanah.safety_bukti} onValueChange={(v) => updateTanah(index, 'safety_bukti', v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {SAFETY_MARGIN_TANAH.bukti_kepemilikan.map(opt => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label} ({opt.margin}%)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label>Lingkungan Sekitar</Label>
-                  <Input type="number" value={tanah.safety_lingkungan} onChange={(e) => updateTanah(index, 'safety_lingkungan', e.target.value)} placeholder="80" />
+                  <Select value={tanah.safety_lingkungan} onValueChange={(v) => updateTanah(index, 'safety_lingkungan', v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {SAFETY_MARGIN_TANAH.lingkungan_sekitar.map(opt => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label} ({opt.margin}%)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label>Permasalahan</Label>
-                  <Input type="number" value={tanah.safety_permasalahan} onChange={(e) => updateTanah(index, 'safety_permasalahan', e.target.value)} placeholder="80" />
+                  <Select value={tanah.safety_permasalahan} onValueChange={(v) => updateTanah(index, 'safety_permasalahan', v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {SAFETY_MARGIN_TANAH.permasalahan.map(opt => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label} ({opt.margin}%)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
@@ -654,11 +802,11 @@ export default function TaksasiTanahBangunan() {
                   <Select value={bangunan.peruntukkan} onValueChange={(v) => updateBangunan(index, 'peruntukkan', v)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Rumah Tempat Tinggal">Rumah Tempat Tinggal</SelectItem>
-                      <SelectItem value="Ruko">Ruko</SelectItem>
-                      <SelectItem value="Gedung">Gedung</SelectItem>
-                      <SelectItem value="Gudang">Gudang</SelectItem>
-                      <SelectItem value="Pabrik">Pabrik</SelectItem>
+                      <SelectItem value="rumah_tinggal">Rumah Tempat Tinggal</SelectItem>
+                      <SelectItem value="ruko">Ruko</SelectItem>
+                      <SelectItem value="gedung">Gedung</SelectItem>
+                      <SelectItem value="gudang">Gudang</SelectItem>
+                      <SelectItem value="pabrik">Pabrik</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -680,6 +828,18 @@ export default function TaksasiTanahBangunan() {
                       <Label>Tanggal IMB</Label>
                       <Input type="date" value={bangunan.tanggal_imb} onChange={(e) => updateBangunan(index, 'tanggal_imb', e.target.value)} />
                     </div>
+                    <div>
+                      <Label>Nama di IMB</Label>
+                      <Input value={bangunan.nama_di_imb} onChange={(e) => updateBangunan(index, 'nama_di_imb', e.target.value)} />
+                    </div>
+                    <div>
+                      <Label>Luas Sesuai IMB (m²)</Label>
+                      <Input type="number" value={bangunan.luas_sesuai_imb} onChange={(e) => updateBangunan(index, 'luas_sesuai_imb', e.target.value)} />
+                    </div>
+                    <div>
+                      <Label>Tinggi Sesuai IMB (lantai)</Label>
+                      <Input type="number" value={bangunan.tinggi_sesuai_imb} onChange={(e) => updateBangunan(index, 'tinggi_sesuai_imb', e.target.value)} />
+                    </div>
                   </>
                 )}
               </div>
@@ -692,9 +852,9 @@ export default function TaksasiTanahBangunan() {
                   <Select value={bangunan.konstruksi} onValueChange={(v) => updateBangunan(index, 'konstruksi', v)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Permanent">Permanent</SelectItem>
-                      <SelectItem value="Semi Permanent">Semi Permanent</SelectItem>
-                      <SelectItem value="Non Permanent">Non Permanent</SelectItem>
+                      <SelectItem value="permanent">Permanent</SelectItem>
+                      <SelectItem value="semi_permanent">Semi Permanent</SelectItem>
+                      <SelectItem value="non_permanent">Non Permanent</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -703,9 +863,9 @@ export default function TaksasiTanahBangunan() {
                   <Select value={bangunan.pondasi} onValueChange={(v) => updateBangunan(index, 'pondasi', v)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Beton">Beton</SelectItem>
-                      <SelectItem value="Batu Kali">Batu Kali</SelectItem>
-                      <SelectItem value="Cakar Ayam">Cakar Ayam</SelectItem>
+                      <SelectItem value="beton">Beton</SelectItem>
+                      <SelectItem value="batu_kali">Batu Kali</SelectItem>
+                      <SelectItem value="cakar_ayam">Cakar Ayam</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -718,10 +878,10 @@ export default function TaksasiTanahBangunan() {
                   <Select value={bangunan.atap} onValueChange={(v) => updateBangunan(index, 'atap', v)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Genteng">Genteng</SelectItem>
-                      <SelectItem value="Seng">Seng</SelectItem>
-                      <SelectItem value="Asbes">Asbes</SelectItem>
-                      <SelectItem value="Beton">Beton</SelectItem>
+                      <SelectItem value="genteng">Genteng</SelectItem>
+                      <SelectItem value="seng">Seng</SelectItem>
+                      <SelectItem value="asbes">Asbes</SelectItem>
+                      <SelectItem value="beton">Beton</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -730,10 +890,10 @@ export default function TaksasiTanahBangunan() {
                   <Select value={bangunan.dinding} onValueChange={(v) => updateBangunan(index, 'dinding', v)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Batu Bata">Batu Bata</SelectItem>
-                      <SelectItem value="Bataco">Bataco</SelectItem>
-                      <SelectItem value="Hebel">Hebel</SelectItem>
-                      <SelectItem value="Kayu">Kayu</SelectItem>
+                      <SelectItem value="batu_bata">Batu Bata</SelectItem>
+                      <SelectItem value="bataco">Bataco</SelectItem>
+                      <SelectItem value="hebel">Hebel</SelectItem>
+                      <SelectItem value="kayu">Kayu</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -750,10 +910,10 @@ export default function TaksasiTanahBangunan() {
                   <Select value={bangunan.plafon} onValueChange={(v) => updateBangunan(index, 'plafon', v)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Gypsum">Gypsum</SelectItem>
-                      <SelectItem value="Kayu Solid">Kayu Solid</SelectItem>
-                      <SelectItem value="Triplek">Triplek</SelectItem>
-                      <SelectItem value="Tidak Ada">Tidak Ada</SelectItem>
+                      <SelectItem value="gypsum">Gypsum</SelectItem>
+                      <SelectItem value="kayu_solid">Kayu Solid</SelectItem>
+                      <SelectItem value="triplek">Triplek</SelectItem>
+                      <SelectItem value="tidak_ada">Tidak Ada</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -762,11 +922,11 @@ export default function TaksasiTanahBangunan() {
                   <Select value={bangunan.lantai} onValueChange={(v) => updateBangunan(index, 'lantai', v)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Keramik">Keramik</SelectItem>
-                      <SelectItem value="Granit">Granit</SelectItem>
-                      <SelectItem value="Marmer">Marmer</SelectItem>
-                      <SelectItem value="Semen">Semen</SelectItem>
-                      <SelectItem value="Kayu">Kayu</SelectItem>
+                      <SelectItem value="keramik">Keramik</SelectItem>
+                      <SelectItem value="granit">Granit</SelectItem>
+                      <SelectItem value="marmer">Marmer</SelectItem>
+                      <SelectItem value="semen">Semen</SelectItem>
+                      <SelectItem value="kayu">Kayu</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -774,6 +934,10 @@ export default function TaksasiTanahBangunan() {
                   <Label>Luas Bangunan (m²)</Label>
                   <Input type="number" value={bangunan.luas_bangunan} onChange={(e) => updateBangunan(index, 'luas_bangunan', e.target.value)} placeholder="0" />
                 </div>
+              </div>
+              <div>
+                <Label>Keterangan</Label>
+                <Textarea value={bangunan.keterangan} onChange={(e) => updateBangunan(index, 'keterangan', e.target.value)} placeholder="Catatan tambahan tentang kondisi bangunan" rows={2} />
               </div>
 
               {/* Harga Pasar Bangunan */}
@@ -796,32 +960,86 @@ export default function TaksasiTanahBangunan() {
                 </div>
               </div>
 
-              {/* Safety Margin Bangunan */}
-              <p className="text-sm font-medium text-muted-foreground pt-4">D. FAKTOR PENYESUAIAN (Safety Margin %)</p>
-              <div className="grid sm:grid-cols-3 gap-4">
+              {/* Safety Margin Bangunan - Now with Dropdowns */}
+              <p className="text-sm font-medium text-muted-foreground pt-4">D. FAKTOR PENYESUAIAN (Pilih Kondisi)</p>
+              <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <Label>Design</Label>
-                  <Input type="number" value={bangunan.safety_design} onChange={(e) => updateBangunan(index, 'safety_design', e.target.value)} placeholder="70" />
+                  <Select value={bangunan.safety_design} onValueChange={(v) => updateBangunan(index, 'safety_design', v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {SAFETY_MARGIN_BANGUNAN.design.map(opt => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label} ({opt.margin}%)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label>Umur</Label>
-                  <Input type="number" value={bangunan.safety_umur} onChange={(e) => updateBangunan(index, 'safety_umur', e.target.value)} placeholder="70" />
+                  <Select value={bangunan.safety_umur} onValueChange={(v) => updateBangunan(index, 'safety_umur', v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {SAFETY_MARGIN_BANGUNAN.umur.map(opt => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label} ({opt.margin}%)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label>Peruntukkan</Label>
-                  <Input type="number" value={bangunan.safety_peruntukkan} onChange={(e) => updateBangunan(index, 'safety_peruntukkan', e.target.value)} placeholder="80" />
+                  <Select value={bangunan.safety_peruntukkan} onValueChange={(v) => updateBangunan(index, 'safety_peruntukkan', v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {SAFETY_MARGIN_BANGUNAN.peruntukkan.map(opt => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label} ({opt.margin}%)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label>IMB</Label>
-                  <Input type="number" value={bangunan.safety_imb} onChange={(e) => updateBangunan(index, 'safety_imb', e.target.value)} placeholder="80" />
+                  <Select value={bangunan.safety_imb} onValueChange={(v) => updateBangunan(index, 'safety_imb', v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {SAFETY_MARGIN_BANGUNAN.imb.map(opt => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label} ({opt.margin}%)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
-                  <Label>Kesesuaian Lahan</Label>
-                  <Input type="number" value={bangunan.safety_kesesuaian} onChange={(e) => updateBangunan(index, 'safety_kesesuaian', e.target.value)} placeholder="80" />
+                  <Label>Kesesuaian thd Lahan Sekitar</Label>
+                  <Select value={bangunan.safety_kesesuaian} onValueChange={(v) => updateBangunan(index, 'safety_kesesuaian', v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {SAFETY_MARGIN_BANGUNAN.kesesuaian_lahan.map(opt => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label} ({opt.margin}%)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label>Permasalahan</Label>
-                  <Input type="number" value={bangunan.safety_permasalahan} onChange={(e) => updateBangunan(index, 'safety_permasalahan', e.target.value)} placeholder="80" />
+                  <Select value={bangunan.safety_permasalahan} onValueChange={(v) => updateBangunan(index, 'safety_permasalahan', v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {SAFETY_MARGIN_BANGUNAN.permasalahan.map(opt => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label} ({opt.margin}%)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
@@ -833,7 +1051,7 @@ export default function TaksasiTanahBangunan() {
           Tambah Bangunan
         </Button>
 
-        {/* Tim Penilai */}
+        {/* TIM PENILAI */}
         <div className="rounded-xl border bg-card p-6 shadow-card animate-slide-up">
           <h3 className="font-semibold mb-4 flex items-center gap-2">
             <User size={18} className="text-primary" />
@@ -862,7 +1080,7 @@ export default function TaksasiTanahBangunan() {
           </div>
         </div>
 
-        {/* Kantor Cabang */}
+        {/* KANTOR CABANG */}
         <div className="rounded-xl border bg-card p-6 shadow-card animate-slide-up">
           <h3 className="font-semibold mb-4 flex items-center gap-2">
             <Building size={18} className="text-primary" />
@@ -893,54 +1111,36 @@ export default function TaksasiTanahBangunan() {
 
         {/* Marketability */}
         <div className="rounded-xl border bg-card p-6 shadow-card animate-slide-up">
-          <h3 className="font-semibold mb-4 flex items-center gap-2">
-            <FileCheck size={18} className="text-primary" />
-            TINGKAT MARKETABILITY
-          </h3>
+          <h3 className="font-semibold mb-4">MARKETABILITY</h3>
           <div className="grid gap-4">
             <div>
               <Label>Tingkat Marketability</Label>
               <Select value={formData.marketability} onValueChange={(v) => setFormData(prev => ({ ...prev, marketability: v }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Marketable">Marketable</SelectItem>
-                  <SelectItem value="Cukup Marketable">Cukup Marketable</SelectItem>
-                  <SelectItem value="Kurang Marketable">Kurang Marketable</SelectItem>
+                  <SelectItem value="sangat_marketable">Sangat Marketable</SelectItem>
+                  <SelectItem value="cukup_marketable">Cukup Marketable</SelectItem>
+                  <SelectItem value="kurang_marketable">Kurang Marketable</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label>Catatan 1</Label>
-              <Input
-                name="catatan_marketability_1"
-                value={formData.catatan_marketability_1}
-                onChange={handleChange}
-                placeholder="Lokasi tanah dan bangunan berada di tengah pemukiman warga"
-              />
+              <Label>Catatan Marketability 1</Label>
+              <Input name="catatan_marketability_1" value={formData.catatan_marketability_1} onChange={handleChange} placeholder="Lokasi tanah dan bangunan berada di tengah pemukiman warga" />
             </div>
             <div>
-              <Label>Catatan 2</Label>
-              <Input
-                name="catatan_marketability_2"
-                value={formData.catatan_marketability_2}
-                onChange={handleChange}
-                placeholder="Kondisi tanah sedikit berbukit"
-              />
+              <Label>Catatan Marketability 2</Label>
+              <Input name="catatan_marketability_2" value={formData.catatan_marketability_2} onChange={handleChange} placeholder="Kondisi tanah sedikit berbukit" />
             </div>
             <div>
-              <Label>Catatan 3</Label>
-              <Input
-                name="catatan_marketability_3"
-                value={formData.catatan_marketability_3}
-                onChange={handleChange}
-                placeholder="Kondisi bangunan semi modern"
-              />
+              <Label>Catatan Marketability 3</Label>
+              <Input name="catatan_marketability_3" value={formData.catatan_marketability_3} onChange={handleChange} placeholder="Kondisi bangunan semi modern" />
             </div>
           </div>
         </div>
 
-        {/* Calculate Button */}
-        <Button variant="accent" onClick={handleHitung} className="w-full">
+        {/* Tombol Hitung */}
+        <Button variant="accent" className="w-full" onClick={handleHitung}>
           <Calculator className="mr-2" size={16} />
           Hitung Taksasi
         </Button>
@@ -952,43 +1152,40 @@ export default function TaksasiTanahBangunan() {
               <DollarSign size={18} className="text-success" />
               Hasil Perhitungan
             </h3>
-
-            {/* Detail per item */}
+            
+            {/* Detail per Tanah */}
             {hasil.detail_tanah.map((dt, i) => (
-              <div key={i} className="mb-2 p-3 rounded-lg bg-muted/30 text-sm">
-                <span className="font-medium">Tanah #{i + 1}:</span>
-                <span className="ml-2">Nilai Pasar: {formatCurrency(dt.nilai_pasar)}</span>
-                <span className="ml-4">Nilai Likuidasi: {formatCurrency(dt.nilai_likuidasi)}</span>
-              </div>
-            ))}
-            {hasil.detail_bangunan.map((db, i) => (
-              <div key={i} className="mb-2 p-3 rounded-lg bg-muted/30 text-sm">
-                <span className="font-medium">Bangunan #{i + 1}:</span>
-                <span className="ml-2">Nilai Pasar: {formatCurrency(db.nilai_pasar)}</span>
-                <span className="ml-4">Nilai Likuidasi: {formatCurrency(db.nilai_likuidasi)}</span>
+              <div key={i} className="mb-4 p-3 bg-muted/30 rounded-lg">
+                <p className="text-sm font-medium mb-2">Tanah #{i + 1}</p>
+                <div className="grid grid-cols-3 gap-2 text-sm">
+                  <div>Nilai Pasar: {formatCurrency(dt.nilai_pasar)}</div>
+                  <div>Nilai Likuidasi: {formatCurrency(dt.nilai_likuidasi)}</div>
+                  <div>Safety Margin: {dt.avg_safety.toFixed(1)}%</div>
+                </div>
               </div>
             ))}
 
-            <div className="grid sm:grid-cols-2 gap-4 mt-4 mb-4">
-              <div className="p-4 rounded-lg bg-muted/50">
-                <p className="text-sm text-muted-foreground mb-1">Total Nilai Tanah</p>
-                <p className="text-xl font-bold text-foreground">{formatCurrency(hasil.total_nilai_tanah)}</p>
+            {/* Detail per Bangunan */}
+            {hasil.detail_bangunan.map((db, i) => (
+              <div key={i} className="mb-4 p-3 bg-muted/30 rounded-lg">
+                <p className="text-sm font-medium mb-2">Bangunan #{i + 1}</p>
+                <div className="grid grid-cols-3 gap-2 text-sm">
+                  <div>Nilai Pasar: {formatCurrency(db.nilai_pasar)}</div>
+                  <div>Nilai Likuidasi: {formatCurrency(db.nilai_likuidasi)}</div>
+                  <div>Safety Margin: {db.avg_safety.toFixed(1)}%</div>
+                </div>
               </div>
+            ))}
+
+            {/* Total */}
+            <div className="grid sm:grid-cols-2 gap-4 mt-4">
               <div className="p-4 rounded-lg bg-muted/50">
-                <p className="text-sm text-muted-foreground mb-1">Total Nilai Bangunan</p>
-                <p className="text-xl font-bold text-foreground">{formatCurrency(hasil.total_nilai_bangunan)}</p>
-              </div>
-            </div>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div className="p-4 rounded-lg bg-primary/10">
                 <p className="text-sm text-muted-foreground mb-1">Total Nilai Taksasi</p>
-                <p className="text-2xl font-bold text-primary">{formatCurrency(hasil.nilai_taksasi)}</p>
-                <p className="text-xs text-muted-foreground mt-1">= Nilai Tanah + Nilai Bangunan</p>
+                <p className="text-2xl font-bold text-foreground">{formatCurrency(hasil.nilai_taksasi)}</p>
               </div>
               <div className="p-4 rounded-lg bg-success/10">
-                <p className="text-sm text-muted-foreground mb-1">Nilai Likuidasi</p>
+                <p className="text-sm text-muted-foreground mb-1">Total Nilai Likuidasi</p>
                 <p className="text-2xl font-bold text-success">{formatCurrency(hasil.nilai_likuidasi)}</p>
-                <p className="text-xs text-muted-foreground mt-1">= Sesuai Safety Margin</p>
               </div>
             </div>
             <div className="mt-4 p-3 rounded-lg bg-muted/50">
