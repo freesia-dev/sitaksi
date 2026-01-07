@@ -14,7 +14,111 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string
+          id: string
+          nama: string | null
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          nama?: string | null
+          role?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          nama?: string | null
+          role?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      taksasi: {
+        Row: {
+          alamat_debitur: string | null
+          created_at: string
+          detail_agunan: Json
+          dokumentasi: string[] | null
+          id: string
+          jenis_agunan: string
+          kantor_cabang: string | null
+          keterangan: string | null
+          marketability: string | null
+          nama_debitur: string
+          nilai_likuidasi: number | null
+          nilai_pasar: number | null
+          nilai_taksasi: number | null
+          no_hp: string | null
+          no_rekening: string | null
+          nomor_dokumen: string
+          status: string
+          tanggal: string
+          tim_penilai: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alamat_debitur?: string | null
+          created_at?: string
+          detail_agunan?: Json
+          dokumentasi?: string[] | null
+          id?: string
+          jenis_agunan: string
+          kantor_cabang?: string | null
+          keterangan?: string | null
+          marketability?: string | null
+          nama_debitur: string
+          nilai_likuidasi?: number | null
+          nilai_pasar?: number | null
+          nilai_taksasi?: number | null
+          no_hp?: string | null
+          no_rekening?: string | null
+          nomor_dokumen: string
+          status?: string
+          tanggal?: string
+          tim_penilai?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alamat_debitur?: string | null
+          created_at?: string
+          detail_agunan?: Json
+          dokumentasi?: string[] | null
+          id?: string
+          jenis_agunan?: string
+          kantor_cabang?: string | null
+          keterangan?: string | null
+          marketability?: string | null
+          nama_debitur?: string
+          nilai_likuidasi?: number | null
+          nilai_pasar?: number | null
+          nilai_taksasi?: number | null
+          no_hp?: string | null
+          no_rekening?: string | null
+          nomor_dokumen?: string
+          status?: string
+          tanggal?: string
+          tim_penilai?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
