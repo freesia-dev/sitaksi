@@ -10,7 +10,6 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  ClipboardCheck,
   Info
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -57,16 +56,16 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       show: isOfficerOrAdmin,
     },
     {
-      label: 'Otorisasi',
-      icon: ClipboardCheck,
-      href: '/otorisasi',
-      show: isPimpinan,
-    },
-    {
       label: 'Riwayat',
       icon: FileText,
       href: '/riwayat',
       show: true,
+    },
+    {
+      label: 'Kelola User',
+      icon: Users,
+      href: '/admin/users',
+      show: isAdmin,
     },
     {
       label: 'Kelola User',

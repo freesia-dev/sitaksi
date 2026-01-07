@@ -212,7 +212,8 @@ export function ExportFormTaksasi({ taksasi, logo }: ExportFormTaksasiProps) {
             <p>Bontang, {formatDate(taksasi.tanggal)}</p>
             <p className="font-medium">PT BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA</p>
             <p>{taksasi.kantor_cabang.toUpperCase()}</p>
-            <div className="h-32"></div>
+            {/* Signature box with transparent border for print spacing */}
+            <div className="h-24 border border-transparent print:h-28"></div>
             <p className="font-bold">{taksasi.pimpinan}</p>
             <p className="italic">{taksasi.jabatan_pimpinan}</p>
           </div>
