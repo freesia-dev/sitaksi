@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo, ReactNode } from 'react';
 import { Taksasi } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './AuthContext';
@@ -330,19 +330,20 @@ export function TaksasiProvider({ children }: { children: ReactNode }) {
     await fetchTaksasi();
   }, [fetchTaksasi]);
 
+  // Memoize context value to prevent unnecessary re-renders
+  const contextValue = useMemo(() => ({
+    taksasiList,
+    isLoading,
+    addTaksasi,
+    updateTaksasi,
+    deleteTaksasi,
+    getTaksasiByUser,
+    getTaksasiById,
+    refreshTaksasi,
+  }), [taksasiList, isLoading, addTaksasi, updateTaksasi, deleteTaksasi, getTaksasiByUser, getTaksasiById, refreshTaksasi]);
+
   return (
-    <TaksasiContext.Provider
-      value={{
-        taksasiList,
-        isLoading,
-        addTaksasi,
-        updateTaksasi,
-        deleteTaksasi,
-        getTaksasiByUser,
-        getTaksasiById,
-        refreshTaksasi,
-      }}
-    >
+    <TaksasiContext.Provider value={contextValue}>
       {children}
     </TaksasiContext.Provider>
   );
