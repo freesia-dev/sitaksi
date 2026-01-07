@@ -59,6 +59,7 @@ export default function TaksasiTanahList() {
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 
   const isAdmin = user?.role === 'Admin';
+  const isDemo = user?.role === 'Demo';
 
   // Filter only Tanah type
   const tanahList = useMemo(() => {
@@ -124,10 +125,12 @@ export default function TaksasiTanahList() {
         title="Taksasi Tanah"
         description="Daftar penilaian agunan berupa tanah"
         actions={
-          <Button onClick={() => navigate('/taksasi/tanah/new')}>
-            <Plus className="mr-2" size={16} />
-            Tambah Taksasi
-          </Button>
+          !isDemo && (
+            <Button onClick={() => navigate('/taksasi/tanah/new')}>
+              <Plus className="mr-2" size={16} />
+              Tambah Taksasi
+            </Button>
+          )
         }
       />
 
@@ -228,14 +231,16 @@ export default function TaksasiTanahList() {
                       >
                         <Eye size={16} />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => navigate(`/taksasi/tanah/edit/${taksasi.id}`)}
-                        title="Edit"
-                      >
-                        <Pencil size={16} />
-                      </Button>
+                      {!isDemo && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => navigate(`/taksasi/tanah/edit/${taksasi.id}`)}
+                          title="Edit"
+                        >
+                          <Pencil size={16} />
+                        </Button>
+                      )}
                       {isAdmin && (
                         <AlertDialog>
                           <AlertDialogTrigger asChild>

@@ -29,6 +29,7 @@ export default function Dashboard() {
   const { taksasiList, getTaksasiByUser } = useTaksasi();
 
   const isPimpinan = user?.role === 'Pimpinan';
+  const isDemo = user?.role === 'Demo';
   const isOfficerOrAdmin = user?.role === 'Officer' || user?.role === 'Admin';
 
   // Data based on role
@@ -79,10 +80,10 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* Quick Actions for Officer */}
-      {isOfficerOrAdmin && (
+      {/* Quick Actions for Officer - hidden for Demo */}
+      {isOfficerOrAdmin && !isDemo && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link to="/taksasi/tanah" className="group">
+          <Link to="/taksasi/tanah/new" className="group">
             <div className="p-5 rounded-xl border bg-card shadow-card hover:shadow-elevated transition-all duration-200 flex items-center gap-4">
               <div className="p-3 rounded-lg bg-success/10 text-success group-hover:scale-110 transition-transform">
                 <Home size={24} />
@@ -94,7 +95,7 @@ export default function Dashboard() {
               <ArrowRight className="text-muted-foreground group-hover:translate-x-1 transition-transform" />
             </div>
           </Link>
-          <Link to="/taksasi/tanah-bangunan" className="group">
+          <Link to="/taksasi/tanah-bangunan/new" className="group">
             <div className="p-5 rounded-xl border bg-card shadow-card hover:shadow-elevated transition-all duration-200 flex items-center gap-4">
               <div className="p-3 rounded-lg bg-primary/10 text-primary group-hover:scale-110 transition-transform">
                 <Building2 size={24} />
@@ -106,7 +107,7 @@ export default function Dashboard() {
               <ArrowRight className="text-muted-foreground group-hover:translate-x-1 transition-transform" />
             </div>
           </Link>
-          <Link to="/taksasi/kendaraan" className="group">
+          <Link to="/taksasi/kendaraan/new" className="group">
             <div className="p-5 rounded-xl border bg-card shadow-card hover:shadow-elevated transition-all duration-200 flex items-center gap-4">
               <div className="p-3 rounded-lg bg-warning/10 text-warning group-hover:scale-110 transition-transform">
                 <Car size={24} />

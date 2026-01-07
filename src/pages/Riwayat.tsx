@@ -29,6 +29,7 @@ export default function Riwayat() {
   const { taksasiList, getTaksasiByUser } = useTaksasi();
 
   const isPimpinan = user?.role === 'Pimpinan';
+  const isDemo = user?.role === 'Demo';
   const displayList = isPimpinan ? taksasiList : getTaksasiByUser(user?.id || '');
 
   const [search, setSearch] = useState('');
@@ -115,14 +116,16 @@ export default function Riwayat() {
                 <TableCell className="text-success font-medium">{formatCurrency(taksasi.nilai_likuidasi_pembulatan)}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex gap-1 justify-end">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleEdit(taksasi)}
-                    >
-                      <Edit size={16} className="mr-1" />
-                      Edit
-                    </Button>
+                    {!isDemo && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEdit(taksasi)}
+                      >
+                        <Edit size={16} className="mr-1" />
+                        Edit
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="sm"
