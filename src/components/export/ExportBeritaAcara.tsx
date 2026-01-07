@@ -119,7 +119,7 @@ Nomor Polisi / Nomor Plat : ${detailKendaraan.nomor_polisi}`;
             <p className="underline">Bontang, {formatDate(taksasi.tanggal)}</p>
             <p className="font-medium">PT BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA</p>
             <p>{taksasi.kantor_cabang.toUpperCase()}</p>
-            <div className="h-20"></div>
+            <div className="h-32"></div>
             <p className="font-bold underline">{taksasi.pimpinan}</p>
             <p className="italic">{taksasi.jabatan_pimpinan}</p>
           </div>
