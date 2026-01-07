@@ -96,33 +96,22 @@ Nomor Polisi / Nomor Plat : ${detailKendaraan.nomor_polisi}`;
         {/* Tanda Tangan */}
         <div className="mt-8 pt-4">
           <div className="flex justify-between">
-            <div className="text-sm space-y-2">
-              <p className="font-medium">Petugas Yang Melakukan Penilaian :</p>
-              <table className="text-sm">
-                <thead>
-                  <tr>
-                    <th className="py-1 pr-4 text-left">Nama</th>
-                    <th className="py-1 pr-4 text-left">Jabatan</th>
-                    <th className="py-1 text-left">Tanda Tangan</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="py-1 pr-4">{taksasi.petugas}</td>
-                    <td className="py-1 pr-4">{taksasi.jabatan_petugas}</td>
-                    <td className="py-1 w-32 border-b"></td>
-                  </tr>
-                </tbody>
-              </table>
+            <div className="text-sm text-center">
+              <p className="font-medium">Petugas Yang Melakukan Penilaian</p>
+              <div className="h-20"></div>
+              <div className="border-b border-black w-48 mx-auto"></div>
+              <p className="font-bold mt-1">{taksasi.petugas}</p>
+              <p>{taksasi.jabatan_petugas}</p>
             </div>
-            <div className="text-sm text-right space-y-2">
+            <div className="text-sm text-center">
               <p>Bontang, {formatDate(taksasi.tanggal)}</p>
               <p className="font-medium">PT BANK PEMBANGUNAN DAERAH</p>
               <p className="font-medium">KALIMANTAN TIMUR DAN KALIMANTAN UTARA</p>
               <p>{taksasi.kantor_cabang.replace('KANTOR ', '')}</p>
-              <div className="h-12"></div>
-              <p className="font-semibold">{taksasi.pimpinan}</p>
-              <p>{taksasi.jabatan_pimpinan}</p>
+              <p className="italic mt-2">{taksasi.jabatan_pimpinan}</p>
+              <div className="h-16"></div>
+              <div className="border-b border-black w-48 mx-auto"></div>
+              <p className="font-bold mt-1">{taksasi.pimpinan}</p>
             </div>
           </div>
         </div>
