@@ -46,45 +46,43 @@ export default function DetailTaksasi() {
   }
 
   const handlePrint = () => {
-    const printContent = printRef.current;
-    if (!printContent) return;
-
+    // Create a new window for printing
     const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
+    if (!printWindow) {
+      alert('Popup blocker aktif. Mohon izinkan popup untuk mencetak.');
+      return;
+    }
 
-    const styles = Array.from(document.styleSheets)
-      .map(styleSheet => {
-        try {
-          return Array.from(styleSheet.cssRules)
-            .map(rule => rule.cssText)
-            .join('\n');
-        } catch (e) {
-          return '';
-        }
-      })
-      .join('\n');
+    // Get the content to print from the visible active tab
+    const activeContent = document.querySelector(`[data-state="active"][role="tabpanel"]`);
+    if (!activeContent) return;
 
+    // Write the print document
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
         <head>
           <title>Taksasi Agunan - ${taksasi.nama_nasabah}</title>
           <style>
-            ${styles}
             @page {
               size: A4;
               margin: 15mm 10mm;
             }
-            body {
-              font-family: 'Plus Jakarta Sans', sans-serif;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
+            * {
               margin: 0;
-              padding: 20px;
-              background: white !important;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            body {
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+              font-size: 11pt;
+              line-height: 1.4;
+              color: #000;
+              background: #fff;
+              padding: 0;
             }
             .print-container {
-              max-width: 210mm;
+              max-width: 190mm;
               margin: 0 auto;
             }
             table {
@@ -92,26 +90,70 @@ export default function DetailTaksasi() {
               width: 100%;
             }
             th, td {
-              border: 1px solid #333 !important;
-              padding: 8px;
+              border: 1px solid #333;
+              padding: 6px 8px;
+              text-align: left;
+              font-size: 10pt;
             }
-            .bg-muted {
-              background: #f5f5f5 !important;
+            th {
+              background: #f0f0f0;
+              font-weight: 600;
             }
-            h1, h2, h3 {
-              color: black !important;
+            .text-center { text-align: center; }
+            .text-right { text-align: right; }
+            .font-bold { font-weight: bold; }
+            .font-semibold { font-weight: 600; }
+            .text-primary { color: #0066cc; }
+            h1, h2, h3, h4 { margin-bottom: 8px; }
+            h1 { font-size: 14pt; }
+            h2 { font-size: 13pt; }
+            h3 { font-size: 12pt; }
+            p { margin-bottom: 4px; }
+            img { max-width: 100%; height: auto; }
+            .cover-image {
+              max-width: 300px;
+              max-height: 200px;
+              object-fit: cover;
+              border: 1px solid #ccc;
+              border-radius: 8px;
             }
-            p, span, td, th {
-              color: black !important;
-            }
+            .space-y-2 > * + * { margin-top: 8px; }
+            .space-y-4 > * + * { margin-top: 16px; }
+            .space-y-6 > * + * { margin-top: 24px; }
+            .space-y-8 > * + * { margin-top: 32px; }
+            .py-4 { padding-top: 16px; padding-bottom: 16px; }
+            .py-6 { padding-top: 24px; padding-bottom: 24px; }
+            .py-8 { padding-top: 32px; padding-bottom: 32px; }
+            .pt-4 { padding-top: 16px; }
+            .pt-8 { padding-top: 32px; }
+            .mt-4 { margin-top: 16px; }
+            .mt-8 { margin-top: 32px; }
+            .mb-4 { margin-bottom: 16px; }
+            .ml-4 { margin-left: 16px; }
+            .mx-auto { margin-left: auto; margin-right: auto; }
+            .border-t { border-top: 1px solid #ccc; }
+            .rounded-lg { border-radius: 8px; }
+            .bg-muted { background: #f5f5f5; }
+            .whitespace-pre-line { white-space: pre-line; }
+            .flex { display: flex; }
+            .justify-between { justify-content: space-between; }
+            .items-center { align-items: center; }
+            .gap-4 { gap: 16px; }
+            .grid { display: grid; }
+            .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+            .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+            .col-span-2 { grid-column: span 2; }
             @media print {
-              body { background: white !important; }
+              body { 
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+              }
             }
           </style>
         </head>
         <body>
           <div class="print-container">
-            ${printContent.innerHTML}
+            ${activeContent.innerHTML}
           </div>
         </body>
       </html>
@@ -119,29 +161,25 @@ export default function DetailTaksasi() {
 
     printWindow.document.close();
     
+    // Wait for content to load, then print
+    printWindow.onload = () => {
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+      }, 300);
+    };
+    
+    // Fallback if onload doesn't fire
     setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-    }, 500);
+      if (!printWindow.closed) {
+        printWindow.print();
+        printWindow.close();
+      }
+    }, 1000);
   };
 
   const handleExportPDF = () => {
     handlePrint();
-  };
-
-  const getCurrentTabContent = () => {
-    switch (activeTab) {
-      case 'cover':
-        return <ExportCover taksasi={taksasi} logo={logoBankaltimtara} />;
-      case 'form':
-        return <ExportFormTaksasi taksasi={taksasi} logo={logoBankaltimtara} />;
-      case 'berita-acara':
-        return <ExportBeritaAcara taksasi={taksasi} logo={logoBankaltimtara} />;
-      case 'dokumentasi':
-        return <ExportDokumentasi taksasi={taksasi} logo={logoBankaltimtara} />;
-      default:
-        return null;
-    }
   };
 
   return (
@@ -214,12 +252,7 @@ export default function DetailTaksasi() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Hidden print area */}
-        <div ref={printRef} className="print-area hidden">
-          {getCurrentTabContent()}
-        </div>
-
-        {/* Visible content */}
+        {/* Visible content - these will be printed */}
         <TabsContent value="cover">
           <ExportCover taksasi={taksasi} logo={logoBankaltimtara} />
         </TabsContent>
