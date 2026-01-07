@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef, useMemo, ReactNode } from 'react';
+import { Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { UserRole } from '@/types';
 
@@ -196,16 +196,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Memoize context value to prevent unnecessary re-renders
+  const contextValue = useMemo(() => ({ 
+    user, 
+    session,
+    isAuthenticated: !!session && !!user, 
+    isLoading,
+    login, 
+    signup,
+    logout 
+  }), [user, session, isLoading, login, signup, logout]);
+
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      session,
-      isAuthenticated: !!session && !!user, 
-      isLoading,
-      login, 
-      signup,
-      logout 
-    }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
