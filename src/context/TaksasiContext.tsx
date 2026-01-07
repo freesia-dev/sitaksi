@@ -5,6 +5,7 @@ interface TaksasiContextType {
   taksasiList: Taksasi[];
   addTaksasi: (taksasi: Omit<Taksasi, 'id'>) => void;
   updateTaksasi: (id: string, updates: Partial<Taksasi>) => void;
+  deleteTaksasi: (id: string) => void;
   getTaksasiByUser: (userId: string) => Taksasi[];
   getTaksasiById: (id: string) => Taksasi | undefined;
 }
@@ -150,6 +151,10 @@ export function TaksasiProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
+  const deleteTaksasi = useCallback((id: string) => {
+    setTaksasiList(prev => prev.filter(t => t.id !== id));
+  }, []);
+
   const getTaksasiByUser = useCallback((userId: string) => {
     return taksasiList.filter(t => t.id_user === userId);
   }, [taksasiList]);
@@ -164,6 +169,7 @@ export function TaksasiProvider({ children }: { children: ReactNode }) {
         taksasiList,
         addTaksasi,
         updateTaksasi,
+        deleteTaksasi,
         getTaksasiByUser,
         getTaksasiById,
       }}

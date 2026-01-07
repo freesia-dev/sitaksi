@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTaksasi } from '@/context/TaksasiContext';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { ImageUploader } from '@/components/shared/ImageUploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -32,6 +33,7 @@ import {
   Plus,
   Trash2,
   AlertCircle,
+  Camera,
 } from 'lucide-react';
 import {
   Select,
@@ -147,6 +149,7 @@ export default function TaksasiTanah() {
   });
 
   const [tanahList, setTanahList] = useState<TanahItem[]>([{ ...defaultTanah }]);
+  const [dokumentasi, setDokumentasi] = useState<string[]>([]);
 
   const [hasil, setHasil] = useState<{
     total_nilai_tanah: number;
@@ -886,6 +889,16 @@ export default function TaksasiTanah() {
               />
             </div>
           </div>
+        </div>
+
+        {/* Dokumentasi */}
+        <div className="rounded-xl border bg-card p-6 shadow-card animate-slide-up">
+          <ImageUploader
+            images={dokumentasi}
+            onChange={setDokumentasi}
+            maxImages={8}
+            label="Dokumentasi Foto (Max 8)"
+          />
         </div>
 
         {/* Hitung Button */}

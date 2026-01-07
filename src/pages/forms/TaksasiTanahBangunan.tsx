@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTaksasi } from '@/context/TaksasiContext';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { ImageUploader } from '@/components/shared/ImageUploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -34,6 +35,7 @@ import {
   Building,
   Plus,
   Trash2,
+  Camera,
 } from 'lucide-react';
 import {
   Select,
@@ -220,6 +222,7 @@ export default function TaksasiTanahBangunan() {
 
   const [tanahList, setTanahList] = useState<TanahItem[]>([{ ...defaultTanah }]);
   const [bangunanList, setBangunanList] = useState<BangunanItem[]>([{ ...defaultBangunan }]);
+  const [dokumentasi, setDokumentasi] = useState<string[]>([]);
 
   const [hasil, setHasil] = useState<{
     total_nilai_tanah: number;
@@ -1137,6 +1140,16 @@ export default function TaksasiTanahBangunan() {
               <Input name="catatan_marketability_3" value={formData.catatan_marketability_3} onChange={handleChange} placeholder="Kondisi bangunan semi modern" />
             </div>
           </div>
+        </div>
+
+        {/* Dokumentasi */}
+        <div className="rounded-xl border bg-card p-6 shadow-card animate-slide-up">
+          <ImageUploader
+            images={dokumentasi}
+            onChange={setDokumentasi}
+            maxImages={16}
+            label="Dokumentasi Foto (Max 16)"
+          />
         </div>
 
         {/* Tombol Hitung */}

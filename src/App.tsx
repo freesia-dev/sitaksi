@@ -15,6 +15,9 @@ import TaksasiKendaraan from "@/pages/forms/TaksasiKendaraan";
 import EditTaksasiTanah from "@/pages/forms/EditTaksasiTanah";
 import EditTaksasiTanahBangunan from "@/pages/forms/EditTaksasiTanahBangunan";
 import EditTaksasiKendaraan from "@/pages/forms/EditTaksasiKendaraan";
+import TaksasiTanahList from "@/pages/lists/TaksasiTanahList";
+import TaksasiTanahBangunanList from "@/pages/lists/TaksasiTanahBangunanList";
+import TaksasiKendaraanList from "@/pages/lists/TaksasiKendaraanList";
 import Riwayat from "@/pages/Riwayat";
 import AdminUsers from "@/pages/AdminUsers";
 import DetailTaksasi from "@/pages/DetailTaksasi";
@@ -36,9 +39,14 @@ const App = () => (
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route element={<AppLayout />}>
                 <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/taksasi/tanah" element={<TaksasiTanah />} />
-                <Route path="/taksasi/tanah-bangunan" element={<TaksasiTanahBangunan />} />
-                <Route path="/taksasi/kendaraan" element={<TaksasiKendaraan />} />
+                {/* List pages */}
+                <Route path="/list/tanah" element={<TaksasiTanahList />} />
+                <Route path="/list/tanah-bangunan" element={<TaksasiTanahBangunanList />} />
+                <Route path="/list/kendaraan" element={<TaksasiKendaraanList />} />
+                {/* Form pages */}
+                <Route path="/taksasi/tanah/new" element={<TaksasiTanah />} />
+                <Route path="/taksasi/tanah-bangunan/new" element={<TaksasiTanahBangunan />} />
+                <Route path="/taksasi/kendaraan/new" element={<TaksasiKendaraan />} />
                 <Route path="/taksasi/tanah/edit/:id" element={<EditTaksasiTanah />} />
                 <Route path="/taksasi/tanah-bangunan/edit/:id" element={<EditTaksasiTanahBangunan />} />
                 <Route path="/taksasi/kendaraan/edit/:id" element={<EditTaksasiKendaraan />} />

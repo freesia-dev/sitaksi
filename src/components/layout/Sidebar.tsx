@@ -40,19 +40,19 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
     {
       label: 'Taksasi Tanah',
       icon: Home,
-      href: '/taksasi/tanah',
+      href: '/list/tanah',
       show: isOfficerOrAdmin,
     },
     {
       label: 'Taksasi T & B',
       icon: Building2,
-      href: '/taksasi/tanah-bangunan',
+      href: '/list/tanah-bangunan',
       show: isOfficerOrAdmin,
     },
     {
       label: 'Taksasi Kendaraan',
       icon: Car,
-      href: '/taksasi/kendaraan',
+      href: '/list/kendaraan',
       show: isOfficerOrAdmin,
     },
     {
