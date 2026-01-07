@@ -213,9 +213,10 @@ export function ExportFormTaksasi({ taksasi, logo }: ExportFormTaksasiProps) {
             <p>Kalimantan Timur dan Kalimantan Utara</p>
             <p>{taksasi.kantor_cabang}</p>
 
-            {/* Area tanda tangan (space di atas garis) */}
-            <div className="w-64 mx-auto mt-4 h-24 print:h-32 flex flex-col justify-end border border-transparent">
-              <div className="border-b border-black w-full"></div>
+            {/* Area tanda tangan - 4 baris space */}
+            <div className="mt-4">
+              <br /><br /><br /><br />
+              <div className="border-b border-black w-48 mx-auto"></div>
             </div>
 
             <p className="font-bold">{taksasi.pimpinan}</p>

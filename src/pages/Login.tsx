@@ -51,7 +51,6 @@ export default function Login() {
               src={logoBankaltimtara}
               alt="Logo Bankaltimtara"
               className="w-24 h-24 xl:w-28 xl:h-28 object-contain mb-6"
-              style={{ filter: "drop-shadow(0 0 2px hsl(var(--background) / 0.9))" }}
             />
             <h1 className="text-3xl md:text-4xl xl:text-5xl font-bold text-primary-foreground leading-tight mb-4">
               Sistem Taksasi<br />Agunan
@@ -84,7 +83,6 @@ export default function Login() {
               src={logoBankaltimtara}
               alt="Logo Bankaltimtara"
               className="lg:hidden w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-4 object-contain"
-              style={{ filter: "drop-shadow(0 0 2px hsl(var(--background) / 0.9))" }}
             />
             <h2 className="text-xl sm:text-2xl font-bold text-foreground">Selamat Datang</h2>
             <p className="text-sm sm:text-base text-muted-foreground mt-2">Masuk ke akun Anda untuk melanjutkan</p>
