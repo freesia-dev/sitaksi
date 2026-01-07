@@ -3,13 +3,53 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { uploadToImgBB } from '@/lib/imgbb';
-import { Camera, X, Loader2, Upload, Pencil, Check } from 'lucide-react';
+import { Camera, X, Loader2, Upload, Pencil, Check, ImageOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 export interface LabeledImage {
   url: string;
   label: string;
+}
+
+type ImageWithFallbackProps = {
+  src: string;
+  alt: string;
+  className?: string;
+};
+
+function ImageWithFallback({ src, alt, className }: ImageWithFallbackProps) {
+  const [hasError, setHasError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  if (hasError) {
+    return (
+      <div className="h-full w-full flex flex-col items-center justify-center text-muted-foreground">
+        <ImageOff size={20} />
+        <span className="mt-1 text-[10px]">Gagal memuat</span>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {isLoading && (
+        <div className="absolute inset-0 bg-muted animate-pulse" />
+      )}
+      <img
+        src={src}
+        alt={alt}
+        loading="lazy"
+        crossOrigin="anonymous"
+        className={className}
+        onLoad={() => setIsLoading(false)}
+        onError={() => {
+          setHasError(true);
+          setIsLoading(false);
+        }}
+      />
+    </>
+  );
 }
 
 interface LabeledImageUploaderProps {
@@ -156,7 +196,7 @@ export function LabeledImageUploader({
         {images.map((image, index) => (
           <div key={index} className="space-y-2">
             <div className="relative aspect-square rounded-lg overflow-hidden border bg-muted group">
-              <img
+              <ImageWithFallback
                 src={image.url}
                 alt={image.label}
                 className="w-full h-full object-cover"
