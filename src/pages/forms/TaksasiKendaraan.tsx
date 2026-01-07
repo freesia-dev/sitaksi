@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTaksasi } from '@/context/TaksasiContext';
 import { PageHeader } from '@/components/shared/PageHeader';
-import { ImageUploader } from '@/components/shared/ImageUploader';
+import { LabeledImageUploader, LabeledImage } from '@/components/shared/LabeledImageUploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -80,7 +80,7 @@ export default function TaksasiKendaraan() {
     jabatan_pimpinan: 'Pemimpin Capem',
   });
 
-  const [dokumentasi, setDokumentasi] = useState<string[]>([]);
+  const [dokumentasi, setDokumentasi] = useState<LabeledImage[]>([]);
 
   const [hargaPembanding, setHargaPembanding] = useState<HargaPembanding[]>([
     { harga: '', sumber: '' },
@@ -133,8 +133,8 @@ export default function TaksasiKendaraan() {
     }
   };
 
-  const handleDokumentasiChange = (urls: string[]) => {
-    setDokumentasi(urls);
+  const handleDokumentasiChange = (images: LabeledImage[]) => {
+    setDokumentasi(images);
   };
 
   const handleHitung = () => {
@@ -217,7 +217,8 @@ export default function TaksasiKendaraan() {
       harga_pasar: hasil.rata_rata,
       harga_pembanding: validPembanding,
       keterangan: keterangan,
-      dokumentasi_urls: dokumentasi,
+      dokumentasi_urls: dokumentasi.map(d => d.url),
+      dokumentasi_labels: dokumentasi.map(d => d.label),
     };
 
     addTaksasi({
@@ -681,10 +682,11 @@ export default function TaksasiKendaraan() {
             <Camera size={20} className="text-accent" />
             DOKUMENTASI JAMINAN (Max 8 Foto)
           </h3>
-          <ImageUploader
+          <LabeledImageUploader
             images={dokumentasi}
             onChange={handleDokumentasiChange}
             maxImages={8}
+            title="Dokumentasi Jaminan"
           />
         </div>
 
