@@ -1,159 +1,322 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { Taksasi, generateNomorDokumen } from '@/types';
+import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import { Taksasi } from '@/types';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface TaksasiContextType {
   taksasiList: Taksasi[];
-  addTaksasi: (taksasi: Omit<Taksasi, 'id'>) => void;
-  updateTaksasi: (id: string, updates: Partial<Taksasi>) => void;
-  deleteTaksasi: (id: string) => void;
+  isLoading: boolean;
+  addTaksasi: (taksasi: Omit<Taksasi, 'id'>) => Promise<void>;
+  updateTaksasi: (id: string, updates: Partial<Taksasi>) => Promise<void>;
+  deleteTaksasi: (id: string) => Promise<void>;
   getTaksasiByUser: (userId: string) => Taksasi[];
   getTaksasiById: (id: string) => Taksasi | undefined;
+  refreshTaksasi: () => Promise<void>;
 }
 
 const TaksasiContext = createContext<TaksasiContextType | undefined>(undefined);
 
-// Sample data for demo
-const INITIAL_TAKSASI: Taksasi[] = [
-  {
-    id: '1',
-    id_user: '3',
-    nomor_dokumen: '939/F-3/BPD-TLH/XII/2025',
-    jenis_agunan: 'Kendaraan',
-    nama_nasabah: 'TRIVENA INGGRIT AYU',
-    alamat: 'Jl. Belibis Gg. Merpati RT. 008 Kel. Kanaan Kec. Bontang Barat Kota Bontang',
-    nilai_pasar: 14400000,
-    nilai_taksasi: 14400000,
-    nilai_taksasi_pembulatan: 14000000,
-    nilai_likuidasi: 10500000,
-    nilai_likuidasi_pembulatan: 10500000,
-    safety_margin: 25,
-    terbilang: 'Empat Belas Juta Rupiah',
-    status_otorisasi: 'Selesai',
-    detail_agunan: {
-      jenis: 'BARANG BERGERAK / KENDARAAN RODA 2 HONDA CBR 150 2018',
-      merk: 'HONDA',
-      model: 'SOLO / P5E02R22M1 M/T',
-      tahun: 2018,
-      nomor_polisi: 'KT 4329 QC',
-      nomor_mesin: 'KC91E-1204762',
-      nomor_rangka: 'MH1KC9116K212204',
-      buatan: 'Jepang',
-      bukti_kepemilikan: 'BPKB',
-      nomor_bukti_kepemilikan: 'N-10026971N',
-      tanggal_bukti_kepemilikan: '2018-09-17',
-      nama_kepemilikan: 'AGUS PURWIYANTO (Suami Debitur)',
-      kondisi_unit: 'Terawat',
-      harga_pasar: 14400000,
-      harga_pembanding: [
-        { harga: 13500000, sumber: 'https://web.facebook.com/share/1JfMJY4Rcn/' },
-        { harga: 14000000, sumber: 'https://web.facebook.com/share/1HH5jwmTnu/' },
-        { harga: 15700000, sumber: 'https://web.facebook.com/share/1D6j6UneD2/' },
-      ],
-      keterangan: [
-        'Harga Berdasarkan Dari Data Pembanding : Marketplace Facebook',
-        'Kendaraan Hak Milik Debitur Beserta Surat-Surat Atas nama Suami Debitur.',
-        'Kendaraan Dalam Kondisi Baik Dan Dapat Berfungsi Sebagaimana Mestinya.',
-        'Disarankan Untuk Dilakukan Perikatan Sesuai Dengan Ketentuan Di Bankaltimtara.',
-      ],
-    },
-    tanggal: '2025-12-16',
-    petugas: 'HARIS FADILAH',
-    jabatan_petugas: 'Officer Relationship Kredit',
-    kantor_cabang: 'KANTOR CABANG PEMBANTU TELIHAN',
-    alamat_cabang: 'JL.S.PARMAN NO.14-15 KEL.GN.TELIHAN KEC.BONTANG BARAT-75383',
-    pimpinan: 'TRI HANDAYANI SURYASTUTI',
-    jabatan_pimpinan: 'Pemimpin Capem',
-    tim_penilai: [
-      { nama: 'TRI HANDAYANI SURYASTUTI', jabatan: 'Pemimpin Capem' },
-      { nama: 'HARIS FADILAH', jabatan: 'Officer Relationship Kredit' },
-    ],
-  },
-  {
-    id: '2',
-    id_user: '3',
-    nomor_dokumen: '940/F-3/BPD-TLH/XII/2025',
-    jenis_agunan: 'Tanah',
-    nama_nasabah: 'Ahmad Wijaya',
-    alamat: 'Jl. Gajah Mada No. 45, Samarinda',
-    nilai_pasar: 500000000,
-    nilai_taksasi: 500000000,
-    nilai_taksasi_pembulatan: 500000000,
-    nilai_likuidasi: 400000000,
-    nilai_likuidasi_pembulatan: 400000000,
-    safety_margin: 20,
-    terbilang: 'Lima Ratus Juta Rupiah',
-    status_otorisasi: 'Selesai',
-    detail_agunan: {
-      luas_tanah: 500,
-      harga_per_meter: 1000000,
-    },
-    tanggal: '2025-12-10',
-    petugas: 'HARIS FADILAH',
-    jabatan_petugas: 'Officer Relationship Kredit',
-    kantor_cabang: 'KANTOR CABANG PEMBANTU TELIHAN',
-    alamat_cabang: 'JL.S.PARMAN NO.14-15 KEL.GN.TELIHAN KEC.BONTANG BARAT-75383',
-    pimpinan: 'TRI HANDAYANI SURYASTUTI',
-    jabatan_pimpinan: 'Pemimpin Capem',
-    tim_penilai: [
-      { nama: 'TRI HANDAYANI SURYASTUTI', jabatan: 'Pemimpin Capem' },
-      { nama: 'HARIS FADILAH', jabatan: 'Officer Relationship Kredit' },
-    ],
-  },
-  {
-    id: '3',
-    id_user: '3',
-    nomor_dokumen: '941/F-3/BPD-TLH/XII/2025',
-    jenis_agunan: 'Tanah & Bangunan',
-    nama_nasabah: 'Siti Rahayu',
-    alamat: 'Jl. Diponegoro No. 78, Balikpapan',
-    nilai_pasar: 850000000,
-    nilai_taksasi: 850000000,
-    nilai_taksasi_pembulatan: 850000000,
-    nilai_likuidasi: 680000000,
-    nilai_likuidasi_pembulatan: 680000000,
-    safety_margin: 20,
-    terbilang: 'Delapan Ratus Lima Puluh Juta Rupiah',
-    status_otorisasi: 'Selesai',
-    detail_agunan: {
-      luas_tanah: 200,
-      harga_tanah_per_meter: 2500000,
-      luas_bangunan: 120,
-      harga_bangunan_per_meter: 2916667,
-    },
-    tanggal: '2025-12-14',
-    petugas: 'HARIS FADILAH',
-    jabatan_petugas: 'Officer Relationship Kredit',
-    kantor_cabang: 'KANTOR CABANG PEMBANTU TELIHAN',
-    alamat_cabang: 'JL.S.PARMAN NO.14-15 KEL.GN.TELIHAN KEC.BONTANG BARAT-75383',
-    pimpinan: 'TRI HANDAYANI SURYASTUTI',
-    jabatan_pimpinan: 'Pemimpin Capem',
-    tim_penilai: [
-      { nama: 'TRI HANDAYANI SURYASTUTI', jabatan: 'Pemimpin Capem' },
-      { nama: 'HARIS FADILAH', jabatan: 'Officer Relationship Kredit' },
-    ],
-  },
-];
+// Map jenis agunan to database format
+const jenisAgunanMap: Record<string, string> = {
+  'Tanah': 'tanah',
+  'Tanah & Bangunan': 'tanah_bangunan',
+  'Kendaraan': 'kendaraan'
+};
+
+const jenisAgunanReverseMap: Record<string, string> = {
+  'tanah': 'Tanah',
+  'tanah_bangunan': 'Tanah & Bangunan',
+  'kendaraan': 'Kendaraan'
+};
 
 export function TaksasiProvider({ children }: { children: ReactNode }) {
-  const [taksasiList, setTaksasiList] = useState<Taksasi[]>(INITIAL_TAKSASI);
+  const [taksasiList, setTaksasiList] = useState<Taksasi[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { user, session } = useAuth();
+  const { toast } = useToast();
 
-  const addTaksasi = useCallback((taksasi: Omit<Taksasi, 'id'>) => {
-    const newTaksasi: Taksasi = {
-      ...taksasi,
-      id: Date.now().toString(),
-    };
-    setTaksasiList(prev => [newTaksasi, ...prev]);
-  }, []);
+  // Fetch taksasi from database
+  const fetchTaksasi = useCallback(async () => {
+    if (!session?.user) {
+      setTaksasiList([]);
+      setIsLoading(false);
+      return;
+    }
 
-  const updateTaksasi = useCallback((id: string, updates: Partial<Taksasi>) => {
-    setTaksasiList(prev =>
-      prev.map(t => (t.id === id ? { ...t, ...updates } : t))
-    );
-  }, []);
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('taksasi')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-  const deleteTaksasi = useCallback((id: string) => {
-    setTaksasiList(prev => prev.filter(t => t.id !== id));
-  }, []);
+      if (error) {
+        console.error('Error fetching taksasi:', error);
+        toast({
+          title: 'Error',
+          description: 'Gagal memuat data taksasi',
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      // Transform database data to Taksasi type
+      const transformedData: Taksasi[] = (data || []).map((item: any) => ({
+        id: item.id,
+        id_user: item.user_id,
+        nomor_dokumen: item.nomor_dokumen,
+        jenis_agunan: jenisAgunanReverseMap[item.jenis_agunan] || item.jenis_agunan,
+        nama_nasabah: item.nama_debitur,
+        alamat: item.alamat_debitur || '',
+        no_rekening: item.no_rekening || '',
+        no_hp: item.no_hp || '',
+        nilai_pasar: Number(item.nilai_pasar) || 0,
+        nilai_taksasi: Number(item.nilai_taksasi) || 0,
+        nilai_taksasi_pembulatan: Number(item.nilai_taksasi) || 0,
+        nilai_likuidasi: Number(item.nilai_likuidasi) || 0,
+        nilai_likuidasi_pembulatan: Number(item.nilai_likuidasi) || 0,
+        safety_margin: item.detail_agunan?.safety_margin || 0,
+        terbilang: item.detail_agunan?.terbilang || '',
+        status_otorisasi: item.status === 'disetujui' ? 'Selesai' : item.status === 'ditolak' ? 'Ditolak' : 'Draft',
+        detail_agunan: item.detail_agunan || {},
+        dokumentasi: item.dokumentasi || [],
+        tanggal: item.tanggal,
+        petugas: item.tim_penilai?.petugas || '',
+        jabatan_petugas: item.tim_penilai?.jabatan_petugas || '',
+        kantor_cabang: item.kantor_cabang || '',
+        alamat_cabang: item.detail_agunan?.alamat_cabang || '',
+        pimpinan: item.tim_penilai?.pimpinan || '',
+        jabatan_pimpinan: item.tim_penilai?.jabatan_pimpinan || '',
+        tim_penilai: item.tim_penilai?.members || [],
+        keterangan: item.keterangan || '',
+        marketability: item.marketability || ''
+      }));
+
+      setTaksasiList(transformedData);
+    } catch (error) {
+      console.error('Error fetching taksasi:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [session?.user, toast]);
+
+  // Fetch on mount and when session changes
+  useEffect(() => {
+    fetchTaksasi();
+  }, [fetchTaksasi]);
+
+  const addTaksasi = useCallback(async (taksasi: Omit<Taksasi, 'id'>) => {
+    if (!session?.user) {
+      toast({
+        title: 'Error',
+        description: 'Anda harus login untuk menambah data',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    try {
+      const dbJenisAgunan = jenisAgunanMap[taksasi.jenis_agunan] || 'tanah';
+      
+      const insertData = {
+        user_id: session.user.id,
+        nomor_dokumen: taksasi.nomor_dokumen,
+        tanggal: taksasi.tanggal || new Date().toISOString().split('T')[0],
+        jenis_agunan: dbJenisAgunan,
+        nama_debitur: taksasi.nama_nasabah,
+        alamat_debitur: taksasi.alamat,
+        no_rekening: taksasi.no_rekening || null,
+        no_hp: taksasi.no_hp || null,
+        status: 'draft' as const,
+        detail_agunan: {
+          ...taksasi.detail_agunan,
+          safety_margin: taksasi.safety_margin,
+          terbilang: taksasi.terbilang,
+          alamat_cabang: taksasi.alamat_cabang
+        },
+        dokumentasi: (taksasi as any).dokumentasi_urls || [],
+        nilai_pasar: taksasi.nilai_pasar || 0,
+        nilai_taksasi: taksasi.nilai_taksasi || 0,
+        nilai_likuidasi: taksasi.nilai_likuidasi || 0,
+        tim_penilai: {
+          petugas: taksasi.petugas,
+          jabatan_petugas: taksasi.jabatan_petugas,
+          pimpinan: taksasi.pimpinan,
+          jabatan_pimpinan: taksasi.jabatan_pimpinan,
+          members: taksasi.tim_penilai || []
+        },
+        kantor_cabang: taksasi.kantor_cabang,
+        keterangan: taksasi.keterangan || null,
+        marketability: taksasi.marketability || null
+      };
+
+      const { data, error } = await supabase
+        .from('taksasi')
+        .insert(insertData as any)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error adding taksasi:', error);
+        toast({
+          title: 'Error',
+          description: 'Gagal menyimpan data taksasi: ' + error.message,
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      toast({
+        title: 'Berhasil',
+        description: 'Data taksasi berhasil disimpan'
+      });
+
+      // Refresh the list
+      await fetchTaksasi();
+    } catch (error: any) {
+      console.error('Error adding taksasi:', error);
+      toast({
+        title: 'Error',
+        description: 'Gagal menyimpan data taksasi',
+        variant: 'destructive'
+      });
+    }
+  }, [session?.user, toast, fetchTaksasi]);
+
+  const updateTaksasi = useCallback(async (id: string, updates: Partial<Taksasi>) => {
+    if (!session?.user) {
+      toast({
+        title: 'Error',
+        description: 'Anda harus login untuk mengubah data',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    try {
+      const updateData: any = {};
+
+      if (updates.nomor_dokumen) updateData.nomor_dokumen = updates.nomor_dokumen;
+      if (updates.tanggal) updateData.tanggal = updates.tanggal;
+      if (updates.jenis_agunan) updateData.jenis_agunan = jenisAgunanMap[updates.jenis_agunan] || updates.jenis_agunan;
+      if (updates.nama_nasabah) updateData.nama_debitur = updates.nama_nasabah;
+      if (updates.alamat) updateData.alamat_debitur = updates.alamat;
+      if (updates.no_rekening !== undefined) updateData.no_rekening = updates.no_rekening;
+      if (updates.no_hp !== undefined) updateData.no_hp = updates.no_hp;
+      if (updates.nilai_pasar !== undefined) updateData.nilai_pasar = updates.nilai_pasar;
+      if (updates.nilai_taksasi !== undefined) updateData.nilai_taksasi = updates.nilai_taksasi;
+      if (updates.nilai_likuidasi !== undefined) updateData.nilai_likuidasi = updates.nilai_likuidasi;
+      if (updates.kantor_cabang) updateData.kantor_cabang = updates.kantor_cabang;
+      if (updates.keterangan !== undefined) updateData.keterangan = updates.keterangan;
+      if (updates.marketability !== undefined) updateData.marketability = updates.marketability;
+      if (updates.dokumentasi) updateData.dokumentasi = updates.dokumentasi;
+      
+      if (updates.detail_agunan || updates.safety_margin || updates.terbilang || updates.alamat_cabang) {
+        const existingTaksasi = taksasiList.find(t => t.id === id);
+        updateData.detail_agunan = {
+          ...(existingTaksasi?.detail_agunan || {}),
+          ...(updates.detail_agunan || {}),
+          safety_margin: updates.safety_margin ?? existingTaksasi?.safety_margin,
+          terbilang: updates.terbilang ?? existingTaksasi?.terbilang,
+          alamat_cabang: updates.alamat_cabang ?? existingTaksasi?.alamat_cabang
+        };
+      }
+
+      if (updates.petugas || updates.jabatan_petugas || updates.pimpinan || updates.jabatan_pimpinan || updates.tim_penilai) {
+        const existingTaksasi = taksasiList.find(t => t.id === id);
+        updateData.tim_penilai = {
+          petugas: updates.petugas ?? existingTaksasi?.petugas,
+          jabatan_petugas: updates.jabatan_petugas ?? existingTaksasi?.jabatan_petugas,
+          pimpinan: updates.pimpinan ?? existingTaksasi?.pimpinan,
+          jabatan_pimpinan: updates.jabatan_pimpinan ?? existingTaksasi?.jabatan_pimpinan,
+          members: updates.tim_penilai ?? existingTaksasi?.tim_penilai ?? []
+        };
+      }
+
+      if (updates.status_otorisasi) {
+        const statusMap: Record<string, string> = {
+          'Selesai': 'disetujui',
+          'Ditolak': 'ditolak',
+          'Draft': 'draft'
+        };
+        updateData.status = statusMap[updates.status_otorisasi] || 'draft';
+      }
+
+      const { error } = await supabase
+        .from('taksasi')
+        .update(updateData)
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error updating taksasi:', error);
+        toast({
+          title: 'Error',
+          description: 'Gagal mengubah data taksasi: ' + error.message,
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      toast({
+        title: 'Berhasil',
+        description: 'Data taksasi berhasil diperbarui'
+      });
+
+      // Refresh the list
+      await fetchTaksasi();
+    } catch (error: any) {
+      console.error('Error updating taksasi:', error);
+      toast({
+        title: 'Error',
+        description: 'Gagal mengubah data taksasi',
+        variant: 'destructive'
+      });
+    }
+  }, [session?.user, toast, fetchTaksasi, taksasiList]);
+
+  const deleteTaksasi = useCallback(async (id: string) => {
+    if (!session?.user) {
+      toast({
+        title: 'Error',
+        description: 'Anda harus login untuk menghapus data',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('taksasi')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error deleting taksasi:', error);
+        toast({
+          title: 'Error',
+          description: 'Gagal menghapus data taksasi: ' + error.message,
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      toast({
+        title: 'Berhasil',
+        description: 'Data taksasi berhasil dihapus'
+      });
+
+      // Refresh the list
+      await fetchTaksasi();
+    } catch (error: any) {
+      console.error('Error deleting taksasi:', error);
+      toast({
+        title: 'Error',
+        description: 'Gagal menghapus data taksasi',
+        variant: 'destructive'
+      });
+    }
+  }, [session?.user, toast, fetchTaksasi]);
 
   const getTaksasiByUser = useCallback((userId: string) => {
     return taksasiList.filter(t => t.id_user === userId);
@@ -163,15 +326,21 @@ export function TaksasiProvider({ children }: { children: ReactNode }) {
     return taksasiList.find(t => t.id === id);
   }, [taksasiList]);
 
+  const refreshTaksasi = useCallback(async () => {
+    await fetchTaksasi();
+  }, [fetchTaksasi]);
+
   return (
     <TaksasiContext.Provider
       value={{
         taksasiList,
+        isLoading,
         addTaksasi,
         updateTaksasi,
         deleteTaksasi,
         getTaksasiByUser,
         getTaksasiById,
+        refreshTaksasi,
       }}
     >
       {children}

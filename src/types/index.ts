@@ -9,7 +9,7 @@ export interface User {
 
 export type JenisAgunan = 'Tanah' | 'Tanah & Bangunan' | 'Kendaraan';
 
-export type StatusTaksasi = 'Selesai';
+export type StatusTaksasi = 'Selesai' | 'Draft' | 'Ditolak';
 
 // Legacy type for backward compatibility
 export type StatusOtorisasi = StatusTaksasi;
@@ -198,6 +198,8 @@ export interface Taksasi {
   jenis_agunan: JenisAgunan;
   nama_nasabah: string;
   alamat: string;
+  no_rekening?: string;
+  no_hp?: string;
   nilai_pasar: number;
   nilai_taksasi: number;
   nilai_taksasi_pembulatan: number;
@@ -219,6 +221,7 @@ export interface Taksasi {
   marketability?: string;
   catatan_marketability?: string[];
   dokumentasi?: DokumentasiAgunan;
+  keterangan?: string;
 }
 
 // Calculation formulas based on the documents
