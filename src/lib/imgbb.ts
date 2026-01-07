@@ -30,10 +30,11 @@ export async function uploadToImgBB(file: File): Promise<string> {
     const result: ImgBBResponse = await response.json();
 
     if (result.success && result.data) {
-      return result.data.display_url;
-    } else {
-      throw new Error(result.error?.message || 'Upload failed');
+      // Prefer direct image URL for reliable hotlinking
+      return result.data.url;
     }
+
+    throw new Error(result.error?.message || 'Upload failed');
   } catch (error) {
     console.error('ImgBB upload error:', error);
     throw error;
