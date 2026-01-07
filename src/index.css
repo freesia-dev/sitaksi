@@ -128,6 +128,18 @@
 
   html {
     scroll-behavior: smooth;
+    font-size: clamp(14px, 1.5vw, 16px);
+  }
+
+  /* Responsive text utilities */
+  h1, h2, h3, h4, h5, h6 {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  p, span, td, th {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 }
 

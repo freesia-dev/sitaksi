@@ -208,14 +208,15 @@ export function ExportFormTaksasi({ taksasi, logo }: ExportFormTaksasiProps) {
           </table>
 
           {/* Pimpinan Signature */}
-          <div className="text-center space-y-1">
-            <p>Bontang, {formatDate(taksasi.tanggal)}</p>
-            <p className="font-medium">PT BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA</p>
-            <p>{taksasi.kantor_cabang.toUpperCase()}</p>
-            {/* Signature box with transparent border for print spacing */}
-            <div className="h-24 border border-transparent print:h-28"></div>
-            <p className="font-bold">{taksasi.pimpinan}</p>
-            <p className="italic">{taksasi.jabatan_pimpinan}</p>
+          <div className="text-center">
+            <p>PT Bank Pembangunan Daerah</p>
+            <p>Kalimantan Timur dan Kalimantan Utara</p>
+            <p>{taksasi.kantor_cabang}</p>
+            <div className="mt-16 print:mt-20">
+              <div className="border-b border-black w-48 mx-auto mb-1"></div>
+              <p className="font-bold">{taksasi.pimpinan}</p>
+              <p className="italic">{taksasi.jabatan_pimpinan}</p>
+            </div>
           </div>
         </div>
       </div>
