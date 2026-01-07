@@ -3,7 +3,7 @@ import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Linkedin, Instagram, Code, Building, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import logoBankaltimtara from '@/assets/logo-bankaltimtara.png';
+import logoSitaksi from '@/assets/logo-sitaksi.png';
 
 export default function About() {
   const navigate = useNavigate();
@@ -12,7 +12,7 @@ export default function About() {
     <div className="space-y-6 max-w-3xl mx-auto">
       <PageHeader
         title="Tentang Aplikasi"
-        description="Informasi tentang Sistem Taksasi Agunan"
+        description="Informasi tentang SITAKSI - Sistem TAKSasi telIhan"
         actions={
           <Button variant="ghost" onClick={() => navigate('/dashboard')}>
             <ArrowLeft className="mr-2" size={16} />
@@ -26,21 +26,20 @@ export default function About() {
         <div className="rounded-xl border bg-card p-4 sm:p-8 shadow-card animate-slide-up">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6 text-center sm:text-left">
             <img 
-              src={logoBankaltimtara} 
-              alt="Bankaltimtara" 
-              className="h-16 w-16 sm:h-20 sm:w-20 object-contain"
+              src={logoSitaksi} 
+              alt="SITAKSI" 
+              className="h-20 w-20 sm:h-24 sm:w-24 object-contain"
             />
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground">Sistem Taksasi Agunan</h2>
-              <p className="text-sm sm:text-base text-muted-foreground">PT Bank Pembangunan Daerah Kaltim Kaltara</p>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">SITAKSI</h2>
+              <p className="text-sm sm:text-base text-muted-foreground">Sistem TAKSasi telIhan</p>
+              <p className="text-xs text-primary font-medium mt-1">Appraisal Cepat, Valid, dan Terstandar.</p>
             </div>
           </div>
 
           <div className="space-y-4 text-muted-foreground text-sm sm:text-base">
             <p>
-              Sistem Taksasi Agunan adalah aplikasi yang dirancang khusus untuk membantu proses 
-              penilaian agunan/jaminan kredit di Bank Pembangunan Daerah Kalimantan Timur dan 
-              Kalimantan Utara (Bankaltimtara).
+              SITAKSI (SIstem TAKSasi telIhan) adalah platform digital internal yang dirancang untuk mendukung proses taksasi agunan secara cepat, akurat, dan terdokumentasi. Sistem ini membantu Officer, Pimpinan, dan Admin dalam melakukan penilaian agunan, memvalidasi data, serta menghasilkan output laporan yang terstruktur dan terstandar.
             </p>
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mt-6">
@@ -103,7 +102,7 @@ export default function About() {
         <div className="rounded-xl border bg-card p-4 sm:p-6 shadow-card animate-slide-up" style={{ animationDelay: '0.2s' }}>
           <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
             <span>Versi Aplikasi: 1.0.0</span>
-            <span>© 2025 Bankaltimtara. All rights reserved.</span>
+            <span>© Haris Fadilah - 2026</span>
           </div>
         </div>
       </div>

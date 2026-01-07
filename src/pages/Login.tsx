@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
-import logoBankaltimtara from '@/assets/logo-bankaltimtara.png';
+import logoSitaksi from '@/assets/logo-sitaksi.png';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -48,20 +48,20 @@ export default function Login() {
         <div className="relative z-10 flex flex-col justify-center px-8 md:px-12 xl:px-20">
           <div className="animate-slide-up">
             <img
-              src={logoBankaltimtara}
-              alt="Logo Bankaltimtara"
-              className="w-24 h-24 xl:w-28 xl:h-28 object-contain mb-6"
+              src={logoSitaksi}
+              alt="Logo SITAKSI"
+              className="w-40 h-40 xl:w-48 xl:h-48 object-contain mb-6"
             />
             <h1 className="text-3xl md:text-4xl xl:text-5xl font-bold text-primary-foreground leading-tight mb-4">
-              Sistem Taksasi<br />Agunan
+              SITAKSI
             </h1>
             <p className="text-base xl:text-lg text-primary-foreground/80 max-w-md">
-              Platform digital untuk penilaian agunan kredit yang akurat, cepat, dan terintegrasi.
+              Appraisal Cepat, Valid, dan Terstandar.
             </p>
           </div>
 
           <div className="mt-8 xl:mt-12 space-y-3 xl:space-y-4" style={{ animationDelay: '0.1s' }}>
-            {['Taksasi Tanah & Bangunan', 'Taksasi Kendaraan', 'Laporan Otomatis'].map((feature, i) => (
+            {['Taksasi Tanah & Bangunan', 'Taksasi Kendaraan', 'Laporan Terstruktur'].map((feature, i) => (
               <div key={feature} className="flex items-center gap-3 text-primary-foreground/90 animate-slide-up" style={{ animationDelay: `${0.2 + i * 0.1}s` }}>
                 <div className="w-2 h-2 rounded-full bg-sidebar-primary" />
                 <span className="text-sm xl:text-base">{feature}</span>
@@ -80,9 +80,9 @@ export default function Login() {
         <div className="w-full max-w-sm sm:max-w-md animate-scale-up">
           <div className="text-center mb-6 sm:mb-8">
             <img
-              src={logoBankaltimtara}
-              alt="Logo Bankaltimtara"
-              className="lg:hidden w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-4 object-contain"
+              src={logoSitaksi}
+              alt="Logo SITAKSI"
+              className="lg:hidden w-32 h-32 sm:w-40 sm:h-40 mx-auto mb-4 object-contain"
             />
             <h2 className="text-xl sm:text-2xl font-bold text-foreground">Selamat Datang</h2>
             <p className="text-sm sm:text-base text-muted-foreground mt-2">Masuk ke akun Anda untuk melanjutkan</p>
@@ -96,7 +96,7 @@ export default function Login() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="nama@bankaltimtara.id"
+                  placeholder="nama@bankaltimtara.co.id"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
@@ -141,7 +141,7 @@ export default function Login() {
 
 
           <p className="text-center text-xs text-muted-foreground mt-6">
-            © 2025 PT. Bank Pembangunan Daerah Kalimantan Timur dan Kalimantan Utara
+            © Haris Fadilah - 2026
           </p>
         </div>
       </div>

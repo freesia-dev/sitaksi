@@ -15,7 +15,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import logoBankaltimtara from '@/assets/logo-bankaltimtara.png';
+import logoSitaksi from '@/assets/logo-sitaksi.png';
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -87,20 +87,20 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
         {!isCollapsed && (
           <div className="flex items-center gap-3 animate-fade-in">
             <img 
-              src={logoBankaltimtara} 
-              alt="Bankaltimtara" 
+              src={logoSitaksi} 
+              alt="SITAKSI" 
               className="w-12 h-12 object-contain"
             />
             <div>
-              <h1 className="font-bold text-sidebar-foreground text-sm">BANKALTIMTARA</h1>
-              <p className="text-xs text-sidebar-foreground/60">Sistem Taksasi Agunan</p>
+              <h1 className="font-bold text-sidebar-foreground text-sm">SITAKSI</h1>
+              <p className="text-xs text-sidebar-foreground/60">Sistem TAKSasi telIhan</p>
             </div>
           </div>
         )}
         {isCollapsed && (
           <img 
-            src={logoBankaltimtara} 
-            alt="Bankaltimtara" 
+            src={logoSitaksi} 
+            alt="SITAKSI" 
             className="w-10 h-10 mx-auto object-contain"
           />
         )}
