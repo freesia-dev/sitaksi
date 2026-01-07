@@ -34,6 +34,7 @@ import {
   Trash2,
   AlertCircle,
   Camera,
+  Hash,
 } from 'lucide-react';
 import {
   Select,
@@ -137,6 +138,7 @@ export default function TaksasiTanah() {
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
+    nomor_dokumen: '',
     nama_nasabah: '',
     kantor_cabang: 'KANTOR CABANG PEMBANTU TELIHAN',
     alamat_cabang: 'JL.S.PARMAN NO.14-15 KEL.GN.TELIHAN KEC.BONTANG BARAT-75383',
@@ -262,7 +264,7 @@ export default function TaksasiTanah() {
 
     addTaksasi({
       id_user: user?.id || '',
-      nomor_dokumen: generateNomorDokumen('TLH'),
+      nomor_dokumen: generateNomorDokumen('TLH', formData.nomor_dokumen),
       jenis_agunan: 'Tanah',
       nama_nasabah: formData.nama_nasabah,
       alamat: alamatGabungan,
@@ -322,15 +324,51 @@ export default function TaksasiTanah() {
             <MapPin size={18} className="text-primary" />
             Data Nasabah
           </h3>
-          <div>
-            <Label htmlFor="nama_nasabah">Nama Calon Debitur / Debitur</Label>
-            <Input
-              id="nama_nasabah"
-              name="nama_nasabah"
-              placeholder="Masukkan nama nasabah"
-              value={formData.nama_nasabah}
-              onChange={handleChange}
-            />
+          <div className="grid gap-4">
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="nomor_dokumen" className="flex items-center gap-1">
+                  <Hash size={14} />
+                  Nomor Dokumen
+                </Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="nomor_dokumen"
+                    name="nomor_dokumen"
+                    type="number"
+                    placeholder="001"
+                    className="w-24"
+                    value={formData.nomor_dokumen}
+                    onChange={handleChange}
+                    max={999}
+                    min={1}
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    /F-3/BPD-TLH/{['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'][new Date().getMonth()]}/{new Date().getFullYear()}
+                  </span>
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="tanggal_penilaian">Tanggal Penilaian</Label>
+                <Input
+                  type="date"
+                  id="tanggal_penilaian"
+                  defaultValue={new Date().toISOString().split('T')[0]}
+                  disabled
+                  className="bg-muted"
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="nama_nasabah">Nama Calon Debitur / Debitur</Label>
+              <Input
+                id="nama_nasabah"
+                name="nama_nasabah"
+                placeholder="Masukkan nama nasabah"
+                value={formData.nama_nasabah}
+                onChange={handleChange}
+              />
+            </div>
           </div>
         </div>
 
