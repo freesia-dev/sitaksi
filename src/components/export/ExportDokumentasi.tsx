@@ -1,13 +1,53 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Taksasi, 
   DetailAgunanKendaraan, 
   formatDate 
 } from '@/types';
+import { ImageOff } from 'lucide-react';
 
 interface ExportDokumentasiProps {
   taksasi: Taksasi;
   logo: string;
+}
+
+interface ImageWithFallbackProps {
+  src: string;
+  alt: string;
+}
+
+function ImageWithFallback({ src, alt }: ImageWithFallbackProps) {
+  const [hasError, setHasError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  if (hasError) {
+    return (
+      <div className="text-muted-foreground text-sm text-center p-4 flex flex-col items-center justify-center h-full">
+        <ImageOff size={32} className="mb-2 opacity-50" />
+        <p>Gagal memuat foto</p>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {isLoading && (
+        <div className="absolute inset-0 bg-muted animate-pulse flex items-center justify-center">
+          <span className="text-muted-foreground text-sm">Memuat...</span>
+        </div>
+      )}
+      <img 
+        src={src} 
+        alt={alt} 
+        className="w-full h-full object-cover"
+        onLoad={() => setIsLoading(false)}
+        onError={() => {
+          setHasError(true);
+          setIsLoading(false);
+        }}
+      />
+    </>
+  );
 }
 
 export function ExportDokumentasi({ taksasi, logo }: ExportDokumentasiProps) {
@@ -85,15 +125,12 @@ export function ExportDokumentasi({ taksasi, logo }: ExportDokumentasiProps) {
             const imageUrl = getImageUrl(index, dokumentasiKeys[index]);
             return (
               <div key={index} className="space-y-2">
-                <div className="aspect-video bg-muted rounded-lg overflow-hidden flex items-center justify-center border">
+                <div className="aspect-video bg-muted rounded-lg overflow-hidden flex items-center justify-center border relative">
                   {imageUrl ? (
-                    <img 
-                      src={imageUrl} 
-                      alt={label} 
-                      className="w-full h-full object-cover"
-                    />
+                    <ImageWithFallback src={imageUrl} alt={label} />
                   ) : (
-                    <div className="text-muted-foreground text-sm text-center p-4">
+                    <div className="text-muted-foreground text-sm text-center p-4 flex flex-col items-center justify-center">
+                      <ImageOff size={32} className="mb-2 opacity-50" />
                       <p>Foto tidak tersedia</p>
                     </div>
                   )}
