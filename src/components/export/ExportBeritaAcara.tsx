@@ -97,8 +97,7 @@ Nomor Polisi / Nomor Plat : ${detailKendaraan.nomor_polisi}`;
         <div className="mt-8 pt-4">
           <div className="flex justify-between">
             <div className="text-sm text-center">
-              <p className="font-medium">Petugas Yang Melakukan Penilaian</p>
-              <div className="h-20"></div>
+              <div className="h-24"></div>
               <div className="border-b border-black w-48 mx-auto"></div>
               <p className="font-bold mt-1">{taksasi.petugas}</p>
               <p>{taksasi.jabatan_petugas}</p>
