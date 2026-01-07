@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
-import logoSitaksi from '@/assets/logo-sitaksi.png';
+import logoSitaksi from '@/assets/logo-sitaksi-fix.png';
 
 export default function Login() {
   const [email, setEmail] = useState('');

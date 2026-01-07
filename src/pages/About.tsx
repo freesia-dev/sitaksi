@@ -3,7 +3,7 @@ import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Linkedin, Instagram, Code, Building, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import logoSitaksi from '@/assets/logo-sitaksi.png';
+import logoSitaksiOnly from '@/assets/logo-sitaksi-only.png';
 
 export default function About() {
   const navigate = useNavigate();
@@ -26,9 +26,9 @@ export default function About() {
         <div className="rounded-xl border bg-card p-4 sm:p-8 shadow-card animate-slide-up">
           <div className="flex justify-center mb-6">
             <img 
-              src={logoSitaksi} 
+              src={logoSitaksiOnly} 
               alt="SITAKSI" 
-              className="w-72 sm:w-96 h-auto object-contain"
+              className="w-40 sm:w-56 h-auto object-contain"
             />
           </div>
 

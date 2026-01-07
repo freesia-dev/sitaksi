@@ -15,7 +15,8 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import logoSitaksi from '@/assets/logo-sitaksi.png';
+import logoSitaksi from '@/assets/logo-sitaksi-fix.png';
+import logoSitaksiOnly from '@/assets/logo-sitaksi-only.png';
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -95,9 +96,9 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
         )}
         {isCollapsed && (
           <img 
-            src={logoSitaksi} 
+            src={logoSitaksiOnly} 
             alt="SITAKSI" 
-            className="w-14 h-auto mx-auto object-contain"
+            className="w-12 h-12 mx-auto object-contain"
           />
         )}
       </div>
