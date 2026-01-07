@@ -119,11 +119,14 @@ Nomor Polisi / Nomor Plat : ${detailKendaraan.nomor_polisi}`;
             <p>PT Bank Pembangunan Daerah</p>
             <p>Kalimantan Timur dan Kalimantan Utara</p>
             <p>{taksasi.kantor_cabang}</p>
-            <div className="mt-16 print:mt-20">
-              <div className="border-b border-black w-48 mx-auto mb-1"></div>
-              <p className="font-bold">{taksasi.pimpinan}</p>
-              <p className="italic">{taksasi.jabatan_pimpinan}</p>
+
+            {/* Area tanda tangan (space di atas garis) */}
+            <div className="w-64 mx-auto mt-4 h-24 print:h-32 flex flex-col justify-end border border-transparent">
+              <div className="border-b border-black w-full"></div>
             </div>
+
+            <p className="font-bold">{taksasi.pimpinan}</p>
+            <p className="italic">{taksasi.jabatan_pimpinan}</p>
           </div>
         </div>
       </div>
