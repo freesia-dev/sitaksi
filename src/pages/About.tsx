@@ -32,10 +32,6 @@ export default function About() {
             />
           </div>
 
-          <p className="text-center text-muted-foreground italic mb-6">
-            "Akurasi bukan pilihan, tapi standar. Masuk untuk memulai."
-          </p>
-
           <div className="space-y-4 text-muted-foreground text-sm sm:text-base">
             <p className="text-justify">
               SITAKSI (SIstem TAKSasi telIhan) adalah platform digital internal yang dirancang untuk mendukung proses taksasi agunan secara cepat, akurat, dan terdokumentasi. Sistem ini membantu Officer, Pimpinan, dan Admin dalam melakukan penilaian agunan, memvalidasi data, serta menghasilkan output laporan yang terstruktur dan terstandar.
