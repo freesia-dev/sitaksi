@@ -50,14 +50,8 @@ export default function Login() {
             <img
               src={logoSitaksi}
               alt="Logo SITAKSI"
-              className="w-40 h-40 xl:w-48 xl:h-48 object-contain mb-6"
+              className="w-72 h-auto xl:w-96 object-contain mb-6"
             />
-            <h1 className="text-3xl md:text-4xl xl:text-5xl font-bold text-primary-foreground leading-tight mb-4">
-              SITAKSI
-            </h1>
-            <p className="text-base xl:text-lg text-primary-foreground/80 max-w-md">
-              Appraisal Cepat, Valid, dan Terstandar.
-            </p>
           </div>
 
           <div className="mt-8 xl:mt-12 space-y-3 xl:space-y-4" style={{ animationDelay: '0.1s' }}>
@@ -82,7 +76,7 @@ export default function Login() {
             <img
               src={logoSitaksi}
               alt="Logo SITAKSI"
-              className="lg:hidden w-32 h-32 sm:w-40 sm:h-40 mx-auto mb-4 object-contain"
+              className="lg:hidden w-56 sm:w-72 h-auto mx-auto mb-4 object-contain"
             />
             <h2 className="text-xl sm:text-2xl font-bold text-foreground">Selamat Datang</h2>
             <p className="text-sm sm:text-base text-muted-foreground mt-2">Masuk ke akun Anda untuk melanjutkan</p>

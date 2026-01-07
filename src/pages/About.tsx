@@ -24,17 +24,12 @@ export default function About() {
       <div className="grid gap-6">
         {/* About App */}
         <div className="rounded-xl border bg-card p-4 sm:p-8 shadow-card animate-slide-up">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6 text-center sm:text-left">
+          <div className="flex justify-center mb-6">
             <img 
               src={logoSitaksi} 
               alt="SITAKSI" 
-              className="h-20 w-20 sm:h-24 sm:w-24 object-contain"
+              className="w-72 sm:w-96 h-auto object-contain"
             />
-            <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground">SITAKSI</h2>
-              <p className="text-sm sm:text-base text-muted-foreground">Sistem TAKSasi telIhan</p>
-              <p className="text-xs text-primary font-medium mt-1">Appraisal Cepat, Valid, dan Terstandar.</p>
-            </div>
           </div>
 
           <div className="space-y-4 text-muted-foreground text-sm sm:text-base">

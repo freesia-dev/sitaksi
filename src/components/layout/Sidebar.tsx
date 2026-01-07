@@ -85,23 +85,19 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
         {!isCollapsed && (
-          <div className="flex items-center gap-3 animate-fade-in">
+          <div className="flex items-center justify-center animate-fade-in">
             <img 
               src={logoSitaksi} 
               alt="SITAKSI" 
-              className="w-12 h-12 object-contain"
+              className="w-44 h-auto object-contain"
             />
-            <div>
-              <h1 className="font-bold text-sidebar-foreground text-sm">SITAKSI</h1>
-              <p className="text-xs text-sidebar-foreground/60">Sistem TAKSasi telIhan</p>
-            </div>
           </div>
         )}
         {isCollapsed && (
           <img 
             src={logoSitaksi} 
             alt="SITAKSI" 
-            className="w-10 h-10 mx-auto object-contain"
+            className="w-14 h-auto mx-auto object-contain"
           />
         )}
       </div>
