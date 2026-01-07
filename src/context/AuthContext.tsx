@@ -15,6 +15,7 @@ const DEMO_USERS: (User & { password: string })[] = [
   { id: '1', nama: 'Admin Bankaltimtara', email: 'admin@bankaltimtara.id', role: 'Admin', password: 'admin123' },
   { id: '2', nama: 'Kepala Cabang', email: 'pimpinan@bankaltimtara.id', role: 'Pimpinan', password: 'pimpinan123' },
   { id: '3', nama: 'Haris Fadilah', email: 'officer@bankaltimtara.id', role: 'Officer', password: 'officer123' },
+  { id: '4', nama: 'Demo User', email: 'demo@bankaltimtara.id', role: 'Demo', password: 'demo123' },
 ];
 
 const IDLE_TIMEOUT = 15 * 60 * 1000; // 15 minutes in milliseconds

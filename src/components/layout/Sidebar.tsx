@@ -30,6 +30,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   const isOfficerOrAdmin = user?.role === 'Officer' || user?.role === 'Admin';
   const isPimpinan = user?.role === 'Pimpinan';
   const isAdmin = user?.role === 'Admin';
+  const isDemo = user?.role === 'Demo';
 
   const menuItems = [
     {
@@ -42,19 +43,19 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       label: 'Taksasi Tanah',
       icon: Home,
       href: '/list/tanah',
-      show: isOfficerOrAdmin,
+      show: isOfficerOrAdmin || isDemo,
     },
     {
       label: 'Taksasi T & B',
       icon: Building2,
       href: '/list/tanah-bangunan',
-      show: isOfficerOrAdmin,
+      show: isOfficerOrAdmin || isDemo,
     },
     {
       label: 'Taksasi Kendaraan',
       icon: Car,
       href: '/list/kendaraan',
-      show: isOfficerOrAdmin,
+      show: isOfficerOrAdmin || isDemo,
     },
     {
       label: 'Riwayat',

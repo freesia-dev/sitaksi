@@ -3,7 +3,7 @@ import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Linkedin, Instagram, Code, Building, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import logoSitaksiOnly from '@/assets/logo-sitaksi-only.png';
+import logoSitaksiFix from '@/assets/logo-sitaksi-fix.png';
 
 export default function About() {
   const navigate = useNavigate();
@@ -26,14 +26,18 @@ export default function About() {
         <div className="rounded-xl border bg-card p-4 sm:p-8 shadow-card animate-slide-up">
           <div className="flex justify-center mb-6">
             <img 
-              src={logoSitaksiOnly} 
+              src={logoSitaksiFix} 
               alt="SITAKSI" 
-              className="w-40 sm:w-56 h-auto object-contain"
+              className="w-56 sm:w-72 h-auto object-contain"
             />
           </div>
 
+          <p className="text-center text-muted-foreground italic mb-6">
+            "Akurasi bukan pilihan, tapi standar. Masuk untuk memulai."
+          </p>
+
           <div className="space-y-4 text-muted-foreground text-sm sm:text-base">
-            <p>
+            <p className="text-justify">
               SITAKSI (SIstem TAKSasi telIhan) adalah platform digital internal yang dirancang untuk mendukung proses taksasi agunan secara cepat, akurat, dan terdokumentasi. Sistem ini membantu Officer, Pimpinan, dan Admin dalam melakukan penilaian agunan, memvalidasi data, serta menghasilkan output laporan yang terstruktur dan terstandar.
             </p>
             

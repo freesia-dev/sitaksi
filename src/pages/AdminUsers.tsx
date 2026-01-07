@@ -35,6 +35,7 @@ const INITIAL_USERS: User[] = [
   { id: '1', nama: 'Admin Bankaltimtara', email: 'admin@bankaltimtara.id', role: 'Admin' },
   { id: '2', nama: 'Kepala Cabang', email: 'pimpinan@bankaltimtara.id', role: 'Pimpinan' },
   { id: '3', nama: 'Haris Fadilah', email: 'officer@bankaltimtara.id', role: 'Officer' },
+  { id: '4', nama: 'Demo User', email: 'demo@bankaltimtara.id', role: 'Demo' },
 ];
 
 export default function AdminUsers() {
@@ -172,6 +173,8 @@ export default function AdminUsers() {
         return 'default';
       case 'Officer':
         return 'secondary';
+      case 'Demo':
+        return 'outline';
       default:
         return 'outline';
     }
@@ -314,6 +317,7 @@ export default function AdminUsers() {
                   <SelectItem value="Admin">Admin</SelectItem>
                   <SelectItem value="Pimpinan">Pimpinan</SelectItem>
                   <SelectItem value="Officer">Officer</SelectItem>
+                  <SelectItem value="Demo">Demo</SelectItem>
                 </SelectContent>
               </Select>
             </div>

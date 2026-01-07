@@ -59,6 +59,7 @@ export default function TaksasiKendaraanList() {
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 
   const isAdmin = user?.role === 'Admin';
+  const isDemo = user?.role === 'Demo';
 
   // Filter only Kendaraan type
   const kendaraanList = useMemo(() => {
@@ -131,10 +132,12 @@ export default function TaksasiKendaraanList() {
         title="Taksasi Kendaraan"
         description="Daftar penilaian agunan berupa kendaraan"
         actions={
-          <Button onClick={() => navigate('/taksasi/kendaraan/new')}>
-            <Plus className="mr-2" size={16} />
-            Tambah Taksasi
-          </Button>
+          !isDemo && (
+            <Button onClick={() => navigate('/taksasi/kendaraan/new')}>
+              <Plus className="mr-2" size={16} />
+              Tambah Taksasi
+            </Button>
+          )
         }
       />
 
@@ -239,14 +242,16 @@ export default function TaksasiKendaraanList() {
                         >
                           <Eye size={16} />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => navigate(`/taksasi/kendaraan/edit/${taksasi.id}`)}
-                          title="Edit"
-                        >
-                          <Pencil size={16} />
-                        </Button>
+                        {!isDemo && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => navigate(`/taksasi/kendaraan/edit/${taksasi.id}`)}
+                            title="Edit"
+                          >
+                            <Pencil size={16} />
+                          </Button>
+                        )}
                         {isAdmin && (
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
