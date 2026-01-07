@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { formatCurrency, formatDate } from '@/types';
-import { Search, Filter, Eye, Download } from 'lucide-react';
+import { Search, Filter, Eye, Download, Edit } from 'lucide-react';
 
 export default function Riwayat() {
   const navigate = useNavigate();
@@ -43,6 +43,17 @@ export default function Riwayat() {
     const matchStatus = filterStatus === 'all' || t.status_otorisasi === filterStatus;
     return matchSearch && matchJenis && matchStatus;
   });
+
+  const handleEdit = (taksasi: typeof taksasiList[0]) => {
+    // Navigate to edit page based on jenis_agunan
+    if (taksasi.jenis_agunan === 'Tanah') {
+      navigate(`/taksasi/tanah/edit/${taksasi.id}`);
+    } else if (taksasi.jenis_agunan === 'Tanah & Bangunan') {
+      navigate(`/taksasi/tanah-bangunan/edit/${taksasi.id}`);
+    } else if (taksasi.jenis_agunan === 'Kendaraan') {
+      navigate(`/taksasi/kendaraan/edit/${taksasi.id}`);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -123,6 +134,16 @@ export default function Riwayat() {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex gap-1 justify-end">
+                    {taksasi.status_otorisasi === 'Menunggu' && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEdit(taksasi)}
+                      >
+                        <Edit size={16} className="mr-1" />
+                        Edit
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="sm"
