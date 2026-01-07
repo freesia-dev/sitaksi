@@ -16,7 +16,6 @@ import EditTaksasiTanah from "@/pages/forms/EditTaksasiTanah";
 import EditTaksasiTanahBangunan from "@/pages/forms/EditTaksasiTanahBangunan";
 import EditTaksasiKendaraan from "@/pages/forms/EditTaksasiKendaraan";
 import Riwayat from "@/pages/Riwayat";
-import Otorisasi from "@/pages/Otorisasi";
 import AdminUsers from "@/pages/AdminUsers";
 import DetailTaksasi from "@/pages/DetailTaksasi";
 import About from "@/pages/About";
@@ -44,7 +43,6 @@ const App = () => (
                 <Route path="/taksasi/tanah-bangunan/edit/:id" element={<EditTaksasiTanahBangunan />} />
                 <Route path="/taksasi/kendaraan/edit/:id" element={<EditTaksasiKendaraan />} />
                 <Route path="/riwayat" element={<Riwayat />} />
-                <Route path="/otorisasi" element={<Otorisasi />} />
                 <Route path="/admin/users" element={<AdminUsers />} />
                 <Route path="/taksasi/:id" element={<DetailTaksasi />} />
                 <Route path="/about" element={<About />} />

@@ -41,55 +41,51 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left Panel - Hero */}
-      <div className="hidden lg:flex lg:w-1/2 gradient-hero relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 xl:w-3/5 gradient-hero relative overflow-hidden">
         <div className="absolute inset-0 pattern-dots opacity-30" />
-        <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20">
+        <div className="relative z-10 flex flex-col justify-center px-8 md:px-12 xl:px-20">
           <div className="animate-slide-up">
-            <div className="w-16 h-16 rounded-2xl bg-background/10 flex items-center justify-center shadow-glow mb-8">
-              <img
-                src={logoBankaltimtara}
-                alt="Logo Bankaltimtara"
-                className="w-10 h-10 object-contain"
-              />
-            </div>
-            <h1 className="text-4xl xl:text-5xl font-bold text-primary-foreground leading-tight mb-4">
+            <img
+              src={logoBankaltimtara}
+              alt="Logo Bankaltimtara"
+              className="w-20 h-20 xl:w-24 xl:h-24 object-contain mb-6"
+            />
+            <h1 className="text-3xl md:text-4xl xl:text-5xl font-bold text-primary-foreground leading-tight mb-4">
               Sistem Taksasi<br />Agunan
             </h1>
-            <p className="text-lg text-primary-foreground/80 max-w-md">
+            <p className="text-base xl:text-lg text-primary-foreground/80 max-w-md">
               Platform digital untuk penilaian agunan kredit yang akurat, cepat, dan terintegrasi.
             </p>
           </div>
 
-          <div className="mt-12 space-y-4" style={{ animationDelay: '0.1s' }}>
-            {['Taksasi Tanah & Bangunan', 'Taksasi Kendaraan', 'Otorisasi Digital', 'Laporan Otomatis'].map((feature, i) => (
+          <div className="mt-8 xl:mt-12 space-y-3 xl:space-y-4" style={{ animationDelay: '0.1s' }}>
+            {['Taksasi Tanah & Bangunan', 'Taksasi Kendaraan', 'Laporan Otomatis'].map((feature, i) => (
               <div key={feature} className="flex items-center gap-3 text-primary-foreground/90 animate-slide-up" style={{ animationDelay: `${0.2 + i * 0.1}s` }}>
                 <div className="w-2 h-2 rounded-full bg-sidebar-primary" />
-                <span>{feature}</span>
+                <span className="text-sm xl:text-base">{feature}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Decorative elements */}
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
-        <div className="absolute top-20 right-20 w-64 h-64 bg-sidebar-primary/10 rounded-full blur-2xl animate-float" />
+        <div className="absolute bottom-0 right-0 w-64 xl:w-96 h-64 xl:h-96 bg-accent/10 rounded-full blur-3xl" />
+        <div className="absolute top-20 right-10 xl:right-20 w-48 xl:w-64 h-48 xl:h-64 bg-sidebar-primary/10 rounded-full blur-2xl animate-float" />
       </div>
 
       {/* Right Panel - Login Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-background">
-        <div className="w-full max-w-md animate-scale-up">
-          <div className="text-center mb-8">
-            <div className="lg:hidden w-14 h-14 mx-auto mb-4 rounded-xl bg-muted flex items-center justify-center shadow-elevated">
-              <img
-                src={logoBankaltimtara}
-                alt="Logo Bankaltimtara"
-                className="w-8 h-8 object-contain"
-              />
-            </div>
-            <h2 className="text-2xl font-bold text-foreground">Selamat Datang</h2>
-            <p className="text-muted-foreground mt-2">Masuk ke akun Anda untuk melanjutkan</p>
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8 bg-background min-h-screen lg:min-h-0">
+        <div className="w-full max-w-sm sm:max-w-md animate-scale-up">
+          <div className="text-center mb-6 sm:mb-8">
+            <img
+              src={logoBankaltimtara}
+              alt="Logo Bankaltimtara"
+              className="lg:hidden w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 object-contain"
+            />
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground">Selamat Datang</h2>
+            <p className="text-sm sm:text-base text-muted-foreground mt-2">Masuk ke akun Anda untuk melanjutkan</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
