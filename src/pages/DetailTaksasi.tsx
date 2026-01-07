@@ -57,7 +57,13 @@ export default function DetailTaksasi() {
     const activeContent = document.querySelector(`[data-state="active"][role="tabpanel"]`);
     if (!activeContent) return;
 
-    // Write the print document
+    // Clone the content to avoid modifying the original
+    const contentClone = activeContent.cloneNode(true) as HTMLElement;
+    
+    // Remove any elements we don't want to print
+    contentClone.querySelectorAll('.no-print, button').forEach(el => el.remove());
+
+    // Write the print document with proper styling that matches preview
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
@@ -66,16 +72,18 @@ export default function DetailTaksasi() {
           <style>
             @page {
               size: A4;
-              margin: 15mm 10mm;
+              margin: 12mm 10mm;
             }
             * {
               margin: 0;
               padding: 0;
               box-sizing: border-box;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
             }
             body {
               font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-              font-size: 11pt;
+              font-size: 10pt;
               line-height: 1.4;
               color: #000;
               background: #fff;
@@ -84,76 +92,134 @@ export default function DetailTaksasi() {
             .print-container {
               max-width: 190mm;
               margin: 0 auto;
+              padding: 0;
             }
+            
+            /* Reset card styling for print */
+            .bg-white, [class*="bg-card"], [class*="rounded-xl"] {
+              background: white !important;
+              border: none !important;
+              box-shadow: none !important;
+              border-radius: 0 !important;
+              padding: 0 !important;
+            }
+            
+            /* Logo styling - proportional size */
+            img[alt="Bankaltimtara"] {
+              height: 48px !important;
+              width: auto !important;
+              max-width: 180px !important;
+            }
+            
+            /* Cover image for agunan */
+            .cover-image, img[alt="Tampak Depan Agunan"] {
+              max-width: 280px !important;
+              max-height: 180px !important;
+              object-fit: cover !important;
+              border: 1px solid #ccc !important;
+              border-radius: 4px !important;
+            }
+            
+            /* Tables */
             table {
               border-collapse: collapse;
               width: 100%;
+              margin: 8px 0;
             }
             th, td {
               border: 1px solid #333;
-              padding: 6px 8px;
+              padding: 4px 6px;
               text-align: left;
-              font-size: 10pt;
+              font-size: 9pt;
+              vertical-align: top;
             }
             th {
-              background: #f0f0f0;
+              background: #f0f0f0 !important;
               font-weight: 600;
             }
-            .text-center { text-align: center; }
-            .text-right { text-align: right; }
-            .font-bold { font-weight: bold; }
-            .font-semibold { font-weight: 600; }
-            .text-primary { color: #0066cc; }
-            h1, h2, h3, h4 { margin-bottom: 8px; }
-            h1 { font-size: 14pt; }
-            h2 { font-size: 13pt; }
-            h3 { font-size: 12pt; }
-            p { margin-bottom: 4px; }
-            img { max-width: 100%; height: auto; }
-            .cover-image {
-              max-width: 300px;
-              max-height: 200px;
-              object-fit: cover;
-              border: 1px solid #ccc;
-              border-radius: 8px;
-            }
-            .space-y-2 > * + * { margin-top: 8px; }
-            .space-y-4 > * + * { margin-top: 16px; }
-            .space-y-6 > * + * { margin-top: 24px; }
-            .space-y-8 > * + * { margin-top: 32px; }
-            .py-4 { padding-top: 16px; padding-bottom: 16px; }
-            .py-6 { padding-top: 24px; padding-bottom: 24px; }
-            .py-8 { padding-top: 32px; padding-bottom: 32px; }
-            .pt-4 { padding-top: 16px; }
-            .pt-8 { padding-top: 32px; }
-            .mt-4 { margin-top: 16px; }
-            .mt-8 { margin-top: 32px; }
-            .mb-4 { margin-bottom: 16px; }
-            .ml-4 { margin-left: 16px; }
+            
+            /* Text utilities */
+            .text-center { text-align: center !important; }
+            .text-right { text-align: right !important; }
+            .font-bold { font-weight: bold !important; }
+            .font-semibold { font-weight: 600 !important; }
+            .font-medium { font-weight: 500 !important; }
+            
+            /* Typography */
+            h1 { font-size: 13pt; margin-bottom: 6px; }
+            h2 { font-size: 12pt; margin-bottom: 5px; }
+            h3 { font-size: 11pt; margin-bottom: 4px; }
+            h4 { font-size: 10pt; margin-bottom: 3px; }
+            p { margin-bottom: 3px; font-size: 10pt; }
+            
+            /* Spacing */
+            .space-y-2 > * + * { margin-top: 6px; }
+            .space-y-4 > * + * { margin-top: 12px; }
+            .space-y-6 > * + * { margin-top: 18px; }
+            .space-y-8 > * + * { margin-top: 24px; }
+            .py-4 { padding-top: 12px; padding-bottom: 12px; }
+            .py-6 { padding-top: 18px; padding-bottom: 18px; }
+            .py-8 { padding-top: 24px; padding-bottom: 24px; }
+            .pt-4 { padding-top: 12px; }
+            .pt-8 { padding-top: 24px; }
+            .mt-4 { margin-top: 12px; }
+            .mt-8 { margin-top: 24px; }
+            .mb-4 { margin-bottom: 12px; }
+            .mb-2 { margin-bottom: 6px; }
             .mx-auto { margin-left: auto; margin-right: auto; }
-            .border-t { border-top: 1px solid #ccc; }
-            .rounded-lg { border-radius: 8px; }
-            .bg-muted { background: #f5f5f5; }
-            .whitespace-pre-line { white-space: pre-line; }
+            .gap-4 { gap: 12px; }
+            
+            /* Layout */
             .flex { display: flex; }
             .justify-between { justify-content: space-between; }
+            .justify-center { justify-content: center; }
             .items-center { align-items: center; }
-            .gap-4 { gap: 16px; }
             .grid { display: grid; }
             .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
             .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
             .col-span-2 { grid-column: span 2; }
-            @media print {
-              body { 
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-              }
+            
+            /* Borders */
+            .border-t { border-top: 1px solid #ccc; }
+            .border-b { border-bottom: 1px solid #ccc; }
+            
+            /* Documentation photos grid */
+            .aspect-video {
+              aspect-ratio: 16/9;
+              background: #f5f5f5;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              overflow: hidden;
+              border: 1px solid #ddd;
+            }
+            .aspect-video img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+            
+            /* Page breaks */
+            .page-break { page-break-before: always; }
+            table { page-break-inside: avoid; }
+            
+            /* Hide placeholder boxes for missing photos */
+            .border-dashed { display: none; }
+            
+            /* Muted text color for print */
+            .text-muted-foreground { color: #666 !important; }
+            .text-primary { color: #1a365d !important; }
+            .text-success { color: #166534 !important; }
+            
+            /* Remove any background colors except for table headers */
+            [class*="bg-muted"], [class*="bg-success"], [class*="rounded-lg"] {
+              background: transparent !important;
             }
           </style>
         </head>
         <body>
           <div class="print-container">
-            ${activeContent.innerHTML}
+            ${contentClone.innerHTML}
           </div>
         </body>
       </html>
@@ -161,21 +227,45 @@ export default function DetailTaksasi() {
 
     printWindow.document.close();
     
-    // Wait for content to load, then print
-    printWindow.onload = () => {
+    // Wait for images to load, then print
+    const images = printWindow.document.querySelectorAll('img');
+    let loadedCount = 0;
+    const totalImages = images.length;
+    
+    const triggerPrint = () => {
       setTimeout(() => {
         printWindow.print();
         printWindow.close();
-      }, 300);
+      }, 200);
     };
-    
-    // Fallback if onload doesn't fire
-    setTimeout(() => {
-      if (!printWindow.closed) {
-        printWindow.print();
-        printWindow.close();
-      }
-    }, 1000);
+
+    if (totalImages === 0) {
+      triggerPrint();
+    } else {
+      images.forEach(img => {
+        if (img.complete) {
+          loadedCount++;
+          if (loadedCount === totalImages) triggerPrint();
+        } else {
+          img.onload = () => {
+            loadedCount++;
+            if (loadedCount === totalImages) triggerPrint();
+          };
+          img.onerror = () => {
+            loadedCount++;
+            if (loadedCount === totalImages) triggerPrint();
+          };
+        }
+      });
+      
+      // Fallback timeout
+      setTimeout(() => {
+        if (!printWindow.closed) {
+          printWindow.print();
+          printWindow.close();
+        }
+      }, 2000);
+    }
   };
 
   const handleExportPDF = () => {

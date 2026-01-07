@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTaksasi } from '@/context/TaksasiContext';
 import { PageHeader } from '@/components/shared/PageHeader';
@@ -11,14 +11,12 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   formatCurrency, 
   formatTerbilang, 
-  generateNomorDokumen, 
   DetailAgunanTanahSimple,
   generateId 
 } from '@/types';
 import { 
   SAFETY_MARGIN_TANAH,
   getMarginByValue,
-  getLabelByValue,
 } from '@/lib/safetyMarginConfig';
 import { 
   Calculator, 
@@ -76,7 +74,6 @@ interface TanahItem {
   sumber_2: string;
   harga_pembanding_3: string;
   sumber_3: string;
-  // Safety margins as dropdown values (condition names)
   safety_lokasi: string;
   safety_topography: string;
   safety_ukuran: string;
@@ -119,7 +116,6 @@ const defaultTanah: TanahItem = {
   sumber_2: '',
   harga_pembanding_3: '',
   sumber_3: '',
-  // Default safety margin conditions
   safety_lokasi: 'cukup_strategis',
   safety_topography: 'datar',
   safety_ukuran: 'ideal',
@@ -128,11 +124,14 @@ const defaultTanah: TanahItem = {
   safety_permasalahan: 'aman',
 };
 
-export default function TaksasiTanah() {
+export default function EditTaksasiTanah() {
+  const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
-  const { addTaksasi } = useTaksasi();
+  const { getTaksasiById, updateTaksasi } = useTaksasi();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const existingTaksasi = getTaksasiById(id || '');
 
   const [formData, setFormData] = useState({
     nama_nasabah: '',
@@ -155,6 +154,47 @@ export default function TaksasiTanah() {
     terbilang: string;
     detail_tanah: { nilai_pasar: number; nilai_likuidasi: number; avg_safety: number }[];
   } | null>(null);
+
+  // Load existing data
+  useEffect(() => {
+    if (existingTaksasi) {
+      setFormData({
+        nama_nasabah: existingTaksasi.nama_nasabah,
+        kantor_cabang: existingTaksasi.kantor_cabang || 'KANTOR CABANG PEMBANTU TELIHAN',
+        alamat_cabang: existingTaksasi.alamat_cabang || '',
+        pimpinan: existingTaksasi.pimpinan || '',
+        jabatan_pimpinan: existingTaksasi.jabatan_pimpinan || 'Pemimpin Capem',
+        marketability: existingTaksasi.marketability || 'cukup_marketable',
+        catatan_marketability_1: existingTaksasi.catatan_marketability?.[0] || '',
+        catatan_marketability_2: existingTaksasi.catatan_marketability?.[1] || '',
+        catatan_marketability_3: existingTaksasi.catatan_marketability?.[2] || '',
+      });
+
+      // Load tanah data from detail_agunan
+      const detail = existingTaksasi.detail_agunan as DetailAgunanTanahSimple;
+      if (detail) {
+        const loadedTanah: TanahItem = {
+          ...defaultTanah,
+          luas_tanah: detail.luas_tanah?.toString() || '',
+          harga_pembanding_1: detail.harga_per_meter?.toString() || '',
+          lokasi: existingTaksasi.alamat,
+        };
+        setTanahList([loadedTanah]);
+      }
+    }
+  }, [existingTaksasi]);
+
+  if (!existingTaksasi) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-muted-foreground">Data taksasi tidak ditemukan</p>
+        <Button variant="ghost" onClick={() => navigate(-1)} className="mt-4">
+          <ArrowLeft className="mr-2" size={16} />
+          Kembali
+        </Button>
+      </div>
+    );
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({
@@ -184,7 +224,6 @@ export default function TaksasiTanah() {
   };
 
   const handleHitung = () => {
-    // Calculate tanah values using condition-based safety margins
     const detailTanah = tanahList.map(t => {
       const hargaList = [
         parseFloat(t.harga_pembanding_1) || 0,
@@ -199,7 +238,6 @@ export default function TaksasiTanah() {
       const luas = parseFloat(t.luas_tanah) || 0;
       const nilaiPasar = luas * hargaRataRata;
       
-      // Get safety margins from condition values
       const safetyMargins = [
         getMarginByValue(SAFETY_MARGIN_TANAH.lokasi_daerah, t.safety_lokasi),
         getMarginByValue(SAFETY_MARGIN_TANAH.topography, t.safety_topography),
@@ -227,7 +265,7 @@ export default function TaksasiTanah() {
     });
   };
 
-  const handleSimpan = () => {
+  const handleUpdate = () => {
     if (!hasil) {
       toast({
         title: 'Hitung terlebih dahulu',
@@ -246,7 +284,6 @@ export default function TaksasiTanah() {
       return;
     }
 
-    // Create simplified detail for storage
     const totalLuasTanah = tanahList.reduce((sum, t) => sum + (parseFloat(t.luas_tanah) || 0), 0);
     const avgHargaTanah = totalLuasTanah > 0 ? hasil.total_nilai_tanah / totalLuasTanah : 0;
 
@@ -257,10 +294,7 @@ export default function TaksasiTanah() {
 
     const alamatGabungan = tanahList.map(t => t.lokasi).filter(l => l).join('; ') || 'Alamat tidak disebutkan';
 
-    addTaksasi({
-      id_user: user?.id || '',
-      nomor_dokumen: generateNomorDokumen('TLH'),
-      jenis_agunan: 'Tanah',
+    updateTaksasi(id!, {
       nama_nasabah: formData.nama_nasabah,
       alamat: alamatGabungan,
       nilai_pasar: hasil.nilai_taksasi,
@@ -268,13 +302,8 @@ export default function TaksasiTanah() {
       nilai_taksasi_pembulatan: hasil.nilai_taksasi,
       nilai_likuidasi: hasil.nilai_likuidasi,
       nilai_likuidasi_pembulatan: hasil.nilai_likuidasi,
-      safety_margin: 20,
       terbilang: hasil.terbilang,
-      status_otorisasi: 'Menunggu',
       detail_agunan: detailAgunan,
-      tanggal: new Date().toISOString().split('T')[0],
-      petugas: user?.nama || '',
-      jabatan_petugas: 'Officer Relationship Kredit',
       kantor_cabang: formData.kantor_cabang,
       alamat_cabang: formData.alamat_cabang,
       pimpinan: formData.pimpinan,
@@ -292,8 +321,8 @@ export default function TaksasiTanah() {
     });
 
     toast({
-      title: 'Taksasi berhasil disimpan',
-      description: 'Data taksasi tanah telah disimpan dan menunggu otorisasi',
+      title: 'Taksasi berhasil diupdate',
+      description: 'Data taksasi tanah telah diperbarui',
     });
 
     navigate('/riwayat');
@@ -302,10 +331,10 @@ export default function TaksasiTanah() {
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <PageHeader
-        title="Formulir Taksasi Tanah"
-        description="Penilaian agunan berupa tanah kosong"
+        title="Edit Taksasi Tanah"
+        description={`Mengubah data taksasi: ${existingTaksasi.nomor_dokumen}`}
         actions={
-          <Button variant="ghost" onClick={() => navigate('/dashboard')}>
+          <Button variant="ghost" onClick={() => navigate('/riwayat')}>
             <ArrowLeft className="mr-2" size={16} />
             Kembali
           </Button>
@@ -314,7 +343,7 @@ export default function TaksasiTanah() {
 
       <div className="grid gap-6">
         {/* Data Nasabah */}
-        <div className="rounded-xl border bg-card p-6 shadow-card animate-slide-up">
+        <div className="rounded-xl border bg-card p-6 shadow-card">
           <h3 className="font-semibold mb-4 flex items-center gap-2">
             <MapPin size={18} className="text-primary" />
             Data Nasabah
@@ -333,7 +362,7 @@ export default function TaksasiTanah() {
 
         {/* Data Tanah - Multiple */}
         {tanahList.map((tanah, index) => (
-          <div key={tanah.id} className="rounded-xl border bg-card p-6 shadow-card animate-slide-up">
+          <div key={tanah.id} className="rounded-xl border bg-card p-6 shadow-card">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold flex items-center gap-2">
                 <Home size={18} className="text-success" />
@@ -351,95 +380,12 @@ export default function TaksasiTanah() {
               <p className="text-sm font-medium text-muted-foreground">A. PROFIL</p>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <Label>Bukti Kepemilikan</Label>
-                  <Select value={tanah.bukti_kepemilikan} onValueChange={(v) => updateTanah(index, 'bukti_kepemilikan', v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="hak_milik">Hak Milik</SelectItem>
-                      <SelectItem value="hgb">HGB</SelectItem>
-                      <SelectItem value="hgu">HGU</SelectItem>
-                      <SelectItem value="hak_pakai">Hak Pakai</SelectItem>
-                      <SelectItem value="girik">Girik</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Nomor Bukti Kepemilikan</Label>
-                  <Input 
-                    value={tanah.nomor_bukti} 
-                    onChange={(e) => updateTanah(index, 'nomor_bukti', e.target.value)}
-                    placeholder="No. Sertifikat"
-                  />
-                </div>
-                <div>
-                  <Label>Tanggal Bukti</Label>
-                  <Input 
-                    type="date"
-                    value={tanah.tanggal_bukti} 
-                    onChange={(e) => updateTanah(index, 'tanggal_bukti', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Masa Berlaku</Label>
-                  <Input 
-                    type="date"
-                    value={tanah.masa_berlaku} 
-                    onChange={(e) => updateTanah(index, 'masa_berlaku', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Nama Pemegang Hak</Label>
-                  <Input 
-                    value={tanah.nama_pemegang_hak} 
-                    onChange={(e) => updateTanah(index, 'nama_pemegang_hak', e.target.value)}
-                    placeholder="Nama pemegang hak"
-                  />
-                </div>
-                <div>
-                  <Label>Hubungan dengan Debitur</Label>
-                  <Select value={tanah.hubungan_dengan_debitur} onValueChange={(v) => updateTanah(index, 'hubungan_dengan_debitur', v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="milik_sendiri">Milik Sendiri</SelectItem>
-                      <SelectItem value="suami_istri">Suami/Istri</SelectItem>
-                      <SelectItem value="orang_tua">Orang Tua</SelectItem>
-                      <SelectItem value="anak">Anak</SelectItem>
-                      <SelectItem value="saudara">Saudara</SelectItem>
-                      <SelectItem value="pihak_ketiga">Pihak Ketiga</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Nomor Gambar Situasi</Label>
-                  <Input 
-                    value={tanah.nomor_gambar_situasi} 
-                    onChange={(e) => updateTanah(index, 'nomor_gambar_situasi', e.target.value)}
-                    placeholder="No. GS/SU"
-                  />
-                </div>
-                <div>
-                  <Label>Nomor Induk Bidang (NIB)</Label>
-                  <Input 
-                    value={tanah.nomor_induk_bidang} 
-                    onChange={(e) => updateTanah(index, 'nomor_induk_bidang', e.target.value)}
-                    placeholder="NIB"
-                  />
-                </div>
-                <div>
                   <Label>Luas Tanah (m²)</Label>
                   <Input 
                     type="number"
                     value={tanah.luas_tanah} 
                     onChange={(e) => updateTanah(index, 'luas_tanah', e.target.value)}
                     placeholder="0"
-                  />
-                </div>
-                <div>
-                  <Label>Tempat Didaftarkan</Label>
-                  <Input 
-                    value={tanah.tempat_didaftarkan} 
-                    onChange={(e) => updateTanah(index, 'tempat_didaftarkan', e.target.value)}
-                    placeholder="BPN Kota/Kabupaten"
                   />
                 </div>
                 <div className="sm:col-span-2">
@@ -450,181 +396,6 @@ export default function TaksasiTanah() {
                     placeholder="Alamat lengkap lokasi tanah"
                     rows={2}
                   />
-                </div>
-              </div>
-
-              {/* Pemeriksaan Fisik */}
-              <p className="text-sm font-medium text-muted-foreground mt-6">B. PEMERIKSAAN FISIK</p>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <Label>Letak Tanah</Label>
-                  <Select value={tanah.letak_tanah} onValueChange={(v) => updateTanah(index, 'letak_tanah', v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="normal">Normal / Sejajar Jalan</SelectItem>
-                      <SelectItem value="lebih_tinggi">Lebih Tinggi dari Jalan</SelectItem>
-                      <SelectItem value="lebih_rendah">Lebih Rendah dari Jalan</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Bentuk Tanah</Label>
-                  <Select value={tanah.bentuk_tanah} onValueChange={(v) => updateTanah(index, 'bentuk_tanah', v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="beraturan">Beraturan</SelectItem>
-                      <SelectItem value="tidak_beraturan">Tidak Beraturan</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Arah Menghadap</Label>
-                  <Select value={tanah.arah_menghadap} onValueChange={(v) => updateTanah(index, 'arah_menghadap', v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="utara">Utara</SelectItem>
-                      <SelectItem value="selatan">Selatan</SelectItem>
-                      <SelectItem value="timur">Timur</SelectItem>
-                      <SelectItem value="barat">Barat</SelectItem>
-                      <SelectItem value="timur_laut">Timur Laut</SelectItem>
-                      <SelectItem value="tenggara">Tenggara</SelectItem>
-                      <SelectItem value="barat_daya">Barat Daya</SelectItem>
-                      <SelectItem value="barat_laut">Barat Laut</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Lebar Jalan Depan (m)</Label>
-                  <Input 
-                    value={tanah.lebar_jalan_depan} 
-                    onChange={(e) => updateTanah(index, 'lebar_jalan_depan', e.target.value)}
-                    placeholder="0"
-                  />
-                </div>
-                <div>
-                  <Label>Bahan Jalan</Label>
-                  <Select value={tanah.bahan_jalan} onValueChange={(v) => updateTanah(index, 'bahan_jalan', v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="aspal">Aspal</SelectItem>
-                      <SelectItem value="beton">Beton</SelectItem>
-                      <SelectItem value="paving">Paving Block</SelectItem>
-                      <SelectItem value="tanah">Tanah</SelectItem>
-                      <SelectItem value="kerikil">Kerikil</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Kelas Jalan</Label>
-                  <Select value={tanah.kelas_jalan} onValueChange={(v) => updateTanah(index, 'kelas_jalan', v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="protokol">Jalan Protokol</SelectItem>
-                      <SelectItem value="provinsi">Jalan Provinsi</SelectItem>
-                      <SelectItem value="kota">Jalan Kota</SelectItem>
-                      <SelectItem value="desa">Jalan Desa</SelectItem>
-                      <SelectItem value="kampung">Jalan Kampung/Gang</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {/* Batas-batas */}
-              <p className="text-xs text-muted-foreground mt-4">Batas-batas:</p>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <Label>Batas Depan</Label>
-                  <Input 
-                    value={tanah.batas_depan} 
-                    onChange={(e) => updateTanah(index, 'batas_depan', e.target.value)}
-                    placeholder="Jalan / Tanah milik..."
-                  />
-                </div>
-                <div>
-                  <Label>Batas Belakang</Label>
-                  <Input 
-                    value={tanah.batas_belakang} 
-                    onChange={(e) => updateTanah(index, 'batas_belakang', e.target.value)}
-                    placeholder="Tanah milik..."
-                  />
-                </div>
-                <div>
-                  <Label>Batas Kanan</Label>
-                  <Input 
-                    value={tanah.batas_kanan} 
-                    onChange={(e) => updateTanah(index, 'batas_kanan', e.target.value)}
-                    placeholder="Tanah milik..."
-                  />
-                </div>
-                <div>
-                  <Label>Batas Kiri</Label>
-                  <Input 
-                    value={tanah.batas_kiri} 
-                    onChange={(e) => updateTanah(index, 'batas_kiri', e.target.value)}
-                    placeholder="Tanah milik..."
-                  />
-                </div>
-              </div>
-
-              {/* Analisa Lingkungan */}
-              <p className="text-sm font-medium text-muted-foreground mt-6">C. ANALISA LINGKUNGAN</p>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <Label>Kondisi Lalu Lintas</Label>
-                  <Input 
-                    value={tanah.kondisi_lalu_lintas} 
-                    onChange={(e) => updateTanah(index, 'kondisi_lalu_lintas', e.target.value)}
-                    placeholder="Ramai/Sedang/Sepi"
-                  />
-                </div>
-                <div>
-                  <Label>Listrik PLN</Label>
-                  <Input 
-                    value={tanah.listrik_pln} 
-                    onChange={(e) => updateTanah(index, 'listrik_pln', e.target.value)}
-                    placeholder="Ada/Tidak Ada"
-                  />
-                </div>
-                <div>
-                  <Label>Air Bersih</Label>
-                  <Select value={tanah.air_bersih} onValueChange={(v) => updateTanah(index, 'air_bersih', v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ada">Ada (PDAM/Sumur)</SelectItem>
-                      <SelectItem value="tidak_ada">Tidak Ada</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Saluran Telepon</Label>
-                  <Select value={tanah.saluran_telepon} onValueChange={(v) => updateTanah(index, 'saluran_telepon', v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ada">Ada</SelectItem>
-                      <SelectItem value="tidak_ada">Tidak Ada</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {/* Fasilitas Penunjang */}
-              <div className="mt-4">
-                <Label className="mb-2 block">Fasilitas Penunjang</Label>
-                <div className="grid sm:grid-cols-3 gap-2">
-                  {['Sekolah', 'Rumah Sakit', 'Pasar', 'Bank', 'Masjid/Gereja', 'Kantor Pemerintah'].map(f => (
-                    <div key={f} className="flex items-center gap-2">
-                      <Checkbox 
-                        checked={tanah.fasilitas_penunjang.includes(f)}
-                        onCheckedChange={(checked) => {
-                          const newFasilitas = checked 
-                            ? [...tanah.fasilitas_penunjang, f]
-                            : tanah.fasilitas_penunjang.filter(x => x !== f);
-                          updateTanah(index, 'fasilitas_penunjang', newFasilitas);
-                        }}
-                      />
-                      <span className="text-sm">{f}</span>
-                    </div>
-                  ))}
                 </div>
               </div>
 
@@ -783,7 +554,7 @@ export default function TaksasiTanah() {
         </Button>
 
         {/* TIM PENILAI */}
-        <div className="rounded-xl border bg-card p-6 shadow-card animate-slide-up">
+        <div className="rounded-xl border bg-card p-6 shadow-card">
           <h3 className="font-semibold mb-4 flex items-center gap-2">
             <User size={18} className="text-primary" />
             TIM PENILAI
@@ -812,7 +583,7 @@ export default function TaksasiTanah() {
         </div>
 
         {/* KANTOR CABANG */}
-        <div className="rounded-xl border bg-card p-6 shadow-card animate-slide-up">
+        <div className="rounded-xl border bg-card p-6 shadow-card">
           <h3 className="font-semibold mb-4 flex items-center gap-2">
             <Building size={18} className="text-primary" />
             KANTOR CABANG
@@ -840,69 +611,20 @@ export default function TaksasiTanah() {
           </div>
         </div>
 
-        {/* Marketability */}
-        <div className="rounded-xl border bg-card p-6 shadow-card animate-slide-up">
-          <h3 className="font-semibold mb-4 flex items-center gap-2">
-            <AlertCircle size={18} className="text-warning" />
-            MARKETABILITY
-          </h3>
-          <div className="grid gap-4">
-            <div>
-              <Label>Status Marketability</Label>
-              <Select value={formData.marketability} onValueChange={(v) => setFormData(prev => ({ ...prev, marketability: v }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="marketable">Marketable</SelectItem>
-                  <SelectItem value="cukup_marketable">Cukup Marketable</SelectItem>
-                  <SelectItem value="kurang_marketable">Kurang Marketable</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Catatan 1</Label>
-              <Input
-                name="catatan_marketability_1"
-                value={formData.catatan_marketability_1}
-                onChange={handleChange}
-                placeholder="Catatan marketability..."
-              />
-            </div>
-            <div>
-              <Label>Catatan 2</Label>
-              <Input
-                name="catatan_marketability_2"
-                value={formData.catatan_marketability_2}
-                onChange={handleChange}
-                placeholder="Catatan marketability..."
-              />
-            </div>
-            <div>
-              <Label>Catatan 3</Label>
-              <Input
-                name="catatan_marketability_3"
-                value={formData.catatan_marketability_3}
-                onChange={handleChange}
-                placeholder="Catatan marketability..."
-              />
-            </div>
-          </div>
-        </div>
-
         {/* Hitung Button */}
         <Button variant="accent" onClick={handleHitung} className="w-full">
           <Calculator className="mr-2" size={16} />
-          Hitung Taksasi
+          Hitung Ulang Taksasi
         </Button>
 
         {/* Hasil Perhitungan */}
         {hasil && (
-          <div className="rounded-xl border bg-card p-6 shadow-card animate-scale-up">
+          <div className="rounded-xl border bg-card p-6 shadow-card">
             <h3 className="font-semibold mb-4 flex items-center gap-2">
               <DollarSign size={18} className="text-success" />
               Hasil Perhitungan
             </h3>
 
-            {/* Detail per Tanah */}
             {hasil.detail_tanah.map((detail, index) => (
               <div key={index} className="mb-4 p-3 rounded-lg bg-muted/30">
                 <p className="text-sm font-medium mb-2">Tanah #{index + 1}</p>
@@ -923,7 +645,6 @@ export default function TaksasiTanah() {
               </div>
             ))}
 
-            {/* Total */}
             <div className="grid sm:grid-cols-2 gap-4 mt-4 pt-4 border-t">
               <div className="p-4 rounded-lg bg-muted/50">
                 <p className="text-sm text-muted-foreground mb-1">Nilai Taksasi Total</p>
@@ -942,9 +663,9 @@ export default function TaksasiTanah() {
             </div>
 
             <div className="mt-6 flex gap-3">
-              <Button variant="hero" onClick={handleSimpan} className="flex-1">
+              <Button variant="hero" onClick={handleUpdate} className="flex-1">
                 <Save className="mr-2" size={16} />
-                Simpan Taksasi
+                Update Taksasi
               </Button>
             </div>
           </div>
