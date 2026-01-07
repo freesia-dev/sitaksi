@@ -9,10 +9,18 @@ interface StatusBadgeProps {
 }
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
-  const config = {
+  const config: Record<string, { icon: typeof Clock; className: string }> = {
+    Draft: {
+      icon: Clock,
+      className: 'bg-warning/10 text-warning border-warning/20',
+    },
     Menunggu: {
       icon: Clock,
       className: 'bg-warning/10 text-warning border-warning/20',
+    },
+    Selesai: {
+      icon: CheckCircle2,
+      className: 'bg-success/10 text-success border-success/20',
     },
     Disetujui: {
       icon: CheckCircle2,
@@ -24,7 +32,8 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
     },
   };
 
-  const { icon: Icon, className: statusClassName } = config[status];
+  const statusConfig = config[status] || config.Draft;
+  const { icon: Icon, className: statusClassName } = statusConfig;
 
   return (
     <span
