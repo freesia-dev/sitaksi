@@ -95,23 +95,33 @@ Nomor Polisi / Nomor Plat : ${detailKendaraan.nomor_polisi}`;
 
         {/* Tanda Tangan */}
         <div className="mt-8 pt-4">
-          <div className="flex justify-between">
-            <div className="text-sm text-center">
-              <div className="h-24"></div>
-              <div className="border-b border-black w-48 mx-auto"></div>
-              <p className="font-bold mt-1">{taksasi.petugas}</p>
-              <p>{taksasi.jabatan_petugas}</p>
-            </div>
-            <div className="text-sm text-center">
-              <p>Bontang, {formatDate(taksasi.tanggal)}</p>
-              <p className="font-medium">PT BANK PEMBANGUNAN DAERAH</p>
-              <p className="font-medium">KALIMANTAN TIMUR DAN KALIMANTAN UTARA</p>
-              <p>{taksasi.kantor_cabang.replace('KANTOR ', '')}</p>
-              <p className="italic mt-2">{taksasi.jabatan_pimpinan}</p>
-              <div className="h-16"></div>
-              <div className="border-b border-black w-48 mx-auto"></div>
-              <p className="font-bold mt-1">{taksasi.pimpinan}</p>
-            </div>
+          {/* Petugas Table */}
+          <p className="text-sm font-medium mb-2">Petugas Yang Melakukan Penilaian :</p>
+          <table className="w-full text-sm border mb-8">
+            <thead>
+              <tr>
+                <th className="border p-2 text-center bg-muted/30">Nama</th>
+                <th className="border p-2 text-center bg-muted/30">Jabatan</th>
+                <th className="border p-2 text-center bg-muted/30">Tanda Tangan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="border p-2 text-center font-bold">{taksasi.petugas}</td>
+                <td className="border p-2 text-center">{taksasi.jabatan_petugas}</td>
+                <td className="border p-2 h-16"></td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* Pimpinan Signature */}
+          <div className="text-center space-y-1">
+            <p className="underline">Bontang, {formatDate(taksasi.tanggal)}</p>
+            <p className="font-medium">PT BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA</p>
+            <p>{taksasi.kantor_cabang.toUpperCase()}</p>
+            <div className="h-20"></div>
+            <p className="font-bold underline">{taksasi.pimpinan}</p>
+            <p className="italic">{taksasi.jabatan_pimpinan}</p>
           </div>
         </div>
       </div>
