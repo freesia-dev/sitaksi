@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, Lock, Mail, Building2 } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
+import logoBankaltimtara from '@/assets/logo-bankaltimtara.png';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -46,8 +47,12 @@ export default function Login() {
         <div className="absolute inset-0 pattern-dots opacity-30" />
         <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20">
           <div className="animate-slide-up">
-            <div className="w-16 h-16 rounded-2xl gradient-accent flex items-center justify-center shadow-glow mb-8">
-              <Building2 className="w-8 h-8 text-primary-foreground" />
+            <div className="w-16 h-16 rounded-2xl bg-background/10 flex items-center justify-center shadow-glow mb-8">
+              <img
+                src={logoBankaltimtara}
+                alt="Logo Bankaltimtara"
+                className="w-10 h-10 object-contain"
+              />
             </div>
             <h1 className="text-4xl xl:text-5xl font-bold text-primary-foreground leading-tight mb-4">
               Sistem Taksasi<br />Agunan
@@ -76,8 +81,12 @@ export default function Login() {
       <div className="flex-1 flex items-center justify-center p-8 bg-background">
         <div className="w-full max-w-md animate-scale-up">
           <div className="text-center mb-8">
-            <div className="lg:hidden w-14 h-14 mx-auto mb-4 rounded-xl gradient-primary flex items-center justify-center shadow-elevated">
-              <Building2 className="w-7 h-7 text-primary-foreground" />
+            <div className="lg:hidden w-14 h-14 mx-auto mb-4 rounded-xl bg-muted flex items-center justify-center shadow-elevated">
+              <img
+                src={logoBankaltimtara}
+                alt="Logo Bankaltimtara"
+                className="w-8 h-8 object-contain"
+              />
             </div>
             <h2 className="text-2xl font-bold text-foreground">Selamat Datang</h2>
             <p className="text-muted-foreground mt-2">Masuk ke akun Anda untuk melanjutkan</p>
@@ -134,14 +143,6 @@ export default function Login() {
             </Button>
           </form>
 
-          <div className="mt-8 p-4 rounded-lg bg-muted/50 border border-border">
-            <p className="text-xs text-muted-foreground mb-2 font-medium">Demo Credentials:</p>
-            <div className="space-y-1 text-xs text-muted-foreground">
-              <p><span className="font-medium">Officer:</span> officer@bankaltimtara.id / officer123</p>
-              <p><span className="font-medium">Pimpinan:</span> pimpinan@bankaltimtara.id / pimpinan123</p>
-              <p><span className="font-medium">Admin:</span> admin@bankaltimtara.id / admin123</p>
-            </div>
-          </div>
 
           <p className="text-center text-xs text-muted-foreground mt-6">
             © 2025 PT. Bank Pembangunan Daerah Kalimantan Timur dan Kalimantan Utara
