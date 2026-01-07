@@ -15,17 +15,42 @@ export function ExportDokumentasi({ taksasi, logo }: ExportDokumentasiProps) {
   const isKendaraan = jenisLower === 'kendaraan';
   const detailKendaraan = isKendaraan ? taksasi.detail_agunan as DetailAgunanKendaraan : null;
 
-  const dokumentasi = detailKendaraan?.dokumentasi;
+  // Check both dokumentasi object and dokumentasi_urls array
+  const dokumentasiObj = detailKendaraan?.dokumentasi;
+  const dokumentasiUrls = detailKendaraan?.dokumentasi_urls || [];
 
-  const dokumentasiItems = [
-    { key: 'tampak_depan', label: 'Tampak Depan' },
-    { key: 'tampak_belakang', label: 'Tampak Belakang' },
-    { key: 'tampak_samping_kiri', label: 'Tampak Samping' },
-    { key: 'tampak_samping_kanan', label: 'Tampak Samping' },
-    { key: 'speedometer', label: 'Speedometer' },
-    { key: 'nomor_rangka', label: 'Nomor Rangka' },
-    { key: 'nomor_mesin', label: 'Nomor Mesin' },
+  const dokumentasiLabels = [
+    'Tampak Depan',
+    'Tampak Belakang',
+    'Tampak Samping Kiri',
+    'Tampak Samping Kanan',
+    'Speedometer',
+    'Nomor Rangka',
+    'Nomor Mesin',
   ];
+
+  const dokumentasiKeys = [
+    'tampak_depan',
+    'tampak_belakang',
+    'tampak_samping_kiri',
+    'tampak_samping_kanan',
+    'speedometer',
+    'nomor_rangka',
+    'nomor_mesin',
+  ];
+
+  // Get image URL from either dokumentasi object or dokumentasi_urls array
+  const getImageUrl = (index: number, key: string): string | undefined => {
+    // First check dokumentasi object
+    if (dokumentasiObj && dokumentasiObj[key as keyof typeof dokumentasiObj]) {
+      return dokumentasiObj[key as keyof typeof dokumentasiObj] as string;
+    }
+    // Fallback to dokumentasi_urls array
+    if (dokumentasiUrls.length > index) {
+      return dokumentasiUrls[index];
+    }
+    return undefined;
+  };
 
   return (
     <div className="bg-white rounded-xl border shadow-card p-8 print:shadow-none print:border-none">
@@ -56,10 +81,10 @@ export function ExportDokumentasi({ taksasi, logo }: ExportDokumentasiProps) {
 
         {/* Grid Foto */}
         <div className="grid grid-cols-2 gap-4">
-          {dokumentasiItems.map(({ key, label }) => {
-            const imageUrl = dokumentasi?.[key as keyof typeof dokumentasi] as string | undefined;
+          {dokumentasiLabels.map((label, index) => {
+            const imageUrl = getImageUrl(index, dokumentasiKeys[index]);
             return (
-              <div key={key} className="space-y-2">
+              <div key={index} className="space-y-2">
                 <div className="aspect-video bg-muted rounded-lg overflow-hidden flex items-center justify-center border">
                   {imageUrl ? (
                     <img 
