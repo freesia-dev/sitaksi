@@ -116,11 +116,11 @@ Nomor Polisi / Nomor Plat : ${detailKendaraan.nomor_polisi}`;
 
           {/* Pimpinan Signature */}
           <div className="text-center space-y-1">
-            <p className="underline">Bontang, {formatDate(taksasi.tanggal)}</p>
+            <p>Bontang, {formatDate(taksasi.tanggal)}</p>
             <p className="font-medium">PT BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA</p>
             <p>{taksasi.kantor_cabang.toUpperCase()}</p>
             <div className="h-32"></div>
-            <p className="font-bold underline">{taksasi.pimpinan}</p>
+            <p className="font-bold">{taksasi.pimpinan}</p>
             <p className="italic">{taksasi.jabatan_pimpinan}</p>
           </div>
         </div>
