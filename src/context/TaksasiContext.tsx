@@ -20,14 +20,20 @@ const TaksasiContext = createContext<TaksasiContextType | undefined>(undefined);
 // Map jenis agunan to database format
 const jenisAgunanMap: Record<string, string> = {
   'Tanah': 'tanah',
+  'tanah': 'tanah',
   'Tanah & Bangunan': 'tanah_bangunan',
-  'Kendaraan': 'kendaraan'
+  'tanah_bangunan': 'tanah_bangunan',
+  'Kendaraan': 'kendaraan',
+  'kendaraan': 'kendaraan'
 };
 
 const jenisAgunanReverseMap: Record<string, string> = {
   'tanah': 'Tanah',
   'tanah_bangunan': 'Tanah & Bangunan',
-  'kendaraan': 'Kendaraan'
+  'Tanah & Bangunan': 'Tanah & Bangunan',
+  'kendaraan': 'Kendaraan',
+  'Kendaraan': 'Kendaraan',
+  'Tanah': 'Tanah'
 };
 
 export function TaksasiProvider({ children }: { children: ReactNode }) {
