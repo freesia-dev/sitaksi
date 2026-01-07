@@ -403,7 +403,7 @@ export default function TaksasiTanahBangunan() {
       nilai_likuidasi_pembulatan: hasil.nilai_likuidasi,
       safety_margin: 20,
       terbilang: hasil.terbilang,
-      status_otorisasi: 'Menunggu',
+      status_otorisasi: 'Selesai',
       detail_agunan: detailAgunan,
       tanggal: new Date().toISOString().split('T')[0],
       petugas: user?.nama || '',

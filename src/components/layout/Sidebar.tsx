@@ -68,12 +68,6 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       show: isAdmin,
     },
     {
-      label: 'Kelola User',
-      icon: Users,
-      href: '/admin/users',
-      show: isAdmin,
-    },
-    {
       label: 'Tentang',
       icon: Info,
       href: '/about',

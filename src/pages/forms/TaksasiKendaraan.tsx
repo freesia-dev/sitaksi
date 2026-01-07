@@ -240,7 +240,7 @@ export default function TaksasiKendaraan() {
       nilai_likuidasi_pembulatan: hasil.nilai_likuidasi_pembulatan,
       safety_margin: FORMULAS.kendaraan.safetyMargin,
       terbilang: hasil.terbilang,
-      status_otorisasi: 'Menunggu',
+      status_otorisasi: 'Selesai',
       detail_agunan: detailAgunan,
       tanggal: new Date().toISOString().split('T')[0],
       petugas: user?.nama || '',

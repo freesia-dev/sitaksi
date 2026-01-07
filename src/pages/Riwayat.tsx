@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTaksasi } from '@/context/TaksasiContext';
 import { PageHeader } from '@/components/shared/PageHeader';
-import { StatusBadge } from '@/components/shared/StatusBadge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -34,18 +33,15 @@ export default function Riwayat() {
 
   const [search, setSearch] = useState('');
   const [filterJenis, setFilterJenis] = useState<string>('all');
-  const [filterStatus, setFilterStatus] = useState<string>('all');
 
   const filteredList = displayList.filter(t => {
     const matchSearch = t.nama_nasabah.toLowerCase().includes(search.toLowerCase()) ||
       t.alamat.toLowerCase().includes(search.toLowerCase());
     const matchJenis = filterJenis === 'all' || t.jenis_agunan === filterJenis;
-    const matchStatus = filterStatus === 'all' || t.status_otorisasi === filterStatus;
-    return matchSearch && matchJenis && matchStatus;
+    return matchSearch && matchJenis;
   });
 
   const handleEdit = (taksasi: typeof taksasiList[0]) => {
-    // Navigate to edit page based on jenis_agunan
     if (taksasi.jenis_agunan === 'Tanah') {
       navigate(`/taksasi/tanah/edit/${taksasi.id}`);
     } else if (taksasi.jenis_agunan === 'Tanah & Bangunan') {
@@ -86,17 +82,6 @@ export default function Riwayat() {
               <SelectItem value="Kendaraan">Kendaraan</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Semua Status</SelectItem>
-              <SelectItem value="Menunggu">Menunggu</SelectItem>
-              <SelectItem value="Disetujui">Disetujui</SelectItem>
-              <SelectItem value="Ditolak">Ditolak</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
       </div>
 
@@ -111,7 +96,6 @@ export default function Riwayat() {
               <TableHead>Jenis Agunan</TableHead>
               <TableHead>Nilai Taksasi</TableHead>
               <TableHead>Nilai Likuidasi</TableHead>
-              <TableHead>Status</TableHead>
               <TableHead className="text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
@@ -129,21 +113,16 @@ export default function Riwayat() {
                 <TableCell>{taksasi.jenis_agunan}</TableCell>
                 <TableCell className="font-medium">{formatCurrency(taksasi.nilai_taksasi_pembulatan)}</TableCell>
                 <TableCell className="text-success font-medium">{formatCurrency(taksasi.nilai_likuidasi_pembulatan)}</TableCell>
-                <TableCell>
-                  <StatusBadge status={taksasi.status_otorisasi} />
-                </TableCell>
                 <TableCell className="text-right">
                   <div className="flex gap-1 justify-end">
-                    {taksasi.status_otorisasi === 'Menunggu' && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEdit(taksasi)}
-                      >
-                        <Edit size={16} className="mr-1" />
-                        Edit
-                      </Button>
-                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEdit(taksasi)}
+                    >
+                      <Edit size={16} className="mr-1" />
+                      Edit
+                    </Button>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -166,7 +145,7 @@ export default function Riwayat() {
             ))}
             {filteredList.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
+                <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
                   Tidak ada data taksasi yang ditemukan
                 </TableCell>
               </TableRow>

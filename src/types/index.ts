@@ -9,7 +9,10 @@ export interface User {
 
 export type JenisAgunan = 'Tanah' | 'Tanah & Bangunan' | 'Kendaraan';
 
-export type StatusOtorisasi = 'Menunggu' | 'Disetujui' | 'Ditolak';
+export type StatusTaksasi = 'Selesai';
+
+// Legacy type for backward compatibility
+export type StatusOtorisasi = StatusTaksasi;
 
 // ============ TANAH TYPES ============
 export interface HargaPembandingTanah {

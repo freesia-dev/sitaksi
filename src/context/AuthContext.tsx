@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
 import { User, UserRole } from '@/types';
 
 interface AuthContextType {
@@ -17,8 +17,59 @@ const DEMO_USERS: (User & { password: string })[] = [
   { id: '3', nama: 'Haris Fadilah', email: 'officer@bankaltimtara.id', role: 'Officer', password: 'officer123' },
 ];
 
+const IDLE_TIMEOUT = 15 * 60 * 1000; // 15 minutes in milliseconds
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const logout = useCallback(() => {
+    setUser(null);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  }, []);
+
+  const resetIdleTimer = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    if (user) {
+      timeoutRef.current = setTimeout(() => {
+        logout();
+        alert('Sesi Anda telah berakhir karena tidak aktif selama 15 menit. Silakan login kembali.');
+      }, IDLE_TIMEOUT);
+    }
+  }, [user, logout]);
+
+  // Setup idle detection
+  useEffect(() => {
+    if (!user) return;
+
+    const events = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart', 'click'];
+    
+    const handleActivity = () => {
+      resetIdleTimer();
+    };
+
+    // Start idle timer
+    resetIdleTimer();
+
+    // Add event listeners
+    events.forEach(event => {
+      document.addEventListener(event, handleActivity);
+    });
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      events.forEach(event => {
+        document.removeEventListener(event, handleActivity);
+      });
+    };
+  }, [user, resetIdleTimer]);
 
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {
     // Simulate API call delay
@@ -31,10 +82,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return true;
     }
     return false;
-  }, []);
-
-  const logout = useCallback(() => {
-    setUser(null);
   }, []);
 
   return (
