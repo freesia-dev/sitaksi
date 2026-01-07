@@ -7,9 +7,10 @@ interface ExportCoverProps {
 }
 
 export function ExportCover({ taksasi, logo }: ExportCoverProps) {
-  const isKendaraan = taksasi.jenis_agunan === 'Kendaraan';
-  const isTanah = taksasi.jenis_agunan === 'Tanah';
-  const isTanahBangunan = taksasi.jenis_agunan === 'Tanah & Bangunan';
+  const jenisLower = taksasi.jenis_agunan.toLowerCase();
+  const isKendaraan = jenisLower === 'kendaraan';
+  const isTanah = jenisLower === 'tanah';
+  const isTanahBangunan = jenisLower === 'tanah & bangunan' || jenisLower === 'tanah_bangunan';
   
   const detailKendaraan = isKendaraan ? taksasi.detail_agunan as DetailAgunanKendaraan : null;
 

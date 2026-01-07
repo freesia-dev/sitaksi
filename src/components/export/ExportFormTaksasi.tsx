@@ -15,9 +15,10 @@ interface ExportFormTaksasiProps {
 }
 
 export function ExportFormTaksasi({ taksasi, logo }: ExportFormTaksasiProps) {
-  const isKendaraan = taksasi.jenis_agunan === 'Kendaraan';
-  const isTanah = taksasi.jenis_agunan === 'Tanah';
-  const isTB = taksasi.jenis_agunan === 'Tanah & Bangunan';
+  const jenisLower = taksasi.jenis_agunan.toLowerCase();
+  const isKendaraan = jenisLower === 'kendaraan';
+  const isTanah = jenisLower === 'tanah';
+  const isTB = jenisLower === 'tanah & bangunan' || jenisLower === 'tanah_bangunan';
   
   const detailKendaraan = isKendaraan ? taksasi.detail_agunan as DetailAgunanKendaraan : null;
   const detailTanah = isTanah ? taksasi.detail_agunan as DetailAgunanTanahSimple : null;
