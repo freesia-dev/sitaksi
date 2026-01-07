@@ -1,35 +1,43 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
-import { User, UserRole } from '@/types';
+import { User, Session } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
+import { UserRole } from '@/types';
+
+interface AuthUser {
+  id: string;
+  nama: string;
+  email: string;
+  role: UserRole;
+}
 
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
+  session: Session | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signup: (email: string, password: string, nama: string) => Promise<{ success: boolean; error?: string }>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Demo users for initial development (will be replaced with Supabase auth)
-const DEMO_USERS: (User & { password: string })[] = [
-  { id: '1', nama: 'Admin Bankaltimtara', email: 'admin@bankaltimtara.id', role: 'Admin', password: 'admin123' },
-  { id: '2', nama: 'Kepala Cabang', email: 'pimpinan@bankaltimtara.id', role: 'Pimpinan', password: 'pimpinan123' },
-  { id: '3', nama: 'Haris Fadilah', email: 'officer@bankaltimtara.id', role: 'Officer', password: 'officer123' },
-  { id: '4', nama: 'Demo User', email: 'demo@bankaltimtara.id', role: 'Demo', password: 'demo123' },
-];
-
 const IDLE_TIMEOUT = 15 * 60 * 1000; // 15 minutes in milliseconds
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const logout = useCallback(() => {
-    setUser(null);
+  const logout = useCallback(async () => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
+    await supabase.auth.signOut();
+    setUser(null);
+    setSession(null);
   }, []);
 
   const resetIdleTimer = useCallback(() => {
@@ -43,6 +51,79 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }, IDLE_TIMEOUT);
     }
   }, [user, logout]);
+
+  // Fetch user profile and role
+  const fetchUserProfile = async (userId: string, userEmail: string) => {
+    try {
+      // Fetch profile
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('nama, role')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      // Fetch role from user_roles table
+      const { data: userRole } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      const roleMapping: Record<string, UserRole> = {
+        'admin': 'Admin',
+        'user': 'Officer',
+        'demo': 'Demo'
+      };
+
+      const role = userRole?.role ? roleMapping[userRole.role] || 'Officer' : 'Officer';
+
+      setUser({
+        id: userId,
+        email: userEmail,
+        nama: profile?.nama || userEmail,
+        role: role
+      });
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      setUser({
+        id: userId,
+        email: userEmail,
+        nama: userEmail,
+        role: 'Officer'
+      });
+    }
+  };
+
+  // Setup auth state listener
+  useEffect(() => {
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        
+        if (session?.user) {
+          // Defer profile fetch with setTimeout to avoid deadlock
+          setTimeout(() => {
+            fetchUserProfile(session.user.id, session.user.email || '');
+          }, 0);
+        } else {
+          setUser(null);
+        }
+        setIsLoading(false);
+      }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session?.user) {
+        fetchUserProfile(session.user.id, session.user.email || '');
+      }
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Setup idle detection
   useEffect(() => {
@@ -72,21 +153,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [user, resetIdleTimer]);
 
-  const login = useCallback(async (email: string, password: string): Promise<boolean> => {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    const foundUser = DEMO_USERS.find(u => u.email === email && u.password === password);
-    if (foundUser) {
-      const { password: _, ...userWithoutPassword } = foundUser;
-      setUser(userWithoutPassword);
-      return true;
+  const login = useCallback(async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message || 'Terjadi kesalahan' };
     }
-    return false;
+  }, []);
+
+  const signup = useCallback(async (email: string, password: string, nama: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            nama: nama,
+            role: 'user'
+          }
+        }
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message || 'Terjadi kesalahan' };
+    }
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      session,
+      isAuthenticated: !!session && !!user, 
+      isLoading,
+      login, 
+      signup,
+      logout 
+    }}>
       {children}
     </AuthContext.Provider>
   );
