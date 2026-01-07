@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTaksasi } from '@/context/TaksasiContext';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { LabeledImageUploader, LabeledImage } from '@/components/shared/LabeledImageUploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,8 +21,8 @@ import {
   ArrowLeft, 
   Car, 
   DollarSign, 
-  User, 
-  Building,
+  User,
+  Camera,
 } from 'lucide-react';
 import {
   Select,
@@ -76,6 +77,8 @@ export default function EditTaksasiKendaraan() {
     terbilang: string;
   } | null>(null);
 
+  const [dokumentasi, setDokumentasi] = useState<LabeledImage[]>([]);
+
   // Load existing data
   useEffect(() => {
     if (existingTaksasi) {
@@ -108,6 +111,25 @@ export default function EditTaksasiKendaraan() {
         pimpinan: existingTaksasi.pimpinan || '',
         jabatan_pimpinan: existingTaksasi.jabatan_pimpinan || 'Pemimpin Capem',
       });
+
+      // Load existing dokumentasi
+      const defaultLabels = [
+        'Tampak Depan',
+        'Tampak Belakang',
+        'Tampak Samping Kiri',
+        'Tampak Samping Kanan',
+        'Speedometer',
+        'Nomor Rangka',
+        'Nomor Mesin',
+      ];
+      
+      const urls = detail?.dokumentasi_urls || [];
+      const labels = detail?.dokumentasi_labels || [];
+      const loadedDokumentasi: LabeledImage[] = urls.map((url, index) => ({
+        url,
+        label: labels[index] || defaultLabels[index] || `Foto ${index + 1}`,
+      }));
+      setDokumentasi(loadedDokumentasi);
     }
   }, [existingTaksasi]);
 
@@ -179,6 +201,8 @@ export default function EditTaksasiKendaraan() {
         { harga: parseFloat(formData.harga_pembanding_3) || 0, sumber: formData.sumber_3 },
       ].filter(h => h.harga > 0),
       keterangan: formData.keterangan.split('\n').filter(k => k.trim()),
+      dokumentasi_urls: dokumentasi.map(d => d.url),
+      dokumentasi_labels: dokumentasi.map(d => d.label),
     };
 
     updateTaksasi(id!, {
@@ -325,6 +349,20 @@ export default function EditTaksasiKendaraan() {
               <Input name="jabatan_pimpinan" value={formData.jabatan_pimpinan} onChange={handleChange} />
             </div>
           </div>
+        </div>
+
+        {/* DOKUMENTASI AGUNAN */}
+        <div className="rounded-xl border bg-card p-6 shadow-card">
+          <h3 className="font-semibold mb-4 flex items-center gap-2">
+            <Camera size={18} className="text-accent" />
+            DOKUMENTASI JAMINAN
+          </h3>
+          <LabeledImageUploader
+            images={dokumentasi}
+            onChange={setDokumentasi}
+            maxImages={8}
+            title="Dokumentasi Jaminan"
+          />
         </div>
 
         <Button variant="accent" onClick={handleHitung} className="w-full">
