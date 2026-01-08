@@ -7,6 +7,7 @@ import { Camera, X, Loader2, Upload, ImageOff, Check, Pencil } from 'lucide-reac
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
+// Re-export LabeledImage type for compatibility
 export interface LabeledImage {
   url: string;
   label: string;

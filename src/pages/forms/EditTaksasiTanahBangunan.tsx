@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTaksasi } from '@/context/TaksasiContext';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { CloudImageUploader, LabeledImage } from '@/components/shared/CloudImageUploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -31,6 +32,7 @@ import {
   Building,
   Plus,
   Trash2,
+  Camera,
 } from 'lucide-react';
 import {
   Select,
@@ -140,6 +142,8 @@ export default function EditTaksasiTanahBangunan() {
     detail_bangunan: { nilai_pasar: number; nilai_likuidasi: number; avg_safety: number }[];
   } | null>(null);
 
+  const [dokumentasi, setDokumentasi] = useState<LabeledImage[]>([]);
+
   // Load existing data
   useEffect(() => {
     if (existingTaksasi) {
@@ -167,6 +171,16 @@ export default function EditTaksasiTanahBangunan() {
           harga_pembanding_1: detail.harga_bangunan_per_meter?.toString() || '',
         };
         setBangunanList([loadedBangunan]);
+
+        // Load dokumentasi
+        const defaultLabels = ['Tampak Depan', 'Tampak Samping', 'Interior', 'Surat Tanah'];
+        const urls = detail.dokumentasi_urls || [];
+        const labels = detail.dokumentasi_labels || [];
+        const loadedDokumentasi: LabeledImage[] = urls.map((url, index) => ({
+          url,
+          label: labels[index] || defaultLabels[index] || `Foto ${index + 1}`,
+        }));
+        setDokumentasi(loadedDokumentasi);
       }
     }
   }, [existingTaksasi]);
@@ -289,6 +303,8 @@ export default function EditTaksasiTanahBangunan() {
       harga_tanah_per_meter: avgHargaTanah,
       luas_bangunan: totalLuasBangunan,
       harga_bangunan_per_meter: avgHargaBangunan,
+      dokumentasi_urls: dokumentasi.map(d => d.url),
+      dokumentasi_labels: dokumentasi.map(d => d.label),
     };
 
     const alamatGabungan = tanahList.map(t => t.lokasi).filter(l => l).join('; ') || 'Alamat tidak disebutkan';
@@ -501,6 +517,22 @@ export default function EditTaksasiTanahBangunan() {
               <Textarea name="alamat_cabang" value={formData.alamat_cabang} onChange={handleChange} rows={2} />
             </div>
           </div>
+        </div>
+
+        {/* DOKUMENTASI AGUNAN */}
+        <div className="rounded-xl border bg-card p-6 shadow-card">
+          <h3 className="font-semibold mb-4 flex items-center gap-2">
+            <Camera size={18} className="text-accent" />
+            DOKUMENTASI JAMINAN
+          </h3>
+          <CloudImageUploader
+            images={dokumentasi}
+            onChange={setDokumentasi}
+            maxImages={8}
+            title="Dokumentasi Jaminan"
+            defaultLabels={['Tampak Depan', 'Tampak Samping', 'Interior', 'Surat Tanah']}
+            taksasiId={id}
+          />
         </div>
 
         <Button variant="accent" onClick={handleHitung} className="w-full">

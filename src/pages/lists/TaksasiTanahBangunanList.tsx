@@ -44,6 +44,7 @@ import {
   SortDesc,
   Filter
 } from 'lucide-react';
+import { StatusToggle } from '@/components/shared/StatusToggle';
 
 type SortField = 'tanggal' | 'nama_nasabah' | 'nilai_taksasi';
 type SortOrder = 'asc' | 'desc';
@@ -200,13 +201,14 @@ export default function TaksasiTanahBangunanList() {
                   <SortIcon field="nilai_taksasi" />
                 </div>
               </TableHead>
+              <TableHead>Status</TableHead>
               <TableHead className="text-center">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {tbList.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                   {searchTerm ? 'Tidak ada hasil yang ditemukan' : 'Belum ada data taksasi tanah & bangunan'}
                 </TableCell>
               </TableRow>
@@ -220,6 +222,13 @@ export default function TaksasiTanahBangunanList() {
                   <TableCell className="max-w-[200px] truncate">{taksasi.alamat}</TableCell>
                   <TableCell className="text-right font-semibold text-primary">
                     {formatCurrency(taksasi.nilai_taksasi)}
+                  </TableCell>
+                  <TableCell>
+                    <StatusToggle 
+                      taksasiId={taksasi.id} 
+                      currentStatus={taksasi.status || 'draft'} 
+                      disabled={isDemo}
+                    />
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center justify-center gap-1">
