@@ -1,5 +1,5 @@
 import React from 'react';
-import { Taksasi, DetailAgunanKendaraan, DetailAgunanTBSimple, formatDate } from '@/types';
+import { Taksasi, DetailAgunanKendaraan, DetailAgunanTBSimple, DetailAgunanTanahSimple, formatDate } from '@/types';
 
 interface ExportCoverProps {
   taksasi: Taksasi;
@@ -13,9 +13,22 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
   const isTanahBangunan = jenisLower === 'tanah & bangunan' || jenisLower === 'tanah_bangunan';
   
   const detailKendaraan = isKendaraan ? taksasi.detail_agunan as DetailAgunanKendaraan : null;
+  const detailTanah = isTanah ? taksasi.detail_agunan as DetailAgunanTanahSimple : null;
+  const detailTB = isTanahBangunan ? taksasi.detail_agunan as DetailAgunanTBSimple : null;
 
-  // Get the front photo from dokumentasi
-  const getFrontPhoto = (): string | undefined => {
+  // Get the first photo from dokumentasi_urls
+  const getFirstPhoto = (): string | undefined => {
+    // Check new format with dokumentasi_urls array
+    if (detailKendaraan?.dokumentasi_urls?.[0]) {
+      return detailKendaraan.dokumentasi_urls[0];
+    }
+    if (detailTanah?.dokumentasi_urls?.[0]) {
+      return detailTanah.dokumentasi_urls[0];
+    }
+    if (detailTB?.dokumentasi_urls?.[0]) {
+      return detailTB.dokumentasi_urls[0];
+    }
+    // Fallback to old format
     if (taksasi.dokumentasi?.tampak_depan) {
       return taksasi.dokumentasi.tampak_depan;
     }
@@ -25,7 +38,7 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
     return undefined;
   };
 
-  const frontPhoto = getFrontPhoto();
+  const frontPhoto = getFirstPhoto();
 
   const getJenisAgunanTitle = () => {
     if (isKendaraan && detailKendaraan) {
