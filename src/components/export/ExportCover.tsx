@@ -51,28 +51,28 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
   };
 
   return (
-    <div className="bg-white rounded-xl border shadow-card print:shadow-none print:border-none min-h-[297mm] relative flex flex-col">
-      <div className="max-w-2xl mx-auto text-center p-8 flex-1">
+    <div className="export-cover-page bg-white print:shadow-none print:border-none">
+      <div className="max-w-2xl mx-auto text-center p-6 print:p-4">
         {/* Header with Logo */}
-        <div className="space-y-2">
-          <img src={logo} alt="Bankaltimtara" className="h-20 mx-auto" />
-          <h1 className="text-lg font-bold text-primary">
+        <div className="space-y-1 mb-4">
+          <img src={logo} alt="Bankaltimtara" className="h-16 mx-auto print:h-14" />
+          <h1 className="text-base font-bold text-primary print:text-black">
             PT.BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA
           </h1>
-          <h2 className="text-base font-semibold">{taksasi.kantor_cabang}</h2>
+          <h2 className="text-sm font-semibold print:text-black">{taksasi.kantor_cabang}</h2>
         </div>
 
         {/* Jenis Agunan */}
-        <div className="py-8 space-y-4">
-          <h3 className="text-xl font-bold">{getJenisAgunanTitle()}</h3>
+        <div className="py-4 space-y-2">
+          <h3 className="text-lg font-bold print:text-black">{getJenisAgunanTitle()}</h3>
           
           {isKendaraan && detailKendaraan && (
             <>
-              <p className="text-lg font-semibold">{detailKendaraan.jenis}</p>
-              <p className="text-base">
+              <p className="text-base font-semibold print:text-black">{detailKendaraan.jenis}</p>
+              <p className="text-sm print:text-black">
                 {detailKendaraan.bukti_kepemilikan} No. {detailKendaraan.nomor_bukti_kepemilikan} Tanggal {formatDate(detailKendaraan.tanggal_bukti_kepemilikan)} An. {detailKendaraan.nama_kepemilikan}
               </p>
-              <p className="text-2xl font-bold text-primary mt-4">
+              <p className="text-xl font-bold text-primary print:text-black mt-2">
                 {detailKendaraan.nomor_polisi}
               </p>
             </>
@@ -80,25 +80,25 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
 
           {(isTanah || isTanahBangunan) && (
             <>
-              <p className="text-base">{taksasi.alamat}</p>
+              <p className="text-sm print:text-black">{taksasi.alamat}</p>
             </>
           )}
 
-          {/* Front Photo - Center of document - larger size for print */}
+          {/* Front Photo - Center of document */}
           {frontPhoto && (
-            <div className="py-6">
+            <div className="py-4">
               <img 
                 src={frontPhoto} 
                 alt="Foto Agunan" 
-                className="cover-image mx-auto w-full max-w-[500px] h-auto object-contain rounded-lg border shadow-md print:max-w-[180mm] print:max-h-[120mm]"
+                className="mx-auto w-auto max-w-full h-auto max-h-[300px] object-contain rounded-lg border print:max-h-[180mm] print:max-w-[160mm]"
               />
             </div>
           )}
 
           {/* Placeholder if no photo */}
           {!frontPhoto && (
-            <div className="py-6">
-              <div className="mx-auto w-[400px] h-[280px] bg-muted/30 border-2 border-dashed border-muted-foreground/30 rounded-lg flex items-center justify-center">
+            <div className="py-4">
+              <div className="mx-auto w-[350px] h-[250px] bg-muted/30 border-2 border-dashed border-muted-foreground/30 rounded-lg flex items-center justify-center">
                 <p className="text-muted-foreground text-sm">Foto Agunan</p>
               </div>
             </div>
@@ -106,29 +106,29 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
         </div>
 
         {/* Tim Penilai */}
-        <div className="py-6">
-          <h4 className="font-bold mb-4">TIM PENILAI :</h4>
-          <table className="mx-auto text-left">
+        <div className="py-4">
+          <h4 className="font-bold mb-3 print:text-black">TIM PENILAI :</h4>
+          <table className="mx-auto text-left text-sm">
             <tbody>
               {taksasi.tim_penilai.map((tim, index) => (
                 <tr key={index}>
-                  <td className="py-1 pr-4">{index + 1}.</td>
-                  <td className="py-1 pr-8 font-medium">{tim.nama}</td>
-                  <td className="py-1">{tim.jabatan}</td>
+                  <td className="py-1 pr-3 print:text-black">{index + 1}.</td>
+                  <td className="py-1 pr-6 font-medium print:text-black">{tim.nama}</td>
+                  <td className="py-1 print:text-black">{tim.jabatan}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </div>
 
-      {/* Footer - Fixed at bottom */}
-      <div className="border-t space-y-1 text-sm text-center py-4 px-8 mt-auto">
-        <p className="font-semibold">
-          PT.BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA
-        </p>
-        <p className="font-semibold">{taksasi.kantor_cabang}</p>
-        <p>{taksasi.alamat_cabang}</p>
+        {/* Footer */}
+        <div className="border-t space-y-1 text-xs text-center py-3 mt-4">
+          <p className="font-semibold print:text-black">
+            PT.BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA
+          </p>
+          <p className="font-semibold print:text-black">{taksasi.kantor_cabang}</p>
+          <p className="print:text-black">{taksasi.alamat_cabang}</p>
+        </div>
       </div>
     </div>
   );
