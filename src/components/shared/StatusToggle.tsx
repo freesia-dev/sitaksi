@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { useTaksasi } from '@/context/TaksasiContext';
 import { useToast } from '@/hooks/use-toast';
@@ -15,13 +15,22 @@ export function StatusToggle({ taksasiId, currentStatus, disabled = false }: Sta
   const { updateTaksasi } = useTaksasi();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [localStatus, setLocalStatus] = useState(currentStatus);
+
+  // Sync local state with prop when it changes
+  useEffect(() => {
+    setLocalStatus(currentStatus);
+  }, [currentStatus]);
 
   const handleToggle = async () => {
     if (disabled || loading) return;
 
-    const newStatus = currentStatus === 'draft' ? 'selesai' : 'draft';
+    const newStatus = localStatus === 'draft' ? 'selesai' : 'draft';
     
+    // Optimistic update
+    setLocalStatus(newStatus);
     setLoading(true);
+    
     try {
       await updateTaksasi(taksasiId, { status: newStatus });
       toast({
@@ -29,6 +38,8 @@ export function StatusToggle({ taksasiId, currentStatus, disabled = false }: Sta
         description: `Status berhasil diubah menjadi ${newStatus === 'selesai' ? 'Selesai' : 'Draft'}`,
       });
     } catch (error) {
+      // Revert on error
+      setLocalStatus(localStatus);
       toast({
         title: 'Gagal mengubah status',
         description: 'Terjadi kesalahan saat mengubah status',
@@ -39,7 +50,7 @@ export function StatusToggle({ taksasiId, currentStatus, disabled = false }: Sta
     }
   };
 
-  const isDraft = currentStatus === 'draft';
+  const isDraft = localStatus === 'draft';
 
   return (
     <Badge
