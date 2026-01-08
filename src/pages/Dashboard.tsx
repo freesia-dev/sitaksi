@@ -4,6 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useTaksasi } from '@/context/TaksasiContext';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { StatCard } from '@/components/shared/StatCard';
+import { StorageMonitor } from '@/components/shared/StorageMonitor';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, formatDate } from '@/types';
 import {
@@ -30,6 +31,7 @@ export default function Dashboard() {
 
   const isPimpinan = user?.role === 'Pimpinan';
   const isDemo = user?.role === 'Demo';
+  const isAdmin = user?.role === 'Admin';
   const isOfficerOrAdmin = user?.role === 'Officer' || user?.role === 'Admin';
 
   // Data based on role
@@ -79,6 +81,11 @@ export default function Dashboard() {
           variant="warning"
         />
       </div>
+
+      {/* Storage Monitor for Admin */}
+      {isAdmin && (
+        <StorageMonitor />
+      )}
 
       {/* Quick Actions for Officer - hidden for Demo */}
       {isOfficerOrAdmin && !isDemo && (

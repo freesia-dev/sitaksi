@@ -1,9 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { uploadDokumentasi } from '@/lib/storage';
-import { Camera, X, Loader2, Upload, Pencil, Check, ImageOff } from 'lucide-react';
+import { Camera, X, Loader2, Upload, ImageOff, Check, Pencil } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
@@ -12,24 +12,21 @@ export interface LabeledImage {
   label: string;
 }
 
-type ImageWithFallbackProps = {
+interface ImageWithFallbackProps {
   src: string;
   alt: string;
   className?: string;
-};
+}
 
 function ImageWithFallback({ src, alt, className }: ImageWithFallbackProps) {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [attempt, setAttempt] = useState(0);
-
-  const cacheBustedSrc = attempt === 0 ? src : `${src}${src.includes('?') ? '&' : '?'}_cb=${attempt}`;
 
   if (hasError) {
     return (
-      <div className="h-full w-full flex flex-col items-center justify-center text-muted-foreground">
-        <ImageOff size={20} />
-        <span className="mt-1 text-[10px]">Gagal memuat</span>
+      <div className={cn("flex flex-col items-center justify-center bg-muted text-muted-foreground", className)}>
+        <ImageOff size={24} />
+        <span className="text-xs mt-1">Gagal dimuat</span>
       </div>
     );
   }
@@ -38,18 +35,12 @@ function ImageWithFallback({ src, alt, className }: ImageWithFallbackProps) {
     <>
       {isLoading && <div className="absolute inset-0 bg-muted animate-pulse" />}
       <img
-        src={cacheBustedSrc}
+        src={src}
         alt={alt}
         loading="lazy"
-        referrerPolicy="no-referrer"
         className={className}
         onLoad={() => setIsLoading(false)}
         onError={() => {
-          // Retry once with cache-busting + without referrer (helps some hotlink protections)
-          if (attempt < 1) {
-            setAttempt((v) => v + 1);
-            return;
-          }
           setHasError(true);
           setIsLoading(false);
         }}
@@ -58,29 +49,23 @@ function ImageWithFallback({ src, alt, className }: ImageWithFallbackProps) {
   );
 }
 
-interface LabeledImageUploaderProps {
+interface CloudImageUploaderProps {
   images: LabeledImage[];
   onChange: (images: LabeledImage[]) => void;
   maxImages: number;
   title?: string;
   defaultLabels?: string[];
+  taksasiId?: string;
 }
 
-export function LabeledImageUploader({ 
+export function CloudImageUploader({ 
   images, 
   onChange, 
   maxImages, 
-  title,
-  defaultLabels = [
-    'Tampak Depan',
-    'Tampak Belakang',
-    'Tampak Samping Kiri',
-    'Tampak Samping Kanan',
-    'Speedometer',
-    'Nomor Rangka',
-    'Nomor Mesin',
-  ]
-}: LabeledImageUploaderProps) {
+  title = "Dokumentasi Foto",
+  defaultLabels = [],
+  taksasiId 
+}: CloudImageUploaderProps) {
   const [uploading, setUploading] = useState(false);
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -109,19 +94,20 @@ export function LabeledImageUploader({
 
     for (let i = 0; i < filesToUpload.length; i++) {
       const file = filesToUpload[i];
-      const currentIndex = images.length + i;
-      setUploadingIndex(currentIndex);
+      setUploadingIndex(images.length + i);
       
       try {
-        if (file.size > 32 * 1024 * 1024) {
+        // Validate file size (max 10MB for cloud storage)
+        if (file.size > 10 * 1024 * 1024) {
           toast({
             title: 'File terlalu besar',
-            description: `${file.name} melebihi 32MB`,
+            description: `${file.name} melebihi 10MB`,
             variant: 'destructive',
           });
           continue;
         }
 
+        // Validate file type
         if (!file.type.startsWith('image/')) {
           toast({
             title: 'Format tidak valid',
@@ -131,14 +117,13 @@ export function LabeledImageUploader({
           continue;
         }
 
-        const result = await uploadDokumentasi(file);
-        // Use default label if available, otherwise use "Foto X"
-        const defaultLabel = defaultLabels[currentIndex] || `Foto ${currentIndex + 1}`;
+        const result = await uploadDokumentasi(file, taksasiId);
+        const defaultLabel = defaultLabels[images.length + newImages.length] || `Foto ${images.length + newImages.length + 1}`;
         newImages.push({ url: result.url, label: defaultLabel });
-      } catch (error) {
+      } catch (error: any) {
         toast({
           title: 'Upload gagal',
-          description: `Gagal mengupload ${file.name}`,
+          description: error.message || `Gagal mengupload ${file.name}`,
           variant: 'destructive',
         });
       }
@@ -148,7 +133,7 @@ export function LabeledImageUploader({
       onChange([...images, ...newImages]);
       toast({
         title: 'Upload berhasil',
-        description: `${newImages.length} foto berhasil diupload`,
+        description: `${newImages.length} foto berhasil diupload ke Cloud Storage`,
       });
     }
 
@@ -169,19 +154,20 @@ export function LabeledImageUploader({
     setEditLabel(images[index].label);
   };
 
-  const handleSaveLabel = (index: number) => {
-    if (editLabel.trim()) {
+  const handleSaveLabel = () => {
+    if (editingIndex !== null) {
       const updated = [...images];
-      updated[index] = { ...updated[index], label: editLabel.trim() };
+      updated[editingIndex] = { ...updated[editingIndex], label: editLabel };
       onChange(updated);
+      setEditingIndex(null);
+      setEditLabel('');
     }
-    setEditingIndex(null);
-    setEditLabel('');
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      handleSaveLabel(index);
+      e.preventDefault();
+      handleSaveLabel();
     } else if (e.key === 'Escape') {
       setEditingIndex(null);
       setEditLabel('');
@@ -190,21 +176,19 @@ export function LabeledImageUploader({
 
   return (
     <div className="space-y-4">
-      {title && (
-        <Label className="text-base font-semibold flex items-center gap-2">
-          <Camera size={18} className="text-primary" />
-          {title} ({images.length}/{maxImages})
-        </Label>
-      )}
+      <Label className="text-base font-semibold flex items-center gap-2">
+        <Camera size={18} className="text-primary" />
+        {title} ({images.length}/{maxImages})
+      </Label>
 
       {/* Image Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-        {images.map((image, index) => (
-          <div key={index} className="space-y-2">
-            <div className="relative aspect-square rounded-lg overflow-hidden border bg-muted group">
+        {images.map((img, index) => (
+          <div key={index} className="relative rounded-lg overflow-hidden border bg-muted group">
+            <div className="aspect-square relative">
               <ImageWithFallback
-                src={image.url}
-                alt={image.label}
+                src={img.url}
+                alt={img.label}
                 className="w-full h-full object-cover"
               />
               <button
@@ -217,41 +201,34 @@ export function LabeledImageUploader({
             </div>
             
             {/* Editable Label */}
-            <div className="flex items-center gap-1">
+            <div className="p-2 bg-background border-t">
               {editingIndex === index ? (
-                <>
+                <div className="flex gap-1">
                   <Input
                     value={editLabel}
                     onChange={(e) => setEditLabel(e.target.value)}
-                    onKeyDown={(e) => handleKeyDown(e, index)}
+                    onKeyDown={handleKeyDown}
                     className="h-7 text-xs"
                     autoFocus
                   />
                   <Button
                     type="button"
+                    size="sm"
                     variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 shrink-0"
-                    onClick={() => handleSaveLabel(index)}
+                    className="h-7 w-7 p-0"
+                    onClick={handleSaveLabel}
                   >
-                    <Check size={14} className="text-success" />
+                    <Check size={12} />
                   </Button>
-                </>
+                </div>
               ) : (
-                <>
-                  <span className="text-xs font-medium truncate flex-1 text-center">
-                    {image.label}
-                  </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 shrink-0 opacity-50 hover:opacity-100"
-                    onClick={() => handleStartEdit(index)}
-                  >
-                    <Pencil size={12} />
-                  </Button>
-                </>
+                <div 
+                  className="flex items-center justify-between gap-1 cursor-pointer hover:bg-muted/50 rounded px-1"
+                  onClick={() => handleStartEdit(index)}
+                >
+                  <span className="text-xs truncate flex-1">{img.label}</span>
+                  <Pencil size={10} className="text-muted-foreground shrink-0" />
+                </div>
               )}
             </div>
           </div>
@@ -259,26 +236,19 @@ export function LabeledImageUploader({
 
         {/* Upload slots */}
         {Array.from({ length: Math.min(maxImages - images.length, 4) }).map((_, index) => (
-          <div key={`empty-${index}`} className="space-y-2">
-            <div
-              className={cn(
-                "relative aspect-square rounded-lg border-2 border-dashed border-muted-foreground/30 flex flex-col items-center justify-center bg-muted/30 cursor-pointer hover:border-primary/50 transition-colors",
-                uploading && uploadingIndex === images.length + index && "border-primary"
-              )}
-              onClick={() => !uploading && fileInputRef.current?.click()}
-            >
-              {uploading && uploadingIndex === images.length + index ? (
-                <Loader2 className="animate-spin text-primary" size={24} />
-              ) : (
-                <>
-                  <Upload className="text-muted-foreground/50 mb-1" size={20} />
-                  <span className="text-xs text-muted-foreground/50">Upload</span>
-                </>
-              )}
-            </div>
-            <p className="text-xs text-muted-foreground text-center truncate">
-              {defaultLabels[images.length + index] || `Foto ${images.length + index + 1}`}
-            </p>
+          <div
+            key={`empty-${index}`}
+            className={cn(
+              "relative aspect-square rounded-lg border-2 border-dashed border-muted-foreground/30 flex items-center justify-center bg-muted/30 cursor-pointer hover:border-primary/50 transition-colors",
+              uploading && uploadingIndex === images.length + index && "border-primary"
+            )}
+            onClick={() => !uploading && fileInputRef.current?.click()}
+          >
+            {uploading && uploadingIndex === images.length + index ? (
+              <Loader2 className="animate-spin text-primary" size={24} />
+            ) : (
+              <Upload className="text-muted-foreground/50" size={24} />
+            )}
           </div>
         ))}
       </div>
@@ -296,7 +266,7 @@ export function LabeledImageUploader({
             {uploading ? (
               <>
                 <Loader2 className="mr-2 animate-spin" size={16} />
-                Mengupload...
+                Mengupload ke Cloud...
               </>
             ) : (
               <>
@@ -317,7 +287,7 @@ export function LabeledImageUploader({
       )}
 
       <p className="text-xs text-muted-foreground">
-        Format: JPG, PNG, GIF. Maksimal 32MB per file. Klik ikon pensil untuk edit label.
+        Format: JPG, PNG, WEBP. Maksimal 10MB per file. Disimpan di Cloud Storage dengan sistem circular buffer.
       </p>
     </div>
   );

@@ -47,6 +47,41 @@ export type Database = {
         }
         Relationships: []
       }
+      storage_files: {
+        Row: {
+          created_at: string
+          file_path: string
+          file_size: number
+          id: string
+          taksasi_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_path: string
+          file_size?: number
+          id?: string
+          taksasi_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          file_path?: string
+          file_size?: number
+          id?: string
+          taksasi_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "storage_files_taksasi_id_fkey"
+            columns: ["taksasi_id"]
+            isOneToOne: false
+            referencedRelation: "taksasi"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       taksasi: {
         Row: {
           alamat_debitur: string | null
