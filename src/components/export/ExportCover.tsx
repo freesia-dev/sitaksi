@@ -51,8 +51,8 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
   };
 
   return (
-    <div className="export-cover-page bg-white print:shadow-none print:border-none">
-      <div className="max-w-2xl mx-auto text-center p-6 print:p-4">
+    <div className="export-cover-page bg-white print:shadow-none print:border-none print:h-[297mm] print:min-h-[297mm] print:flex print:flex-col">
+      <div className="max-w-2xl mx-auto text-center p-6 print:p-4 print:flex-1 print:flex print:flex-col">
         {/* Header with Logo */}
         <div className="space-y-1 mb-4">
           <img src={logo} alt="Bankaltimtara" className="h-16 mx-auto print:h-14" />
@@ -121,8 +121,11 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
           </table>
         </div>
 
-        {/* Footer */}
-        <div className="border-t space-y-1 text-xs text-center py-3 mt-4">
+        {/* Spacer to push footer to bottom */}
+        <div className="print:flex-1"></div>
+
+        {/* Footer - Always at bottom */}
+        <div className="border-t space-y-1 text-xs text-center py-3 mt-4 print:mt-auto">
           <p className="font-semibold print:text-black">
             PT.BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA
           </p>
