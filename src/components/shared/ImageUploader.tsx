@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { uploadToImgBB } from '@/lib/imgbb';
+import { uploadDokumentasi } from '@/lib/storage';
 import { Camera, X, Loader2, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -43,11 +43,11 @@ export function ImageUploader({ images, onChange, maxImages, label }: ImageUploa
       setUploadingIndex(images.length + i);
       
       try {
-        // Validate file size (max 32MB for imgBB)
-        if (file.size > 32 * 1024 * 1024) {
+        // Validate file size (max 10MB for cloud storage)
+        if (file.size > 10 * 1024 * 1024) {
           toast({
             title: 'File terlalu besar',
-            description: `${file.name} melebihi 32MB`,
+            description: `${file.name} melebihi 10MB`,
             variant: 'destructive',
           });
           continue;
@@ -63,8 +63,8 @@ export function ImageUploader({ images, onChange, maxImages, label }: ImageUploa
           continue;
         }
 
-        const url = await uploadToImgBB(file);
-        newImages.push(url);
+        const result = await uploadDokumentasi(file);
+        newImages.push(result.url);
       } catch (error) {
         toast({
           title: 'Upload gagal',
@@ -179,7 +179,7 @@ export function ImageUploader({ images, onChange, maxImages, label }: ImageUploa
       )}
 
       <p className="text-xs text-muted-foreground">
-        Format: JPG, PNG, GIF. Maksimal 32MB per file. Upload ke imgBB.
+        Format: JPG, PNG, WEBP. Maksimal 10MB per file. Disimpan di Cloud Storage.
       </p>
     </div>
   );

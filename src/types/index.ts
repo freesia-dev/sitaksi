@@ -208,6 +208,7 @@ export interface Taksasi {
   nilai_likuidasi_pembulatan: number;
   safety_margin: number;
   terbilang: string;
+  status: 'draft' | 'selesai';
   status_otorisasi: StatusOtorisasi;
   catatan_pimpinan?: string;
   detail_agunan: DetailAgunan;
