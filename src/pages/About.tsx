@@ -71,7 +71,7 @@ export default function About() {
               
               <div className="flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-3">
                 <a 
-                  href="https://www.linkedin.com/in/haris-fadilah" 
+                  href="https://www.linkedin.com/in/harisf/" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-[#0077B5] text-white hover:bg-[#006399] transition-colors text-sm"
@@ -80,7 +80,7 @@ export default function About() {
                   LinkedIn
                 </a>
                 <a 
-                  href="https://www.instagram.com/harisfadilah_" 
+                  href="https://www.instagram.com/va.ys" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#F77737] text-white hover:opacity-90 transition-opacity text-sm"
