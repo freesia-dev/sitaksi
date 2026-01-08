@@ -89,10 +89,9 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
             <div className="py-6">
               <img 
                 src={frontPhoto} 
-                alt="Tampak Depan Agunan" 
+                alt="Foto Agunan" 
                 className="cover-image mx-auto max-w-[300px] max-h-[200px] object-cover rounded-lg border shadow-md"
               />
-              <p className="text-sm text-muted-foreground mt-2">Tampak Depan Agunan</p>
             </div>
           )}
 
