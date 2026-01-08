@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTaksasi } from '@/context/TaksasiContext';
 import { PageHeader } from '@/components/shared/PageHeader';
-import { LabeledImageUploader, LabeledImage } from '@/components/shared/LabeledImageUploader';
+import { CloudImageUploader, LabeledImage } from '@/components/shared/CloudImageUploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -683,11 +683,20 @@ export default function TaksasiKendaraan() {
             <Camera size={20} className="text-accent" />
             DOKUMENTASI JAMINAN (Max 8 Foto)
           </h3>
-          <LabeledImageUploader
+          <CloudImageUploader
             images={dokumentasi}
             onChange={handleDokumentasiChange}
             maxImages={8}
-            title="Dokumentasi Jaminan"
+            defaultLabels={[
+              'Tampak Depan',
+              'Tampak Belakang',
+              'Tampak Samping Kiri',
+              'Tampak Samping Kanan',
+              'Speedometer',
+              'Nomor Rangka',
+              'Nomor Mesin',
+              'BPKB/STNK',
+            ]}
           />
         </div>
 
