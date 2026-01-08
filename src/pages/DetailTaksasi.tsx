@@ -110,8 +110,14 @@ export default function DetailTaksasi() {
               width: auto !important;
               max-width: 180px !important;
             }
-            
-            /* Cover image for agunan */
+
+            /* Default image behavior in print: never overflow the page */
+            img {
+              max-width: 100% !important;
+              height: auto !important;
+            }
+
+            /* Cover image for agunan (legacy selector) */
             .cover-image, img[alt="Tampak Depan Agunan"] {
               max-width: 280px !important;
               max-height: 180px !important;
@@ -119,7 +125,19 @@ export default function DetailTaksasi() {
               border: 1px solid #ccc !important;
               border-radius: 4px !important;
             }
-            
+
+            /* ExportCover photo: keep it proportional and always 1 page */
+            .export-cover-photo, img[alt="Foto Agunan"] {
+              display: block !important;
+              margin: 0 auto !important;
+              max-width: 120mm !important;
+              max-height: 80mm !important;
+              width: auto !important;
+              height: auto !important;
+              object-fit: contain !important;
+              border: 1px solid #ccc !important;
+              border-radius: 6px !important;
+            }
             /* Tables */
             table {
               border-collapse: collapse;
