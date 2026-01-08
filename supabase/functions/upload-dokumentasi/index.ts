@@ -56,6 +56,51 @@ serve(async (req) => {
       )
     }
 
+    // Server-side validation: allowed MIME types
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+    if (!allowedMimeTypes.includes(file.type)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Server-side validation: allowed extensions
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp']
+    const fileExt = file.name.split('.').pop()?.toLowerCase() || ''
+    if (!allowedExtensions.includes(fileExt)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid file extension. Only jpg, jpeg, png, gif, and webp are allowed.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Server-side validation: file size (10MB max)
+    const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+    const fileBuffer = await file.arrayBuffer()
+    const fileSize = fileBuffer.byteLength
+    if (fileSize > MAX_FILE_SIZE) {
+      return new Response(
+        JSON.stringify({ error: 'File too large. Maximum size is 10MB.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Validate MIME type matches extension
+    const mimeToExt: Record<string, string[]> = {
+      'image/jpeg': ['jpg', 'jpeg'],
+      'image/png': ['png'],
+      'image/gif': ['gif'],
+      'image/webp': ['webp']
+    }
+    const validExtsForMime = mimeToExt[file.type] || []
+    if (!validExtsForMime.includes(fileExt)) {
+      return new Response(
+        JSON.stringify({ error: 'File extension does not match file type.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     // Calculate current storage usage
     const { data: storageFiles, error: storageError } = await supabaseAdmin
       .from('storage_files')
@@ -71,8 +116,7 @@ serve(async (req) => {
     }
 
     const totalUsage = (storageFiles || []).reduce((sum, f) => sum + (f.file_size || 0), 0)
-    const fileBuffer = await file.arrayBuffer()
-    const fileSize = fileBuffer.byteLength
+    // fileBuffer and fileSize already calculated during validation
 
     // Check if we need to free up space
     if (totalUsage + fileSize > MAX_STORAGE_BYTES) {
