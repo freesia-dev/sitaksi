@@ -90,7 +90,7 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
               <img 
                 src={frontPhoto} 
                 alt="Foto Agunan" 
-                className="cover-image mx-auto max-w-[300px] max-h-[200px] object-cover rounded-lg border shadow-md"
+                className="cover-image mx-auto max-w-[600px] max-h-[400px] object-cover rounded-lg border shadow-md"
               />
             </div>
           )}
