@@ -51,8 +51,8 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
   };
 
   return (
-    <div className="bg-white rounded-xl border shadow-card p-8 print:shadow-none print:border-none">
-      <div className="max-w-2xl mx-auto space-y-8 text-center">
+    <div className="bg-white rounded-xl border shadow-card print:shadow-none print:border-none min-h-[297mm] relative flex flex-col">
+      <div className="max-w-2xl mx-auto text-center p-8 flex-1">
         {/* Header with Logo */}
         <div className="space-y-2">
           <img src={logo} alt="Bankaltimtara" className="h-20 mx-auto" />
@@ -84,13 +84,13 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
             </>
           )}
 
-          {/* Front Photo - Center of document */}
+          {/* Front Photo - Center of document - larger size for print */}
           {frontPhoto && (
             <div className="py-6">
               <img 
                 src={frontPhoto} 
                 alt="Foto Agunan" 
-                className="cover-image mx-auto max-w-[600px] max-h-[400px] object-cover rounded-lg border shadow-md"
+                className="cover-image mx-auto w-full max-w-[500px] h-auto object-contain rounded-lg border shadow-md print:max-w-[180mm] print:max-h-[120mm]"
               />
             </div>
           )}
@@ -98,7 +98,7 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
           {/* Placeholder if no photo */}
           {!frontPhoto && (
             <div className="py-6">
-              <div className="mx-auto w-[300px] h-[200px] bg-muted/30 border-2 border-dashed border-muted-foreground/30 rounded-lg flex items-center justify-center">
+              <div className="mx-auto w-[400px] h-[280px] bg-muted/30 border-2 border-dashed border-muted-foreground/30 rounded-lg flex items-center justify-center">
                 <p className="text-muted-foreground text-sm">Foto Agunan</p>
               </div>
             </div>
@@ -120,15 +120,15 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
             </tbody>
           </table>
         </div>
+      </div>
 
-        {/* Footer */}
-        <div className="pt-8 border-t space-y-2 text-sm">
-          <p className="font-semibold">
-            PT.BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA
-          </p>
-          <p>{taksasi.kantor_cabang}</p>
-          <p>{taksasi.alamat_cabang}</p>
-        </div>
+      {/* Footer - Fixed at bottom */}
+      <div className="border-t space-y-1 text-sm text-center py-4 px-8 mt-auto">
+        <p className="font-semibold">
+          PT.BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA
+        </p>
+        <p className="font-semibold">{taksasi.kantor_cabang}</p>
+        <p>{taksasi.alamat_cabang}</p>
       </div>
     </div>
   );
