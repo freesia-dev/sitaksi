@@ -269,24 +269,23 @@
 /* Print Styles - Only print the content area */
 @media print {
   /* Hide everything by default */
-  body * {
-    visibility: hidden;
+  body > * {
+    display: none !important;
   }
 
   /* Show only the printable content */
+  .print-area {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: white !important;
+  }
+
   .print-area,
   .print-area * {
     visibility: visible !important;
-  }
-
-  /* Position print area at top-left */
-  .print-area {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    padding: 0 !important;
-    margin: 0 !important;
   }
 
   /* Hide non-printable elements */
@@ -294,22 +293,23 @@
   nav,
   header,
   .no-print,
-  button,
+  button:not(.print-button),
   .tabs-list,
   [role="tablist"] {
     display: none !important;
   }
 
-  /* Reset backgrounds for print */
-  .print-area {
-    background: white !important;
-    color: black !important;
-  }
-
   /* Page setup */
   @page {
     size: A4;
-    margin: 15mm 10mm;
+    margin: 10mm;
+  }
+
+  /* Export cover page styling */
+  .export-cover-page {
+    page-break-after: always;
+    background: white !important;
+    min-height: auto !important;
   }
 
   /* Prevent page breaks inside important elements */
@@ -339,14 +339,23 @@
     border-radius: 0 !important;
   }
 
-  /* Ensure text is black */
+  /* Ensure text is black for print */
   .print-area p,
   .print-area span,
   .print-area td,
   .print-area th,
   .print-area h1,
   .print-area h2,
-  .print-area h3 {
+  .print-area h3,
+  .print-area h4 {
     color: black !important;
+  }
+
+  /* Ensure images print properly */
+  .print-area img {
+    max-width: 100% !important;
+    height: auto !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
   }
 }
