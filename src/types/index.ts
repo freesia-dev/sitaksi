@@ -24,6 +24,8 @@ export interface HargaPembandingTanah {
 export interface DetailAgunanTanahSimple {
   luas_tanah: number;
   harga_per_meter: number;
+  dokumentasi_urls?: string[];
+  dokumentasi_labels?: string[];
 }
 
 export interface SafetyMarginTanah {
@@ -130,6 +132,8 @@ export interface DetailAgunanTBSimple {
   harga_tanah_per_meter: number;
   luas_bangunan: number;
   harga_bangunan_per_meter: number;
+  dokumentasi_urls?: string[];
+  dokumentasi_labels?: string[];
 }
 
 export interface DetailAgunanTB {

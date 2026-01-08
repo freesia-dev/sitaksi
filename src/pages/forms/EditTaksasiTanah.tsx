@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTaksasi } from '@/context/TaksasiContext';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { CloudImageUploader, LabeledImage } from '@/components/shared/CloudImageUploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -30,6 +31,7 @@ import {
   Plus,
   Trash2,
   AlertCircle,
+  Camera,
 } from 'lucide-react';
 import {
   Select,
@@ -155,6 +157,8 @@ export default function EditTaksasiTanah() {
     detail_tanah: { nilai_pasar: number; nilai_likuidasi: number; avg_safety: number }[];
   } | null>(null);
 
+  const [dokumentasi, setDokumentasi] = useState<LabeledImage[]>([]);
+
   // Load existing data
   useEffect(() => {
     if (existingTaksasi) {
@@ -180,6 +184,16 @@ export default function EditTaksasiTanah() {
           lokasi: existingTaksasi.alamat,
         };
         setTanahList([loadedTanah]);
+
+        // Load dokumentasi
+        const defaultLabels = ['Tampak Depan', 'Tampak Samping', 'Tampak Jalan', 'Surat Tanah'];
+        const urls = detail.dokumentasi_urls || [];
+        const labels = detail.dokumentasi_labels || [];
+        const loadedDokumentasi: LabeledImage[] = urls.map((url, index) => ({
+          url,
+          label: labels[index] || defaultLabels[index] || `Foto ${index + 1}`,
+        }));
+        setDokumentasi(loadedDokumentasi);
       }
     }
   }, [existingTaksasi]);
@@ -290,6 +304,8 @@ export default function EditTaksasiTanah() {
     const detailAgunan: DetailAgunanTanahSimple = {
       luas_tanah: totalLuasTanah,
       harga_per_meter: avgHargaTanah,
+      dokumentasi_urls: dokumentasi.map(d => d.url),
+      dokumentasi_labels: dokumentasi.map(d => d.label),
     };
 
     const alamatGabungan = tanahList.map(t => t.lokasi).filter(l => l).join('; ') || 'Alamat tidak disebutkan';
@@ -609,6 +625,22 @@ export default function EditTaksasiTanah() {
               />
             </div>
           </div>
+        </div>
+
+        {/* DOKUMENTASI AGUNAN */}
+        <div className="rounded-xl border bg-card p-6 shadow-card">
+          <h3 className="font-semibold mb-4 flex items-center gap-2">
+            <Camera size={18} className="text-accent" />
+            DOKUMENTASI JAMINAN
+          </h3>
+          <CloudImageUploader
+            images={dokumentasi}
+            onChange={setDokumentasi}
+            maxImages={8}
+            title="Dokumentasi Jaminan"
+            defaultLabels={['Tampak Depan', 'Tampak Samping', 'Tampak Jalan', 'Surat Tanah']}
+            taksasiId={id}
+          />
         </div>
 
         {/* Hitung Button */}

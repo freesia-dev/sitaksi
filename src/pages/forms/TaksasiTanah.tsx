@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTaksasi } from '@/context/TaksasiContext';
 import { PageHeader } from '@/components/shared/PageHeader';
-import { ImageUploader } from '@/components/shared/ImageUploader';
+import { CloudImageUploader, LabeledImage } from '@/components/shared/CloudImageUploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -151,7 +151,7 @@ export default function TaksasiTanah() {
   });
 
   const [tanahList, setTanahList] = useState<TanahItem[]>([{ ...defaultTanah }]);
-  const [dokumentasi, setDokumentasi] = useState<string[]>([]);
+  const [dokumentasi, setDokumentasi] = useState<LabeledImage[]>([]);
 
   const [hasil, setHasil] = useState<{
     total_nilai_tanah: number;
@@ -258,6 +258,8 @@ export default function TaksasiTanah() {
     const detailAgunan: DetailAgunanTanahSimple = {
       luas_tanah: totalLuasTanah,
       harga_per_meter: avgHargaTanah,
+      dokumentasi_urls: dokumentasi.map(d => d.url),
+      dokumentasi_labels: dokumentasi.map(d => d.label),
     };
 
     const alamatGabungan = tanahList.map(t => t.lokasi).filter(l => l).join('; ') || 'Alamat tidak disebutkan';
@@ -932,11 +934,12 @@ export default function TaksasiTanah() {
 
         {/* Dokumentasi */}
         <div className="rounded-xl border bg-card p-6 shadow-card animate-slide-up">
-          <ImageUploader
+          <CloudImageUploader
             images={dokumentasi}
             onChange={setDokumentasi}
             maxImages={8}
-            label="Dokumentasi Foto (Max 8)"
+            title="Dokumentasi Foto (Max 8)"
+            defaultLabels={['Tampak Depan', 'Tampak Samping', 'Tampak Jalan', 'Surat Tanah']}
           />
         </div>
 

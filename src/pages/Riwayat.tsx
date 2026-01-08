@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/select';
 import { formatCurrency, formatDate } from '@/types';
 import { Search, Filter, Eye, Download, Edit } from 'lucide-react';
+import { StatusToggle } from '@/components/shared/StatusToggle';
 
 export default function Riwayat() {
   const navigate = useNavigate();
@@ -98,6 +99,7 @@ export default function Riwayat() {
               <TableHead>Jenis Agunan</TableHead>
               <TableHead>Nilai Taksasi</TableHead>
               <TableHead>Nilai Likuidasi</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead className="text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
@@ -115,6 +117,13 @@ export default function Riwayat() {
                 <TableCell>{taksasi.jenis_agunan}</TableCell>
                 <TableCell className="font-medium">{formatCurrency(taksasi.nilai_taksasi_pembulatan)}</TableCell>
                 <TableCell className="text-success font-medium">{formatCurrency(taksasi.nilai_likuidasi_pembulatan)}</TableCell>
+                <TableCell>
+                  <StatusToggle 
+                    taksasiId={taksasi.id} 
+                    currentStatus={taksasi.status || 'draft'} 
+                    disabled={isDemo}
+                  />
+                </TableCell>
                 <TableCell className="text-right">
                   <div className="flex gap-1 justify-end">
                     {!isDemo && (
@@ -149,7 +158,7 @@ export default function Riwayat() {
             ))}
             {filteredList.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
+                <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
                   Tidak ada data taksasi yang ditemukan
                 </TableCell>
               </TableRow>
