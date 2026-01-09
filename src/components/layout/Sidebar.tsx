@@ -10,7 +10,8 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  Info
+  Info,
+  UserCircle
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -68,6 +69,12 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       icon: Users,
       href: '/admin/users',
       show: isAdmin,
+    },
+    {
+      label: 'Profil Saya',
+      icon: UserCircle,
+      href: '/profile',
+      show: true,
     },
     {
       label: 'Tentang',

@@ -20,6 +20,7 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          is_approved: boolean
           nama: string | null
           role: string
           updated_at: string
@@ -30,6 +31,7 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
+          is_approved?: boolean
           nama?: string | null
           role?: string
           updated_at?: string
@@ -40,6 +42,7 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          is_approved?: boolean
           nama?: string | null
           role?: string
           updated_at?: string
