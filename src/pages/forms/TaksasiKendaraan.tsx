@@ -557,14 +557,6 @@ export default function TaksasiKendaraan() {
               </div>
             ))}
           </div>
-          <Button
-            variant="accent"
-            className="mt-4"
-            onClick={handleHitung}
-          >
-            <Calculator className="mr-2" size={16} />
-            Hitung Taksasi
-          </Button>
         </div>
 
         {/* IV. KETERANGAN */}
@@ -699,6 +691,15 @@ export default function TaksasiKendaraan() {
               'BPKB/STNK',
             ]}
           />
+
+          <Button
+            variant="accent"
+            className="mt-6 w-full"
+            onClick={handleHitung}
+          >
+            <Calculator className="mr-2" size={16} />
+            Hitung Taksasi
+          </Button>
         </div>
 
         {/* Hasil Perhitungan */}

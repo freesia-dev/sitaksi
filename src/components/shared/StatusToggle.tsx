@@ -25,12 +25,13 @@ export function StatusToggle({ taksasiId, currentStatus, disabled = false }: Sta
   const handleToggle = async () => {
     if (disabled || loading) return;
 
-    const newStatus = localStatus === 'draft' ? 'selesai' : 'draft';
-    
+    const prevStatus = localStatus;
+    const newStatus = prevStatus === 'draft' ? 'selesai' : 'draft';
+
     // Optimistic update
     setLocalStatus(newStatus);
     setLoading(true);
-    
+
     try {
       await updateTaksasi(taksasiId, { status: newStatus });
       toast({
@@ -39,7 +40,7 @@ export function StatusToggle({ taksasiId, currentStatus, disabled = false }: Sta
       });
     } catch (error) {
       // Revert on error
-      setLocalStatus(localStatus);
+      setLocalStatus(prevStatus);
       toast({
         title: 'Gagal mengubah status',
         description: 'Terjadi kesalahan saat mengubah status',
