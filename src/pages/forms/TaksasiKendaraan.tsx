@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/shared/PageHeader';
 import { CloudImageUploader, LabeledImage } from '@/components/shared/CloudImageUploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -528,11 +529,10 @@ export default function TaksasiKendaraan() {
                 <div className="flex-1 grid sm:grid-cols-2 gap-3">
                   <div>
                     <Label className="text-xs">Harga (Rp)</Label>
-                    <Input
-                      type="number"
+                    <CurrencyInput
                       placeholder="0"
                       value={item.harga}
-                      onChange={(e) => handlePembandingChange(index, 'harga', e.target.value)}
+                      onChange={(val) => handlePembandingChange(index, 'harga', val)}
                     />
                   </div>
                   <div>
