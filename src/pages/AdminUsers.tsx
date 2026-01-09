@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,9 +38,23 @@ const INITIAL_USERS: User[] = [
   { id: '4', nama: 'Demo User', email: 'demo@bankaltimtara.id', role: 'Demo' },
 ];
 
+const LS_KEY = 'sitaksi_admin_users_v1';
+
+const loadUsers = (): User[] => {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return INITIAL_USERS;
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return INITIAL_USERS;
+    return parsed as User[];
+  } catch {
+    return INITIAL_USERS;
+  }
+};
+
 export default function AdminUsers() {
   const { toast } = useToast();
-  const [users, setUsers] = useState<User[]>(INITIAL_USERS);
+  const [users, setUsers] = useState<User[]>(() => loadUsers());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isResetPasswordOpen, setIsResetPasswordOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -53,6 +67,10 @@ export default function AdminUsers() {
   });
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  useEffect(() => {
+    localStorage.setItem(LS_KEY, JSON.stringify(users));
+  }, [users]);
 
   const handleOpenDialog = (user?: User) => {
     if (user) {
@@ -110,7 +128,7 @@ export default function AdminUsers() {
       return;
     }
 
-    // In real implementation, this would call an API
+    // Demo implementation
     toast({
       title: 'Password berhasil direset',
       description: `Password untuk ${resetPasswordUser?.nama} telah diperbarui`,
@@ -142,7 +160,7 @@ export default function AdminUsers() {
       });
     } else {
       const newUser: User = {
-        id: Date.now().toString(),
+        id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
         nama: formData.nama,
         email: formData.email,
         role: formData.role,

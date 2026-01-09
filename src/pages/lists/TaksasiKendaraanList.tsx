@@ -46,7 +46,7 @@ import {
 } from 'lucide-react';
 import { StatusToggle } from '@/components/shared/StatusToggle';
 
-type SortField = 'tanggal' | 'nama_nasabah' | 'nilai_taksasi';
+type SortField = 'tanggal' | 'nomor_dokumen' | 'nama_nasabah' | 'nilai_taksasi';
 type SortOrder = 'asc' | 'desc';
 
 export default function TaksasiKendaraanList() {
@@ -56,7 +56,7 @@ export default function TaksasiKendaraanList() {
   const { toast } = useToast();
   
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortField, setSortField] = useState<SortField>('tanggal');
+  const [sortField, setSortField] = useState<SortField>('nomor_dokumen');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 
   const isAdmin = user?.role === 'Admin';
@@ -80,12 +80,25 @@ export default function TaksasiKendaraanList() {
     }
 
     // Sort
+    const getDocNumber = (no: string) => {
+      const head = (no || '').split('/')[0];
+      const n = Number(head);
+      return Number.isFinite(n) ? n : null;
+    };
+
     filtered.sort((a, b) => {
       let comparison = 0;
       switch (sortField) {
         case 'tanggal':
           comparison = new Date(a.tanggal).getTime() - new Date(b.tanggal).getTime();
           break;
+        case 'nomor_dokumen': {
+          const an = getDocNumber(a.nomor_dokumen);
+          const bn = getDocNumber(b.nomor_dokumen);
+          if (an !== null && bn !== null) comparison = an - bn;
+          else comparison = a.nomor_dokumen.localeCompare(b.nomor_dokumen);
+          break;
+        }
         case 'nama_nasabah':
           comparison = a.nama_nasabah.localeCompare(b.nama_nasabah);
           break;
@@ -160,6 +173,7 @@ export default function TaksasiKendaraanList() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="tanggal">Tanggal</SelectItem>
+            <SelectItem value="nomor_dokumen">Nomor Dokumen</SelectItem>
             <SelectItem value="nama_nasabah">Nama Nasabah</SelectItem>
             <SelectItem value="nilai_taksasi">Nilai Taksasi</SelectItem>
           </SelectContent>
@@ -188,7 +202,15 @@ export default function TaksasiKendaraanList() {
                   <SortIcon field="tanggal" />
                 </div>
               </TableHead>
-              <TableHead>No. Dokumen</TableHead>
+              <TableHead
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => handleSort('nomor_dokumen')}
+              >
+                <div className="flex items-center">
+                  No. Dokumen
+                  <SortIcon field="nomor_dokumen" />
+                </div>
+              </TableHead>
               <TableHead 
                 className="cursor-pointer hover:bg-muted/50"
                 onClick={() => handleSort('nama_nasabah')}

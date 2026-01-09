@@ -254,10 +254,22 @@ export function TaksasiProvider({ children }: { children: ReactNode }) {
         updateData.status = statusMap[updates.status_otorisasi] || 'draft';
       }
 
-      const { error } = await supabase
+      const { data: updatedRow, error } = await supabase
         .from('taksasi')
         .update(updateData)
-        .eq('id', id);
+        .eq('id', id)
+        .select('id')
+        .maybeSingle();
+
+      // If RLS blocks the update, PostgREST returns 200/204 with no rows updated (no error).
+      if (!updatedRow) {
+        toast({
+          title: 'Tidak memiliki izin',
+          description: 'Perubahan tidak tersimpan (Anda tidak punya akses untuk mengubah data ini).',
+          variant: 'destructive'
+        });
+        return;
+      }
 
       if (error) {
         console.error('Error updating taksasi:', error);
