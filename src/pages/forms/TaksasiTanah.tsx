@@ -348,7 +348,7 @@ export default function TaksasiTanah() {
                     min={1}
                   />
                   <span className="text-sm text-muted-foreground">
-                    /F-3/BPD-TLH/{['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'][new Date().getMonth()]}/{new Date().getFullYear()}
+                    /F-3/BPD-TLH/{['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'][new Date(formData.tanggal_penilaian).getMonth()]}/{new Date(formData.tanggal_penilaian).getFullYear()}
                   </span>
                 </div>
               </div>
