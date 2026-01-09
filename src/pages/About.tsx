@@ -1,7 +1,7 @@
 import React from 'react';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Linkedin, Instagram, Code, Building, FileText } from 'lucide-react';
+import { ArrowLeft, Linkedin, Instagram, Code, Building, FileText, Car } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import logoSitaksiFix from '@/assets/logo-sitaksi-fix.png';
 
@@ -37,21 +37,26 @@ export default function About() {
               SITAKSI (SIstem TAKSasi telIhan) adalah platform digital internal yang dirancang untuk mendukung proses taksasi agunan secara cepat, akurat, dan terdokumentasi. Sistem ini membantu Officer, Pimpinan, dan Admin dalam melakukan penilaian agunan, memvalidasi data, serta menghasilkan output laporan yang terstruktur dan terstandar.
             </p>
             
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mt-6">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6">
               <div className="p-3 sm:p-4 rounded-lg bg-muted/50 text-center">
                 <Building className="mx-auto mb-2 text-primary" size={28} />
                 <h3 className="font-semibold text-foreground text-sm sm:text-base">Tanah & Bangunan</h3>
-                <p className="text-xs sm:text-sm">Penilaian properti dengan analisis lengkap</p>
+                <p className="text-xs sm:text-sm">Penilaian properti lengkap</p>
+              </div>
+              <div className="p-3 sm:p-4 rounded-lg bg-muted/50 text-center">
+                <Car className="mx-auto mb-2 text-primary" size={28} />
+                <h3 className="font-semibold text-foreground text-sm sm:text-base">Kendaraan</h3>
+                <p className="text-xs sm:text-sm">Penilaian kendaraan bermotor</p>
               </div>
               <div className="p-3 sm:p-4 rounded-lg bg-muted/50 text-center">
                 <FileText className="mx-auto mb-2 text-primary" size={28} />
                 <h3 className="font-semibold text-foreground text-sm sm:text-base">Dokumentasi</h3>
-                <p className="text-xs sm:text-sm">Export laporan dalam format PDF/Excel</p>
+                <p className="text-xs sm:text-sm">Export laporan PDF/Excel</p>
               </div>
               <div className="p-3 sm:p-4 rounded-lg bg-muted/50 text-center">
                 <Code className="mx-auto mb-2 text-primary" size={28} />
                 <h3 className="font-semibold text-foreground text-sm sm:text-base">Otomatis</h3>
-                <p className="text-xs sm:text-sm">Perhitungan nilai taksasi otomatis</p>
+                <p className="text-xs sm:text-sm">Perhitungan nilai otomatis</p>
               </div>
             </div>
           </div>

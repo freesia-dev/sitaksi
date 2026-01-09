@@ -56,7 +56,7 @@ export default function Dashboard() {
       />
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard
           title="Total Taksasi"
           value={displayList.length}
@@ -73,6 +73,12 @@ export default function Dashboard() {
           title="Tanah & Bangunan"
           value={displayList.filter(t => t.jenis_agunan === 'Tanah & Bangunan').length}
           icon={Building2}
+        />
+        <StatCard
+          title="Kendaraan"
+          value={displayList.filter(t => t.jenis_agunan === 'Kendaraan').length}
+          icon={Car}
+          variant="accent"
         />
         <StatCard
           title="Total Nilai Taksasi"
