@@ -57,6 +57,7 @@ export default function TaksasiKendaraan() {
     nomor_dokumen: '',
     nama_nasabah: '',
     alamat: '',
+    tanggal_penilaian: new Date().toISOString().split('T')[0],
     jenis: '',
     merk: '',
     model: '',
@@ -237,7 +238,7 @@ export default function TaksasiKendaraan() {
       status: 'draft',
       status_otorisasi: 'Draft',
       detail_agunan: detailAgunan,
-      tanggal: new Date().toISOString().split('T')[0],
+      tanggal: formData.tanggal_penilaian,
       petugas: user?.nama || '',
       jabatan_petugas: 'Officer Relationship Kredit',
       kantor_cabang: formData.kantor_cabang,
@@ -307,9 +308,9 @@ export default function TaksasiKendaraan() {
                 <Input
                   type="date"
                   id="tanggal_penilaian"
-                  defaultValue={new Date().toISOString().split('T')[0]}
-                  disabled
-                  className="bg-muted"
+                  name="tanggal_penilaian"
+                  value={formData.tanggal_penilaian}
+                  onChange={handleChange}
                 />
               </div>
             </div>

@@ -212,6 +212,7 @@ export default function TaksasiTanahBangunan() {
   const [formData, setFormData] = useState({
     nomor_dokumen: '',
     nama_nasabah: '',
+    tanggal_penilaian: new Date().toISOString().split('T')[0],
     kantor_cabang: 'KANTOR CABANG PEMBANTU TELIHAN',
     alamat_cabang: 'JL.S.PARMAN NO.14-15 KEL.GN.TELIHAN KEC.BONTANG BARAT-75383',
     pimpinan: '',
@@ -413,7 +414,7 @@ export default function TaksasiTanahBangunan() {
       status: 'draft',
       status_otorisasi: 'Draft',
       detail_agunan: detailAgunan,
-      tanggal: new Date().toISOString().split('T')[0],
+      tanggal: formData.tanggal_penilaian,
       petugas: user?.nama || '',
       jabatan_petugas: 'Officer Relationship Kredit',
       kantor_cabang: formData.kantor_cabang,
@@ -489,9 +490,9 @@ export default function TaksasiTanahBangunan() {
                 <Input
                   type="date"
                   id="tanggal_penilaian"
-                  defaultValue={new Date().toISOString().split('T')[0]}
-                  disabled
-                  className="bg-muted"
+                  name="tanggal_penilaian"
+                  value={formData.tanggal_penilaian}
+                  onChange={handleChange}
                 />
               </div>
             </div>
