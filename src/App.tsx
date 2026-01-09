@@ -23,6 +23,7 @@ const TaksasiTanahBangunanList = lazy(() => import("@/pages/lists/TaksasiTanahBa
 const TaksasiKendaraanList = lazy(() => import("@/pages/lists/TaksasiKendaraanList"));
 const Riwayat = lazy(() => import("@/pages/Riwayat"));
 const AdminUsers = lazy(() => import("@/pages/AdminUsers"));
+const Profile = lazy(() => import("@/pages/Profile"));
 const DetailTaksasi = lazy(() => import("@/pages/DetailTaksasi"));
 const About = lazy(() => import("@/pages/About"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
@@ -76,6 +77,7 @@ const App = () => (
                   <Route path="/taksasi/kendaraan/edit/:id" element={<EditTaksasiKendaraan />} />
                   <Route path="/riwayat" element={<Riwayat />} />
                   <Route path="/admin/users" element={<AdminUsers />} />
+                  <Route path="/profile" element={<Profile />} />
                   <Route path="/taksasi/:id" element={<DetailTaksasi />} />
                   <Route path="/about" element={<About />} />
                 </Route>

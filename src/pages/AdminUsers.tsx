@@ -27,9 +27,21 @@ import {
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { UserRole } from '@/types';
-import { Plus, Pencil, Trash2, Shield, UserCircle, Users as UsersIcon, KeyRound, Loader2, RefreshCw } from 'lucide-react';
+import { 
+  Pencil, 
+  Shield, 
+  UserCircle, 
+  Users as UsersIcon, 
+  Loader2, 
+  RefreshCw,
+  CheckCircle2,
+  XCircle,
+  Clock
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { format } from 'date-fns';
+import { id as idLocale } from 'date-fns/locale';
 
 interface DbUser {
   id: string;
@@ -37,11 +49,11 @@ interface DbUser {
   nama: string;
   email: string;
   role: string;
+  is_approved: boolean;
   created_at: string;
-  user_role?: string; // from user_roles table
+  user_role?: string;
 }
 
-// Map database role to display role
 const mapDbRoleToDisplay = (dbRole: string | undefined): UserRole => {
   switch (dbRole) {
     case 'admin':
@@ -54,7 +66,6 @@ const mapDbRoleToDisplay = (dbRole: string | undefined): UserRole => {
   }
 };
 
-// Map display role to database role
 const mapDisplayRoleToDb = (displayRole: UserRole): 'admin' | 'user' | 'demo' => {
   switch (displayRole) {
     case 'Admin':
@@ -73,38 +84,31 @@ export default function AdminUsers() {
   const [users, setUsers] = useState<DbUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isResetPasswordOpen, setIsResetPasswordOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<DbUser | null>(null);
-  const [resetPasswordUser, setResetPasswordUser] = useState<DbUser | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [approvingUserId, setApprovingUserId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     nama: '',
     email: '',
     role: 'Officer' as UserRole,
-    password: '',
   });
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
 
   const fetchUsers = useCallback(async () => {
     setIsLoading(true);
     try {
-      // Fetch profiles with their roles from user_roles table
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, user_id, nama, email, role, created_at')
+        .select('id, user_id, nama, email, role, is_approved, created_at')
         .order('created_at', { ascending: false });
 
       if (profilesError) throw profilesError;
 
-      // Fetch roles from user_roles table
       const { data: roles, error: rolesError } = await supabase
         .from('user_roles')
         .select('user_id, role');
 
       if (rolesError) throw rolesError;
 
-      // Merge profiles with roles
       const usersWithRoles = (profiles || []).map(profile => {
         const userRole = roles?.find(r => r.user_id === profile.user_id);
         return {
@@ -130,76 +134,51 @@ export default function AdminUsers() {
     fetchUsers();
   }, [fetchUsers]);
 
-  const handleOpenDialog = (user?: DbUser) => {
-    if (user) {
-      setEditingUser(user);
-      setFormData({
-        nama: user.nama || '',
-        email: user.email,
-        role: mapDbRoleToDisplay(user.user_role),
-        password: '',
+  const handleApprove = async (user: DbUser, approve: boolean) => {
+    setApprovingUserId(user.id);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_approved: approve })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: approve ? 'User disetujui' : 'User ditolak',
+        description: `${user.nama || user.email} telah ${approve ? 'disetujui' : 'ditolak'}`,
       });
-    } else {
-      setEditingUser(null);
-      setFormData({
-        nama: '',
-        email: '',
-        role: 'Officer',
-        password: '',
+
+      await fetchUsers();
+    } catch (error: any) {
+      console.error('Error updating approval:', error);
+      toast({
+        title: 'Gagal mengubah status',
+        description: error.message,
+        variant: 'destructive',
       });
+    } finally {
+      setApprovingUserId(null);
     }
+  };
+
+  const handleOpenDialog = (user: DbUser) => {
+    setEditingUser(user);
+    setFormData({
+      nama: user.nama || '',
+      email: user.email,
+      role: mapDbRoleToDisplay(user.user_role),
+    });
     setIsDialogOpen(true);
   };
 
-  const handleOpenResetPassword = (user: DbUser) => {
-    setResetPasswordUser(user);
-    setNewPassword('');
-    setConfirmPassword('');
-    setIsResetPasswordOpen(true);
-  };
-
-  const handleResetPassword = async () => {
-    if (!newPassword || !confirmPassword) {
-      toast({
-        title: 'Data tidak lengkap',
-        description: 'Password baru dan konfirmasi wajib diisi',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      toast({
-        title: 'Password tidak cocok',
-        description: 'Password baru dan konfirmasi harus sama',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (newPassword.length < 6) {
-      toast({
-        title: 'Password terlalu pendek',
-        description: 'Password minimal 6 karakter',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    // Note: Password reset requires admin API or email-based reset
-    // For now, show info message
-    toast({
-      title: 'Info',
-      description: 'Reset password melalui email akan dikirim ke user',
-    });
-    setIsResetPasswordOpen(false);
-  };
-
   const handleSave = async () => {
-    if (!formData.nama || !formData.email) {
+    if (!editingUser) return;
+    
+    if (!formData.nama.trim()) {
       toast({
         title: 'Data tidak lengkap',
-        description: 'Nama dan email wajib diisi',
+        description: 'Nama wajib diisi',
         variant: 'destructive',
       });
       return;
@@ -208,46 +187,33 @@ export default function AdminUsers() {
     setIsSaving(true);
 
     try {
-      if (editingUser) {
-        // Update profile
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({ nama: formData.nama })
-          .eq('id', editingUser.id);
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ nama: formData.nama.trim() })
+        .eq('id', editingUser.id);
 
-        if (profileError) throw profileError;
+      if (profileError) throw profileError;
 
-        // Update role in user_roles table
-        const newRole = mapDisplayRoleToDb(formData.role);
-        const { error: roleError } = await supabase
+      const newRole = mapDisplayRoleToDb(formData.role);
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .update({ role: newRole })
+        .eq('user_id', editingUser.user_id);
+
+      if (roleError) {
+        const { error: insertError } = await supabase
           .from('user_roles')
-          .update({ role: newRole })
-          .eq('user_id', editingUser.user_id);
+          .insert({ user_id: editingUser.user_id, role: newRole });
 
-        if (roleError) {
-          // If no existing role, insert new one
-          const { error: insertError } = await supabase
-            .from('user_roles')
-            .insert({ user_id: editingUser.user_id, role: newRole });
-
-          if (insertError) throw insertError;
-        }
-
-        toast({
-          title: 'User berhasil diperbarui',
-          description: `Data ${formData.nama} telah diperbarui`,
-        });
-
-        await fetchUsers();
-      } else {
-        // For adding new users, we would need admin API access
-        // Show info message for now
-        toast({
-          title: 'Info',
-          description: 'Untuk menambah user baru, user harus mendaftar melalui halaman login',
-        });
+        if (insertError) throw insertError;
       }
 
+      toast({
+        title: 'User berhasil diperbarui',
+        description: `Data ${formData.nama} telah diperbarui`,
+      });
+
+      await fetchUsers();
       setIsDialogOpen(false);
     } catch (error: any) {
       console.error('Error saving user:', error);
@@ -259,14 +225,6 @@ export default function AdminUsers() {
     } finally {
       setIsSaving(false);
     }
-  };
-
-  const handleDelete = async (user: DbUser) => {
-    // Note: Deleting users requires admin API access
-    toast({
-      title: 'Info',
-      description: 'Penghapusan user memerlukan akses admin',
-    });
   };
 
   const getRoleBadgeVariant = (role: UserRole) => {
@@ -289,27 +247,24 @@ export default function AdminUsers() {
     displayRole: mapDbRoleToDisplay(u.user_role),
   }));
 
+  const pendingUsers = displayUsers.filter(u => !u.is_approved);
+  const approvedUsers = displayUsers.filter(u => u.is_approved);
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="Kelola User"
         description="Manajemen pengguna sistem taksasi agunan"
         actions={
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={fetchUsers} disabled={isLoading}>
-              <RefreshCw className={`mr-2 ${isLoading ? 'animate-spin' : ''}`} size={16} />
-              Refresh
-            </Button>
-            <Button onClick={() => handleOpenDialog()}>
-              <Plus className="mr-2" size={16} />
-              Tambah User
-            </Button>
-          </div>
+          <Button variant="outline" onClick={fetchUsers} disabled={isLoading}>
+            <RefreshCw className={`mr-2 ${isLoading ? 'animate-spin' : ''}`} size={16} />
+            Refresh
+          </Button>
         }
       />
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div className="p-4 rounded-xl border bg-card shadow-card flex items-center gap-4">
           <div className="p-3 rounded-lg bg-primary/10 text-primary">
             <UsersIcon size={24} />
@@ -320,27 +275,105 @@ export default function AdminUsers() {
           </div>
         </div>
         <div className="p-4 rounded-xl border bg-card shadow-card flex items-center gap-4">
+          <div className="p-3 rounded-lg bg-warning/10 text-warning">
+            <Clock size={24} />
+          </div>
+          <div>
+            <p className="text-2xl font-bold">{pendingUsers.length}</p>
+            <p className="text-sm text-muted-foreground">Menunggu Persetujuan</p>
+          </div>
+        </div>
+        <div className="p-4 rounded-xl border bg-card shadow-card flex items-center gap-4">
           <div className="p-3 rounded-lg bg-success/10 text-success">
             <UserCircle size={24} />
           </div>
           <div>
-            <p className="text-2xl font-bold">{displayUsers.filter(u => u.displayRole === 'Officer').length}</p>
+            <p className="text-2xl font-bold">{approvedUsers.filter(u => u.displayRole === 'Officer').length}</p>
             <p className="text-sm text-muted-foreground">Officer</p>
           </div>
         </div>
         <div className="p-4 rounded-xl border bg-card shadow-card flex items-center gap-4">
-          <div className="p-3 rounded-lg bg-warning/10 text-warning">
+          <div className="p-3 rounded-lg bg-destructive/10 text-destructive">
             <Shield size={24} />
           </div>
           <div>
-            <p className="text-2xl font-bold">{displayUsers.filter(u => u.displayRole === 'Admin').length}</p>
+            <p className="text-2xl font-bold">{approvedUsers.filter(u => u.displayRole === 'Admin').length}</p>
             <p className="text-sm text-muted-foreground">Admin</p>
           </div>
         </div>
       </div>
 
-      {/* Table */}
+      {/* Pending Approval Section */}
+      {pendingUsers.length > 0 && (
+        <div className="rounded-xl border bg-card shadow-card overflow-hidden">
+          <div className="p-4 border-b bg-warning/5">
+            <h3 className="font-semibold flex items-center gap-2 text-warning">
+              <Clock size={18} />
+              Menunggu Persetujuan ({pendingUsers.length})
+            </h3>
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nama</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Tanggal Daftar</TableHead>
+                <TableHead className="text-right">Aksi</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {pendingUsers.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell className="font-medium">{user.nama || '-'}</TableCell>
+                  <TableCell className="text-muted-foreground">{user.email}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {format(new Date(user.created_at), 'dd MMM yyyy, HH:mm', { locale: idLocale })}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-2 justify-end">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-success border-success hover:bg-success hover:text-success-foreground"
+                        onClick={() => handleApprove(user, true)}
+                        disabled={approvingUserId === user.id}
+                      >
+                        {approvingUserId === user.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <>
+                            <CheckCircle2 className="mr-1 h-4 w-4" />
+                            Setujui
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
+                        onClick={() => handleApprove(user, false)}
+                        disabled={approvingUserId === user.id}
+                      >
+                        <XCircle className="mr-1 h-4 w-4" />
+                        Tolak
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+
+      {/* Approved Users Table */}
       <div className="rounded-xl border bg-card shadow-card overflow-hidden">
+        <div className="p-4 border-b">
+          <h3 className="font-semibold flex items-center gap-2">
+            <CheckCircle2 size={18} className="text-success" />
+            User Terverifikasi ({approvedUsers.length})
+          </h3>
+        </div>
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="animate-spin text-muted-foreground" size={32} />
@@ -352,34 +385,30 @@ export default function AdminUsers() {
                 <TableHead>Nama</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Role</TableHead>
+                <TableHead>Tanggal Daftar</TableHead>
                 <TableHead className="text-right">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {displayUsers.length === 0 ? (
+              {approvedUsers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                    Belum ada user terdaftar
+                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                    Belum ada user terverifikasi
                   </TableCell>
                 </TableRow>
               ) : (
-                displayUsers.map((user) => (
+                approvedUsers.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell className="font-medium">{user.nama || '-'}</TableCell>
                     <TableCell className="text-muted-foreground">{user.email}</TableCell>
                     <TableCell>
                       <Badge variant={getRoleBadgeVariant(user.displayRole)}>{user.displayRole}</Badge>
                     </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {format(new Date(user.created_at), 'dd MMM yyyy', { locale: idLocale })}
+                    </TableCell>
                     <TableCell>
                       <div className="flex gap-1 justify-end">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleOpenResetPassword(user)}
-                          title="Reset Password"
-                        >
-                          <KeyRound size={16} />
-                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -391,11 +420,12 @@ export default function AdminUsers() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-destructive hover:bg-destructive/10"
-                          onClick={() => handleDelete(user)}
-                          title="Hapus User"
+                          className="text-warning hover:bg-warning/10"
+                          onClick={() => handleApprove(user, false)}
+                          title="Cabut Akses"
+                          disabled={approvingUserId === user.id}
                         >
-                          <Trash2 size={16} />
+                          <XCircle size={16} />
                         </Button>
                       </div>
                     </TableCell>
@@ -407,19 +437,13 @@ export default function AdminUsers() {
         )}
       </div>
 
-      {/* Edit/Add User Dialog */}
+      {/* Edit User Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingUser ? 'Edit User' : 'Tambah User Baru'}</DialogTitle>
+            <DialogTitle>Edit User</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            {!editingUser && (
-              <p className="text-sm text-muted-foreground bg-muted p-3 rounded-lg">
-                💡 Untuk menambah user baru, minta user untuk mendaftar melalui halaman login.
-                Setelah terdaftar, Anda dapat mengubah role-nya di sini.
-              </p>
-            )}
             <div>
               <Label htmlFor="nama">Nama Lengkap</Label>
               <Input
@@ -427,7 +451,7 @@ export default function AdminUsers() {
                 value={formData.nama}
                 onChange={(e) => setFormData(prev => ({ ...prev, nama: e.target.value }))}
                 placeholder="Masukkan nama lengkap"
-                disabled={!editingUser}
+                maxLength={100}
               />
             </div>
             <div>
@@ -436,9 +460,8 @@ export default function AdminUsers() {
                 id="email"
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                placeholder="nama@bankaltimtara.id"
-                disabled={editingUser !== null}
+                disabled
+                className="bg-muted"
               />
             </div>
             <div>
@@ -446,7 +469,6 @@ export default function AdminUsers() {
               <Select
                 value={formData.role}
                 onValueChange={(value: UserRole) => setFormData(prev => ({ ...prev, role: value }))}
-                disabled={!editingUser}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Pilih role" />
@@ -458,70 +480,19 @@ export default function AdminUsers() {
                 </SelectContent>
               </Select>
             </div>
-            {!editingUser && (
-              <div>
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                  placeholder="Masukkan password"
-                  disabled
-                />
-              </div>
-            )}
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setIsDialogOpen(false)}>Batal</Button>
-            <Button onClick={handleSave} disabled={isSaving || !editingUser}>
+            <Button onClick={handleSave} disabled={isSaving}>
               {isSaving ? (
                 <>
                   <Loader2 className="mr-2 animate-spin" size={16} />
                   Menyimpan...
                 </>
               ) : (
-                editingUser ? 'Simpan Perubahan' : 'Tambah User'
+                'Simpan Perubahan'
               )}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Reset Password Dialog */}
-      <Dialog open={isResetPasswordOpen} onOpenChange={setIsResetPasswordOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Reset Password</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <p className="text-sm text-muted-foreground">
-              Reset password untuk user: <span className="font-medium text-foreground">{resetPasswordUser?.nama || resetPasswordUser?.email}</span>
-            </p>
-            <div>
-              <Label htmlFor="newPassword">Password Baru</Label>
-              <Input
-                id="newPassword"
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Masukkan password baru"
-              />
-            </div>
-            <div>
-              <Label htmlFor="confirmPassword">Konfirmasi Password</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Ulangi password baru"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setIsResetPasswordOpen(false)}>Batal</Button>
-            <Button onClick={handleResetPassword}>Reset Password</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

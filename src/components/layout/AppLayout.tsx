@@ -1,15 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Sidebar } from './Sidebar';
 import { cn } from '@/lib/utils';
+import { Loader2 } from 'lucide-react';
+
+const PendingApproval = lazy(() => import('@/pages/PendingApproval'));
 
 export function AppLayout() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isApproved, isLoading } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Show pending approval page if user is not approved
+  if (!isApproved) {
+    return (
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      }>
+        <PendingApproval />
+      </Suspense>
+    );
   }
 
   return (

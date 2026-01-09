@@ -8,12 +8,14 @@ interface AuthUser {
   nama: string;
   email: string;
   role: UserRole;
+  isApproved: boolean;
 }
 
 interface AuthContextType {
   user: AuthUser | null;
   session: Session | null;
   isAuthenticated: boolean;
+  isApproved: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signup: (email: string, password: string, nama: string) => Promise<{ success: boolean; error?: string }>;
@@ -55,10 +57,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Fetch user profile and role
   const fetchUserProfile = async (userId: string, userEmail: string) => {
     try {
-      // Fetch profile
+      // Fetch profile with is_approved
       const { data: profile } = await supabase
         .from('profiles')
-        .select('nama, role')
+        .select('nama, role, is_approved')
         .eq('user_id', userId)
         .maybeSingle();
 
@@ -81,7 +83,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: userId,
         email: userEmail,
         nama: profile?.nama || userEmail,
-        role: role
+        role: role,
+        isApproved: profile?.is_approved ?? false
       });
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -89,7 +92,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: userId,
         email: userEmail,
         nama: userEmail,
-        role: 'Officer'
+        role: 'Officer',
+        isApproved: false
       });
     }
   };
@@ -201,6 +205,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user, 
     session,
     isAuthenticated: !!session && !!user, 
+    isApproved: user?.isApproved ?? false,
     isLoading,
     login, 
     signup,
