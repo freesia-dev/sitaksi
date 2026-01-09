@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/shared/PageHeader';
 import { CloudImageUploader, LabeledImage } from '@/components/shared/CloudImageUploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -679,10 +680,9 @@ export default function TaksasiTanah() {
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <Label>Harga Pembanding 1 (Rp/m²)</Label>
-                    <Input 
-                      type="number"
+                    <CurrencyInput
                       value={tanah.harga_pembanding_1} 
-                      onChange={(e) => updateTanah(index, 'harga_pembanding_1', e.target.value)}
+                      onChange={(val) => updateTanah(index, 'harga_pembanding_1', val)}
                       placeholder="0"
                     />
                   </div>
@@ -698,10 +698,9 @@ export default function TaksasiTanah() {
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <Label>Harga Pembanding 2 (Rp/m²)</Label>
-                    <Input 
-                      type="number"
+                    <CurrencyInput
                       value={tanah.harga_pembanding_2} 
-                      onChange={(e) => updateTanah(index, 'harga_pembanding_2', e.target.value)}
+                      onChange={(val) => updateTanah(index, 'harga_pembanding_2', val)}
                       placeholder="0"
                     />
                   </div>
@@ -717,10 +716,9 @@ export default function TaksasiTanah() {
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <Label>Harga Pembanding 3 (Rp/m²)</Label>
-                    <Input 
-                      type="number"
+                    <CurrencyInput
                       value={tanah.harga_pembanding_3} 
-                      onChange={(e) => updateTanah(index, 'harga_pembanding_3', e.target.value)}
+                      onChange={(val) => updateTanah(index, 'harga_pembanding_3', val)}
                       placeholder="0"
                     />
                   </div>

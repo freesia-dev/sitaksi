@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/shared/PageHeader';
 import { CloudImageUploader, LabeledImage } from '@/components/shared/CloudImageUploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -303,7 +304,7 @@ export default function EditTaksasiKendaraan() {
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <Label>Harga Pembanding 1</Label>
-                <Input name="harga_pembanding_1" type="number" value={formData.harga_pembanding_1} onChange={handleChange} />
+                <CurrencyInput value={formData.harga_pembanding_1} onChange={(val) => setFormData(prev => ({ ...prev, harga_pembanding_1: val }))} />
               </div>
               <div>
                 <Label>Sumber 1</Label>
@@ -313,7 +314,7 @@ export default function EditTaksasiKendaraan() {
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <Label>Harga Pembanding 2</Label>
-                <Input name="harga_pembanding_2" type="number" value={formData.harga_pembanding_2} onChange={handleChange} />
+                <CurrencyInput value={formData.harga_pembanding_2} onChange={(val) => setFormData(prev => ({ ...prev, harga_pembanding_2: val }))} />
               </div>
               <div>
                 <Label>Sumber 2</Label>
@@ -323,7 +324,7 @@ export default function EditTaksasiKendaraan() {
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <Label>Harga Pembanding 3</Label>
-                <Input name="harga_pembanding_3" type="number" value={formData.harga_pembanding_3} onChange={handleChange} />
+                <CurrencyInput value={formData.harga_pembanding_3} onChange={(val) => setFormData(prev => ({ ...prev, harga_pembanding_3: val }))} />
               </div>
               <div>
                 <Label>Sumber 3</Label>

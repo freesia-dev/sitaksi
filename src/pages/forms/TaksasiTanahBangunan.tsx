@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/shared/PageHeader';
 import { CloudImageUploader, LabeledImage } from '@/components/shared/CloudImageUploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -717,17 +718,17 @@ export default function TaksasiTanahBangunan() {
               <div className="grid sm:grid-cols-3 gap-4">
                 <div>
                   <Label>Harga Pasar 1</Label>
-                  <Input type="number" value={tanah.harga_pembanding_1} onChange={(e) => updateTanah(index, 'harga_pembanding_1', e.target.value)} placeholder="280000" />
+                  <CurrencyInput value={tanah.harga_pembanding_1} onChange={(val) => updateTanah(index, 'harga_pembanding_1', val)} placeholder="280000" />
                   <Input className="mt-2" value={tanah.sumber_1} onChange={(e) => updateTanah(index, 'sumber_1', e.target.value)} placeholder="Sumber informasi" />
                 </div>
                 <div>
                   <Label>Harga Pasar 2</Label>
-                  <Input type="number" value={tanah.harga_pembanding_2} onChange={(e) => updateTanah(index, 'harga_pembanding_2', e.target.value)} placeholder="300000" />
+                  <CurrencyInput value={tanah.harga_pembanding_2} onChange={(val) => updateTanah(index, 'harga_pembanding_2', val)} placeholder="300000" />
                   <Input className="mt-2" value={tanah.sumber_2} onChange={(e) => updateTanah(index, 'sumber_2', e.target.value)} placeholder="Sumber informasi" />
                 </div>
                 <div>
                   <Label>Harga Pasar 3</Label>
-                  <Input type="number" value={tanah.harga_pembanding_3} onChange={(e) => updateTanah(index, 'harga_pembanding_3', e.target.value)} placeholder="295000" />
+                  <CurrencyInput value={tanah.harga_pembanding_3} onChange={(val) => updateTanah(index, 'harga_pembanding_3', val)} placeholder="295000" />
                   <Input className="mt-2" value={tanah.sumber_3} onChange={(e) => updateTanah(index, 'sumber_3', e.target.value)} placeholder="Sumber informasi" />
                 </div>
               </div>
@@ -990,17 +991,17 @@ export default function TaksasiTanahBangunan() {
               <div className="grid sm:grid-cols-3 gap-4">
                 <div>
                   <Label>Harga Pasar 1</Label>
-                  <Input type="number" value={bangunan.harga_pembanding_1} onChange={(e) => updateBangunan(index, 'harga_pembanding_1', e.target.value)} placeholder="1200000" />
+                  <CurrencyInput value={bangunan.harga_pembanding_1} onChange={(val) => updateBangunan(index, 'harga_pembanding_1', val)} placeholder="1200000" />
                   <Input className="mt-2" value={bangunan.sumber_1} onChange={(e) => updateBangunan(index, 'sumber_1', e.target.value)} placeholder="Sumber informasi" />
                 </div>
                 <div>
                   <Label>Harga Pasar 2</Label>
-                  <Input type="number" value={bangunan.harga_pembanding_2} onChange={(e) => updateBangunan(index, 'harga_pembanding_2', e.target.value)} placeholder="1250000" />
+                  <CurrencyInput value={bangunan.harga_pembanding_2} onChange={(val) => updateBangunan(index, 'harga_pembanding_2', val)} placeholder="1250000" />
                   <Input className="mt-2" value={bangunan.sumber_2} onChange={(e) => updateBangunan(index, 'sumber_2', e.target.value)} placeholder="Sumber informasi" />
                 </div>
                 <div>
                   <Label>Harga Pasar 3</Label>
-                  <Input type="number" value={bangunan.harga_pembanding_3} onChange={(e) => updateBangunan(index, 'harga_pembanding_3', e.target.value)} placeholder="1150000" />
+                  <CurrencyInput value={bangunan.harga_pembanding_3} onChange={(val) => updateBangunan(index, 'harga_pembanding_3', val)} placeholder="1150000" />
                   <Input className="mt-2" value={bangunan.sumber_3} onChange={(e) => updateBangunan(index, 'sumber_3', e.target.value)} placeholder="Sumber informasi" />
                 </div>
               </div>
