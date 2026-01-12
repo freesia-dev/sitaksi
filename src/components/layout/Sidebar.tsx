@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -10,19 +10,40 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Info,
   UserCircle,
-  FileSpreadsheet
+  FolderOpen,
+  Settings
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import logoSitaksi from '@/assets/logo-sitaksi-fix.png';
 import logoSitaksiOnly from '@/assets/logo-sitaksi-only.png';
 
 interface SidebarProps {
   isCollapsed: boolean;
   onToggle: () => void;
+}
+
+interface MenuItem {
+  label: string;
+  icon: React.ElementType;
+  href: string;
+  show: boolean;
+}
+
+interface MenuGroup {
+  label: string;
+  icon: React.ElementType;
+  items: MenuItem[];
+  show: boolean;
 }
 
 export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
@@ -34,7 +55,11 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   const isAdmin = user?.role === 'Admin';
   const isDemo = user?.role === 'Demo';
 
-  const menuItems = [
+  const [taksasiOpen, setTaksasiOpen] = useState(true);
+  const [configOpen, setConfigOpen] = useState(false);
+
+  // Single menu items
+  const singleMenuItems: MenuItem[] = [
     {
       label: 'Dashboard',
       icon: LayoutDashboard,
@@ -42,45 +67,9 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       show: true,
     },
     {
-      label: 'Taksasi Tanah',
-      icon: Home,
-      href: '/list/tanah',
-      show: isOfficerOrAdmin || isDemo,
-    },
-    {
-      label: 'Taksasi T & B',
-      icon: Building2,
-      href: '/list/tanah-bangunan',
-      show: isOfficerOrAdmin || isDemo,
-    },
-    {
-      label: 'Taksasi Kendaraan',
-      icon: Car,
-      href: '/list/kendaraan',
-      show: isOfficerOrAdmin || isDemo,
-    },
-    {
       label: 'Riwayat',
       icon: FileText,
       href: '/riwayat',
-      show: true,
-    },
-    {
-      label: 'Export Laporan',
-      icon: FileSpreadsheet,
-      href: '/export',
-      show: true,
-    },
-    {
-      label: 'Kelola User',
-      icon: Users,
-      href: '/admin/users',
-      show: isAdmin,
-    },
-    {
-      label: 'Profil Saya',
-      icon: UserCircle,
-      href: '/profile',
       show: true,
     },
     {
@@ -90,6 +79,116 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       show: true,
     },
   ];
+
+  // Grouped menu - Taksasi
+  const taksasiGroup: MenuGroup = {
+    label: 'Taksasi',
+    icon: FolderOpen,
+    show: isOfficerOrAdmin || isDemo,
+    items: [
+      {
+        label: 'Tanah',
+        icon: Home,
+        href: '/list/tanah',
+        show: true,
+      },
+      {
+        label: 'Tanah & Bangunan',
+        icon: Building2,
+        href: '/list/tanah-bangunan',
+        show: true,
+      },
+      {
+        label: 'Kendaraan',
+        icon: Car,
+        href: '/list/kendaraan',
+        show: true,
+      },
+    ],
+  };
+
+  // Grouped menu - Konfigurasi
+  const configGroup: MenuGroup = {
+    label: 'Konfigurasi',
+    icon: Settings,
+    show: true,
+    items: [
+      {
+        label: 'Profil Saya',
+        icon: UserCircle,
+        href: '/profile',
+        show: true,
+      },
+      {
+        label: 'Kelola User',
+        icon: Users,
+        href: '/admin/users',
+        show: isAdmin,
+      },
+    ].filter(item => item.show),
+  };
+
+  const renderMenuItem = (item: MenuItem) => {
+    const isActive = location.pathname === item.href;
+    return (
+      <Link
+        key={item.href}
+        to={item.href}
+        className={cn(
+          "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group",
+          isActive
+            ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-soft"
+            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+        )}
+      >
+        <item.icon size={20} className={cn(isActive && "animate-scale-up")} />
+        {!isCollapsed && (
+          <span className="font-medium text-sm animate-fade-in">{item.label}</span>
+        )}
+      </Link>
+    );
+  };
+
+  const renderMenuGroup = (group: MenuGroup, isOpen: boolean, setIsOpen: (open: boolean) => void) => {
+    if (!group.show) return null;
+    
+    const hasActiveItem = group.items.some(item => location.pathname === item.href);
+
+    if (isCollapsed) {
+      // When collapsed, show items directly
+      return (
+        <div className="space-y-1">
+          {group.items.filter(item => item.show).map(renderMenuItem)}
+        </div>
+      );
+    }
+
+    return (
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <CollapsibleTrigger className={cn(
+          "flex items-center justify-between w-full px-3 py-2.5 rounded-lg transition-all duration-200",
+          hasActiveItem 
+            ? "bg-sidebar-accent/70 text-sidebar-accent-foreground" 
+            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+        )}>
+          <div className="flex items-center gap-3">
+            <group.icon size={20} />
+            <span className="font-medium text-sm">{group.label}</span>
+          </div>
+          <ChevronDown 
+            size={16} 
+            className={cn(
+              "transition-transform duration-200",
+              isOpen && "rotate-180"
+            )} 
+          />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pl-4 mt-1 space-y-1">
+          {group.items.filter(item => item.show).map(renderMenuItem)}
+        </CollapsibleContent>
+      </Collapsible>
+    );
+  };
 
   return (
     <aside
@@ -128,26 +227,20 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto custom-scrollbar">
-        {menuItems.filter(item => item.show).map((item) => {
-          const isActive = location.pathname === item.href;
-          return (
-            <Link
-              key={item.href}
-              to={item.href}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group",
-                isActive
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-soft"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              )}
-            >
-              <item.icon size={20} className={cn(isActive && "animate-scale-up")} />
-              {!isCollapsed && (
-                <span className="font-medium text-sm animate-fade-in">{item.label}</span>
-              )}
-            </Link>
-          );
-        })}
+        {/* Dashboard */}
+        {renderMenuItem(singleMenuItems[0])}
+        
+        {/* Taksasi Group */}
+        {renderMenuGroup(taksasiGroup, taksasiOpen, setTaksasiOpen)}
+        
+        {/* Riwayat */}
+        {renderMenuItem(singleMenuItems[1])}
+        
+        {/* Konfigurasi Group */}
+        {renderMenuGroup(configGroup, configOpen, setConfigOpen)}
+        
+        {/* Tentang */}
+        {renderMenuItem(singleMenuItems[2])}
       </nav>
 
       {/* User & Logout */}

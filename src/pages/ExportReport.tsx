@@ -42,8 +42,13 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { exportToExcel, exportToPDF } from '@/lib/exportUtils';
+import { cn } from '@/lib/utils';
 
-export default function ExportReport() {
+interface ExportReportProps {
+  embedded?: boolean;
+}
+
+export default function ExportReport({ embedded = false }: ExportReportProps) {
   const { taksasiList } = useTaksasi();
   const { user } = useAuth();
 
@@ -196,14 +201,16 @@ export default function ExportReport() {
   };
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Export Laporan"
-        description="Export data taksasi dalam format Excel atau PDF untuk laporan bulanan"
-      />
+    <div className={cn("space-y-6", embedded && "pt-2")}>
+      {!embedded && (
+        <PageHeader
+          title="Export Laporan"
+          description="Export data taksasi dalam format Excel atau PDF untuk laporan bulanan"
+        />
+      )}
 
       <Tabs defaultValue="filter" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 max-w-md">
+        <TabsList className={cn("grid w-full grid-cols-2", !embedded && "max-w-md")}>
           <TabsTrigger value="filter" className="flex items-center gap-2">
             <Filter size={16} />
             Filter & Export

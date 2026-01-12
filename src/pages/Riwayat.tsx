@@ -20,9 +20,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { formatCurrency, formatDate } from '@/types';
-import { Search, Filter, Eye, Download, Edit } from 'lucide-react';
+import { Search, Filter, Eye, Download, Edit, FileSpreadsheet } from 'lucide-react';
 import { StatusToggle } from '@/components/shared/StatusToggle';
+
+// Lazy load ExportReport component
+const ExportReport = React.lazy(() => import('@/pages/ExportReport'));
 
 export default function Riwayat() {
   const navigate = useNavigate();
@@ -35,6 +45,7 @@ export default function Riwayat() {
 
   const [search, setSearch] = useState('');
   const [filterJenis, setFilterJenis] = useState<string>('all');
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
 
   const filteredList = displayList.filter(t => {
     const matchSearch = t.nama_nasabah.toLowerCase().includes(search.toLowerCase()) ||
@@ -85,6 +96,24 @@ export default function Riwayat() {
               <SelectItem value="Kendaraan">Kendaraan</SelectItem>
             </SelectContent>
           </Select>
+          
+          {/* Export Report Button */}
+          <Dialog open={exportDialogOpen} onOpenChange={setExportDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="default" className="gap-2">
+                <FileSpreadsheet size={16} />
+                Export Laporan
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Export Laporan Taksasi</DialogTitle>
+              </DialogHeader>
+              <React.Suspense fallback={<div className="p-8 text-center">Memuat...</div>}>
+                <ExportReport embedded />
+              </React.Suspense>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
