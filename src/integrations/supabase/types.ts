@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      cron_job_logs: {
+        Row: {
+          details: Json | null
+          executed_at: string
+          id: string
+          job_name: string
+          status: string
+        }
+        Insert: {
+          details?: Json | null
+          executed_at?: string
+          id?: string
+          job_name: string
+          status?: string
+        }
+        Update: {
+          details?: Json | null
+          executed_at?: string
+          id?: string
+          job_name?: string
+          status?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -190,6 +214,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      trigger_monthly_report: { Args: never; Returns: undefined }
+      trigger_monthly_report_with_logging: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user" | "demo"
