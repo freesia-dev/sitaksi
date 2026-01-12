@@ -11,7 +11,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Info,
-  UserCircle
+  UserCircle,
+  FileSpreadsheet
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -62,6 +63,12 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       label: 'Riwayat',
       icon: FileText,
       href: '/riwayat',
+      show: true,
+    },
+    {
+      label: 'Export Laporan',
+      icon: FileSpreadsheet,
+      href: '/export',
       show: true,
     },
     {
