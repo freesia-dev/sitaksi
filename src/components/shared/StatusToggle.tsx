@@ -34,18 +34,14 @@ export function StatusToggle({ taksasiId, currentStatus, disabled = false }: Sta
 
     try {
       await updateTaksasi(taksasiId, { status: newStatus });
+      // Toast is handled by context, just show success
       toast({
         title: 'Status diubah',
         description: `Status berhasil diubah menjadi ${newStatus === 'selesai' ? 'Selesai' : 'Draft'}`,
       });
     } catch (error) {
-      // Revert on error
+      // Revert on error - toast already shown by context
       setLocalStatus(prevStatus);
-      toast({
-        title: 'Gagal mengubah status',
-        description: 'Terjadi kesalahan saat mengubah status',
-        variant: 'destructive',
-      });
     } finally {
       setLoading(false);
     }
