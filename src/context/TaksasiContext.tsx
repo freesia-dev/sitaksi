@@ -8,7 +8,7 @@ interface TaksasiContextType {
   taksasiList: Taksasi[];
   isLoading: boolean;
   addTaksasi: (taksasi: Omit<Taksasi, 'id'>) => Promise<void>;
-  updateTaksasi: (id: string, updates: Partial<Taksasi>) => Promise<void>;
+  updateTaksasi: (id: string, updates: Partial<Taksasi>) => Promise<boolean>;
   deleteTaksasi: (id: string) => Promise<void>;
   getTaksasiByUser: (userId: string) => Taksasi[];
   getTaksasiById: (id: string) => Taksasi | undefined;
@@ -191,14 +191,14 @@ export function TaksasiProvider({ children }: { children: ReactNode }) {
     }
   }, [session?.user, toast, fetchTaksasi]);
 
-  const updateTaksasi = useCallback(async (id: string, updates: Partial<Taksasi>) => {
+  const updateTaksasi = useCallback(async (id: string, updates: Partial<Taksasi>): Promise<boolean> => {
     if (!session?.user) {
       toast({
         title: 'Error',
         description: 'Anda harus login untuk mengubah data',
         variant: 'destructive'
       });
-      return;
+      throw new Error('Not authenticated');
     }
 
     try {
@@ -261,16 +261,6 @@ export function TaksasiProvider({ children }: { children: ReactNode }) {
         .select('id')
         .maybeSingle();
 
-      // If RLS blocks the update, PostgREST returns 200/204 with no rows updated (no error).
-      if (!updatedRow) {
-        toast({
-          title: 'Tidak memiliki izin',
-          description: 'Perubahan tidak tersimpan (Anda tidak punya akses untuk mengubah data ini).',
-          variant: 'destructive'
-        });
-        return;
-      }
-
       if (error) {
         console.error('Error updating taksasi:', error);
         toast({
@@ -278,23 +268,27 @@ export function TaksasiProvider({ children }: { children: ReactNode }) {
           description: 'Gagal mengubah data taksasi: ' + error.message,
           variant: 'destructive'
         });
-        return;
+        throw error;
       }
 
-      toast({
-        title: 'Berhasil',
-        description: 'Data taksasi berhasil diperbarui'
-      });
+      // If RLS blocks the update, PostgREST returns 200/204 with no rows updated (no error).
+      if (!updatedRow) {
+        toast({
+          title: 'Tidak memiliki izin',
+          description: 'Perubahan tidak tersimpan (Anda tidak punya akses untuk mengubah data ini).',
+          variant: 'destructive'
+        });
+        throw new Error('Permission denied');
+      }
 
-      // Refresh the list
+      // Refresh the list to sync all views
       await fetchTaksasi();
+      
+      return true;
     } catch (error: any) {
       console.error('Error updating taksasi:', error);
-      toast({
-        title: 'Error',
-        description: 'Gagal mengubah data taksasi',
-        variant: 'destructive'
-      });
+      // Re-throw to let caller handle the error
+      throw error;
     }
   }, [session?.user, toast, fetchTaksasi, taksasiList]);
 
