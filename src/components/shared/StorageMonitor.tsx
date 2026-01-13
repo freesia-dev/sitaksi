@@ -129,13 +129,13 @@ export function StorageMonitor() {
           <div className="text-xs text-muted-foreground">
             <span className="text-warning">{stats?.draft_files || 0} draft</span>
             {' / '}
-            <span className="text-success">{stats?.selesai_files || 0} selesai</span>
+            <span className="text-success">{stats?.selesai_files || 0} disetujui</span>
           </div>
         </div>
 
         {isCritical && (
           <div className="p-2 rounded bg-destructive/10 text-xs text-destructive">
-            ⚠️ Storage hampir penuh! Foto dari taksasi "selesai" terlama akan otomatis dihapus saat upload baru.
+            ⚠️ Storage hampir penuh! Foto dari taksasi "disetujui" terlama akan otomatis dihapus saat upload baru.
           </div>
         )}
       </div>

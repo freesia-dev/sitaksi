@@ -59,7 +59,7 @@ serve(async (req) => {
     const taksasiIds = [...new Set((storageFiles || []).map(f => f.taksasi_id).filter(Boolean))]
     
     let draftFiles = 0
-    let selesaiFiles = 0
+    let disetujuiFiles = 0
 
     if (taksasiIds.length > 0) {
       const { data: taksasiData } = await supabaseAdmin
@@ -72,7 +72,7 @@ serve(async (req) => {
       for (const file of storageFiles || []) {
         const status = statusMap.get(file.taksasi_id)
         if (status === 'draft') draftFiles++
-        else if (status === 'selesai') selesaiFiles++
+        else if (status === 'disetujui') disetujuiFiles++
       }
     }
 
@@ -85,7 +85,7 @@ serve(async (req) => {
         percentage: Math.round((totalUsed / MAX_STORAGE_BYTES) * 10000) / 100,
         total_files: totalFiles,
         draft_files: draftFiles,
-        selesai_files: selesaiFiles
+        selesai_files: disetujuiFiles
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )

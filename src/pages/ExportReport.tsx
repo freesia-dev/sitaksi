@@ -94,7 +94,7 @@ export default function ExportReport({ embedded = false }: ExportReportProps) {
         kendaraan: data.filter(t => t.jenis_agunan === 'Kendaraan').length,
       },
       byStatus: {
-        selesai: data.filter(t => t.status === 'selesai').length,
+        selesai: data.filter(t => t.status === 'disetujui').length,
         draft: data.filter(t => t.status === 'draft').length,
       }
     };
@@ -362,7 +362,7 @@ export default function ExportReport({ embedded = false }: ExportReportProps) {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Semua Status</SelectItem>
-                      <SelectItem value="selesai">Selesai</SelectItem>
+                      <SelectItem value="disetujui">Selesai</SelectItem>
                       <SelectItem value="draft">Draft</SelectItem>
                     </SelectContent>
                   </Select>
@@ -570,12 +570,12 @@ export default function ExportReport({ embedded = false }: ExportReportProps) {
                         </TableCell>
                         <TableCell>
                           <Badge 
-                            variant={taksasi.status === 'selesai' ? 'default' : 'secondary'}
-                            className={taksasi.status === 'selesai' 
+                            variant={taksasi.status === 'disetujui' ? 'default' : 'secondary'}
+                            className={taksasi.status === 'disetujui' 
                               ? 'bg-success/10 text-success border-success/20' 
                               : ''}
                           >
-                            {taksasi.status === 'selesai' ? (
+                            {taksasi.status === 'disetujui' ? (
                               <><CheckCircle2 className="mr-1 h-3 w-3" /> Selesai</>
                             ) : (
                               <><Clock className="mr-1 h-3 w-3" /> Draft</>

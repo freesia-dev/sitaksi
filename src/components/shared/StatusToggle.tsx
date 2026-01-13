@@ -42,7 +42,8 @@ export function StatusToggle({ taksasiId, currentStatus, disabled = false }: Sta
     setShowConfirm(false);
     
     const prevStatus = localStatus;
-    const newStatus = prevStatus === 'draft' ? 'selesai' : 'draft';
+    // Database constraint only allows: 'draft', 'disetujui', 'ditolak'
+    const newStatus = prevStatus === 'draft' ? 'disetujui' : 'draft';
 
     // Optimistic update
     setLocalStatus(newStatus);
@@ -52,7 +53,7 @@ export function StatusToggle({ taksasiId, currentStatus, disabled = false }: Sta
       await updateTaksasi(taksasiId, { status: newStatus });
       toast({
         title: 'Status diubah',
-        description: `Status berhasil diubah menjadi ${newStatus === 'selesai' ? 'Selesai' : 'Draft'}`,
+        description: `Status berhasil diubah menjadi ${newStatus === 'disetujui' ? 'Selesai' : 'Draft'}`,
       });
     } catch (error) {
       // Revert on error - toast already shown by context
