@@ -107,7 +107,7 @@ export const exportToExcel = (
     formatNumber(t.nilai_taksasi_pembulatan),
     formatNumber(t.nilai_likuidasi_pembulatan),
     formatNumber(t.safety_margin),
-    t.status === 'selesai' ? 'Selesai' : 'Draft',
+    t.status === 'disetujui' ? 'Selesai' : 'Draft',
     t.petugas
   ]);
 
@@ -151,7 +151,7 @@ export const exportToExcel = (
       t.kantor_cabang,
       formatNumber(t.nilai_taksasi_pembulatan),
       formatNumber(t.nilai_likuidasi_pembulatan),
-      t.status === 'selesai' ? 'Selesai' : 'Draft'
+      t.status === 'disetujui' ? 'Selesai' : 'Draft'
     ]);
 
     const totalTaksasi = filteredData.reduce((acc, t) => acc + (t.nilai_taksasi_pembulatan || 0), 0);
@@ -362,7 +362,7 @@ export const exportToPDF = (
       t.jenis_agunan,
       formatCurrency(t.nilai_taksasi_pembulatan),
       formatCurrency(t.nilai_likuidasi_pembulatan),
-      t.status === 'selesai' ? 'Selesai' : 'Draft'
+      t.status === 'disetujui' ? 'Selesai' : 'Draft'
     ]),
     theme: 'striped',
     headStyles: {

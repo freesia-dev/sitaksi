@@ -84,7 +84,7 @@ export function TaksasiProvider({ children }: { children: ReactNode }) {
         nilai_likuidasi_pembulatan: Number(item.nilai_likuidasi) || 0,
         safety_margin: item.detail_agunan?.safety_margin || 0,
         terbilang: item.detail_agunan?.terbilang || '',
-        status: item.status === 'selesai' ? 'selesai' : 'draft',
+        status: item.status === 'disetujui' ? 'disetujui' : item.status === 'ditolak' ? 'ditolak' : 'draft',
         status_otorisasi: item.status === 'disetujui' ? 'Selesai' : item.status === 'ditolak' ? 'Ditolak' : 'Draft',
         detail_agunan: item.detail_agunan || {},
         dokumentasi: item.dokumentasi || [],
@@ -247,7 +247,7 @@ export function TaksasiProvider({ children }: { children: ReactNode }) {
 
       if (updates.status_otorisasi) {
         const statusMap: Record<string, string> = {
-          'Selesai': 'selesai',
+          'Selesai': 'disetujui',
           'Ditolak': 'ditolak',
           'Draft': 'draft'
         };

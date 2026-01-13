@@ -170,7 +170,7 @@ const generateEmailHTML = (
                     <td>${item.jenis_agunan}</td>
                     <td style="font-weight: 500;">${formatCurrency(item.nilai_taksasi || 0)}</td>
                     <td style="color: #059669;">${formatCurrency(item.nilai_likuidasi || 0)}</td>
-                    <td><span class="status ${item.status}">${item.status === 'selesai' ? 'Selesai' : 'Draft'}</span></td>
+                    <td><span class="status ${item.status}">${item.status === 'disetujui' ? 'Selesai' : 'Draft'}</span></td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -255,7 +255,7 @@ const handler = async (req: Request): Promise<Response> => {
         kendaraan: data.filter(t => t.jenis_agunan === 'Kendaraan').length,
       },
       byStatus: {
-        selesai: data.filter(t => t.status === 'selesai').length,
+        selesai: data.filter(t => t.status === 'disetujui').length,
         draft: data.filter(t => t.status === 'draft').length,
       }
     };

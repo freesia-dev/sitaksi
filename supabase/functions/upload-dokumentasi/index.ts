@@ -120,11 +120,11 @@ serve(async (req) => {
 
     // Check if we need to free up space
     if (totalUsage + fileSize > MAX_STORAGE_BYTES) {
-      // Get taksasi with status 'selesai' - only delete from completed ones
+      // Get taksasi with status 'disetujui' - only delete from completed ones
       const { data: completedTaksasi } = await supabaseAdmin
         .from('taksasi')
         .select('id')
-        .eq('status', 'selesai')
+        .eq('status', 'disetujui')
 
       const completedIds = new Set((completedTaksasi || []).map(t => t.id))
       
