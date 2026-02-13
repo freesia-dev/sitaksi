@@ -32,11 +32,11 @@ export const SAFETY_MARGIN_TANAH = {
   ] as SafetyMarginOption[],
 
   bukti_kepemilikan: [
+    { value: 'pelepasan_hak', label: 'Pelepasan Hak Atas Tanah', margin: 60, description: 'Bukti dari Kantor Kecamatan' },
     { value: 'hak_milik', label: 'Hak Milik', margin: 80, description: 'Sertifikat Hak Milik' },
     { value: 'hgb', label: 'Hak Guna Bangunan', margin: 80, description: 'Sertifikat HGB' },
     { value: 'hgu', label: 'Hak Guna Usaha', margin: 80, description: 'Sertifikat HGU' },
     { value: 'hak_pakai', label: 'Hak Pakai', margin: 60, description: 'Sertifikat Hak Pakai' },
-    { value: 'pelepasan_hak', label: 'Pelepasan Hak Atas Tanah', margin: 60, description: 'Bukti dari Kantor Kecamatan' },
   ] as SafetyMarginOption[],
 
   lingkungan_sekitar: [
