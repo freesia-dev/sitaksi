@@ -401,6 +401,7 @@ export default function TaksasiTanah() {
                   <Select value={tanah.bukti_kepemilikan} onValueChange={(v) => updateTanah(index, 'bukti_kepemilikan', v)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="pelepasan_hak">Pelepasan Hak Atas Tanah</SelectItem>
                       <SelectItem value="hak_milik">Hak Milik</SelectItem>
                       <SelectItem value="hgb">HGB</SelectItem>
                       <SelectItem value="hgu">HGU</SelectItem>
