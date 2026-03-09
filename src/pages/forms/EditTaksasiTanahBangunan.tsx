@@ -629,12 +629,24 @@ export default function EditTaksasiTanahBangunan() {
                 <CurrencyInput value={tanah.harga_pembanding_1} onChange={(val) => updateTanah(index, 'harga_pembanding_1', val)} />
               </div>
               <div>
+                <Label>Sumber Pembanding 1</Label>
+                <Input value={tanah.sumber_1} onChange={(e) => updateTanah(index, 'sumber_1', e.target.value)} placeholder="Contoh: OLX, Warga sekitar, dll" />
+              </div>
+              <div>
                 <Label>Harga Pembanding 2 (Rp/m²)</Label>
                 <CurrencyInput value={tanah.harga_pembanding_2} onChange={(val) => updateTanah(index, 'harga_pembanding_2', val)} />
               </div>
               <div>
+                <Label>Sumber Pembanding 2</Label>
+                <Input value={tanah.sumber_2} onChange={(e) => updateTanah(index, 'sumber_2', e.target.value)} placeholder="Contoh: OLX, Warga sekitar, dll" />
+              </div>
+              <div>
                 <Label>Harga Pembanding 3 (Rp/m²)</Label>
                 <CurrencyInput value={tanah.harga_pembanding_3} onChange={(val) => updateTanah(index, 'harga_pembanding_3', val)} />
+              </div>
+              <div>
+                <Label>Sumber Pembanding 3</Label>
+                <Input value={tanah.sumber_3} onChange={(e) => updateTanah(index, 'sumber_3', e.target.value)} placeholder="Contoh: OLX, Warga sekitar, dll" />
               </div>
             </div>
             <div className="grid sm:grid-cols-2 gap-4 mt-4">
