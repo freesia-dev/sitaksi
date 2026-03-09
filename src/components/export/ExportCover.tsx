@@ -159,10 +159,10 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
         </div>
 
         {/* Spacer to push footer to bottom */}
-        <div className="print:flex-1"></div>
+        <div className="flex-1 min-h-[60px] print:min-h-[40mm]"></div>
 
         {/* Footer - Always at bottom */}
-        <div className="border-t space-y-1 text-xs text-center py-3 mt-4 print:mt-auto">
+        <div className="border-t space-y-1 text-xs text-center py-3 mt-auto">
           <p className="font-semibold print:text-black">
             PT.BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA
           </p>
