@@ -255,7 +255,36 @@ export default function DetailTaksasi() {
             .text-muted-foreground { color: #666 !important; }
             .text-primary { color: #1a365d !important; }
             .text-success { color: #166534 !important; }
+            .text-xs { font-size: 8pt; }
+            .text-sm { font-size: 9pt; }
+            .text-base { font-size: 10pt; }
+            .text-lg { font-size: 12pt; }
+            .text-xl { font-size: 13pt; }
             
+            .w-12 { width: 3rem; }
+            .w-48 { width: 12rem; }
+            .w-1\\/3 { width: 33.333%; }
+            .w-4 { width: 1rem; }
+            .h-16 { height: 4rem; }
+            .h-14 { height: 3.5rem; }
+            
+            .list-disc { list-style-type: disc; }
+            .space-y-1 > * + * { margin-top: 3px; }
+            .align-top { vertical-align: top; }
+            
+            .border { border: 1px solid #333; }
+            .border-b { border-bottom: 1px solid #ccc; }
+            .border-t { border-top: 1px solid #ccc; }
+            .border-black { border-color: #000; }
+            
+            .rounded-lg { border-radius: 0 !important; }
+            
+            img[alt="Bankaltimtara"] {
+              height: 48px !important;
+              width: auto !important;
+              max-width: 180px !important;
+            }
+
             [class*="bg-muted"], [class*="bg-success"], [class*="rounded-lg"] {
               background: transparent !important;
             }
