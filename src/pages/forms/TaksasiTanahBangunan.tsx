@@ -381,7 +381,7 @@ export default function TaksasiTanahBangunan() {
       return;
     }
 
-    // Create simplified detail for storage
+    // Create detail with full data
     const totalLuasTanah = tanahList.reduce((sum, t) => sum + (parseFloat(t.luas_tanah) || 0), 0);
     const totalLuasBangunan = bangunanList.reduce((sum, b) => sum + (parseFloat(b.luas_bangunan) || 0), 0);
     
@@ -395,6 +395,86 @@ export default function TaksasiTanahBangunan() {
       harga_bangunan_per_meter: avgHargaBangunan,
       dokumentasi_urls: dokumentasi.map(d => d.url),
       dokumentasi_labels: dokumentasi.map(d => d.label),
+      tanah_list: tanahList.map(t => ({
+        bukti_kepemilikan: t.bukti_kepemilikan,
+        nomor_bukti: t.nomor_bukti,
+        tanggal_bukti: t.tanggal_bukti,
+        masa_berlaku: t.masa_berlaku,
+        nama_pemegang_hak: t.nama_pemegang_hak,
+        hubungan_dengan_debitur: t.hubungan_dengan_debitur,
+        nomor_gambar_situasi: t.nomor_gambar_situasi,
+        nomor_induk_bidang: t.nomor_induk_bidang,
+        luas_tanah: parseFloat(t.luas_tanah) || 0,
+        tempat_didaftarkan: t.tempat_didaftarkan,
+        lokasi: t.lokasi,
+        letak_tanah: t.letak_tanah,
+        bentuk_tanah: t.bentuk_tanah,
+        arah_menghadap: t.arah_menghadap,
+        lebar_jalan_depan: t.lebar_jalan_depan,
+        bahan_jalan: t.bahan_jalan,
+        batas_depan: t.batas_depan,
+        batas_belakang: t.batas_belakang,
+        batas_kanan: t.batas_kanan,
+        batas_kiri: t.batas_kiri,
+        kondisi_lalu_lintas: t.kondisi_lalu_lintas,
+        kelas_jalan: t.kelas_jalan,
+        listrik_pln: t.listrik_pln,
+        air_bersih: t.air_bersih,
+        saluran_telepon: t.saluran_telepon,
+        fasilitas_penunjang: t.fasilitas_penunjang,
+        harga_pembanding: [
+          { harga: parseFloat(t.harga_pembanding_1) || 0, sumber: t.sumber_1 },
+          { harga: parseFloat(t.harga_pembanding_2) || 0, sumber: t.sumber_2 },
+          { harga: parseFloat(t.harga_pembanding_3) || 0, sumber: t.sumber_3 },
+        ].filter(h => h.harga > 0),
+        safety_margins: {
+          lokasi: t.safety_lokasi,
+          topography: t.safety_topography,
+          ukuran: t.safety_ukuran,
+          bukti: t.safety_bukti,
+          lingkungan: t.safety_lingkungan,
+          permasalahan: t.safety_permasalahan,
+        },
+      })),
+      bangunan_list: bangunanList.map(b => ({
+        peruntukkan: b.peruntukkan,
+        imb_ada: b.imb_ada,
+        nomor_imb: b.nomor_imb,
+        tanggal_imb: b.tanggal_imb,
+        nama_di_imb: b.nama_di_imb,
+        luas_sesuai_imb: b.luas_sesuai_imb,
+        tinggi_sesuai_imb: b.tinggi_sesuai_imb,
+        konstruksi: b.konstruksi,
+        pondasi: b.pondasi,
+        tinggi_lantai: b.tinggi_lantai,
+        atap: b.atap,
+        dinding: b.dinding,
+        plester_dinding: b.plester_dinding,
+        plafon: b.plafon,
+        lantai: b.lantai,
+        tiang: b.tiang,
+        luas_bangunan: parseFloat(b.luas_bangunan) || 0,
+        keterangan: b.keterangan,
+        harga_pembanding: [
+          { harga: parseFloat(b.harga_pembanding_1) || 0, sumber: b.sumber_1 },
+          { harga: parseFloat(b.harga_pembanding_2) || 0, sumber: b.sumber_2 },
+          { harga: parseFloat(b.harga_pembanding_3) || 0, sumber: b.sumber_3 },
+        ].filter(h => h.harga > 0),
+        safety_margins: {
+          design: b.safety_design,
+          umur: b.safety_umur,
+          peruntukkan: b.safety_peruntukkan,
+          imb: b.safety_imb,
+          kesesuaian: b.safety_kesesuaian,
+          permasalahan: b.safety_permasalahan,
+        },
+      })),
+      marketability: formData.marketability,
+      catatan_marketability: [
+        formData.catatan_marketability_1,
+        formData.catatan_marketability_2,
+        formData.catatan_marketability_3,
+      ].filter(c => c),
     };
 
     const alamatGabungan = tanahList.map(t => t.lokasi).filter(l => l).join('; ') || 'Alamat tidak disebutkan';
