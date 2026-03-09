@@ -200,22 +200,22 @@ export function ExportFormTaksasi({ taksasi, logo }: ExportFormTaksasiProps) {
                     <h3 className="font-bold mb-2">A. Data Tanah</h3>
                   )}
                   
-                  {/* Profil Kepemilikan */}
-                  <p className="text-sm font-semibold mt-2 mb-1 text-muted-foreground">Profil Kepemilikan</p>
-                  <table className="w-full text-sm">
-                    <tbody>
-                      <Row label="Bukti Kepemilikan" value={formatBuktiKepemilikan(t.bukti_kepemilikan)} />
-                      <Row label="Nomor Bukti" value={t.nomor_bukti} />
-                      <Row label="Tanggal Bukti" value={t.tanggal_bukti ? formatDate(t.tanggal_bukti) : null} />
-                      <Row label="Masa Berlaku" value={t.masa_berlaku ? formatDate(t.masa_berlaku) : null} />
-                      <Row label="Nama Pemegang Hak" value={t.nama_pemegang_hak} />
-                      <Row label="Hubungan dengan Debitur" value={t.hubungan_dengan_debitur === 'milik_sendiri' ? 'Milik Sendiri' : t.hubungan_dengan_debitur} />
-                      <Row label="Nomor Gambar Situasi" value={t.nomor_gambar_situasi} />
-                      <Row label="Nomor Induk Bidang (NIB)" value={t.nomor_induk_bidang} />
-                      <Row label="Luas Tanah (Sertifikat)" value={t.luas_tanah ? `${t.luas_tanah} m²` : null} />
-                      <Row label="Tempat Didaftarkan" value={t.tempat_didaftarkan} />
-                    </tbody>
-                  </table>
+                   {/* Data Legalitas */}
+                   <p className="text-sm font-semibold mt-2 mb-1 text-muted-foreground">Data Legalitas</p>
+                   <table className="w-full text-sm">
+                     <tbody>
+                       <Row label="Bukti Kepemilikan" value={formatBuktiKepemilikan(t.bukti_kepemilikan)} />
+                       <Row label="Nomor Sertifikat/Bukti" value={t.nomor_bukti} />
+                       <Row label="Tanggal Sertifikat/Bukti" value={t.tanggal_bukti ? formatDate(t.tanggal_bukti) : null} />
+                       <Row label="Masa Berlaku" value={t.masa_berlaku ? formatDate(t.masa_berlaku) : null} />
+                       <Row label="Nama Pemegang Hak" value={t.nama_pemegang_hak} />
+                       <Row label="Hubungan dengan Debitur" value={t.hubungan_dengan_debitur === 'milik_sendiri' ? 'Milik Sendiri' : t.hubungan_dengan_debitur} />
+                       <Row label="Nomor Gambar Situasi/Surat Ukur" value={t.nomor_gambar_situasi} />
+                       <Row label="Nomor Induk Bidang (NIB)" value={t.nomor_induk_bidang} />
+                       <Row label="Luas Tanah (Sertifikat)" value={t.luas_tanah ? `${t.luas_tanah} m²` : null} />
+                       <Row label="Tempat Didaftarkan" value={t.tempat_didaftarkan} />
+                     </tbody>
+                   </table>
 
                   {/* Hasil Pemeriksaan Fisik */}
                   <p className="text-sm font-semibold mt-3 mb-1 text-muted-foreground">Hasil Pemeriksaan Fisik</p>
