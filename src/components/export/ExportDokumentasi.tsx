@@ -94,10 +94,10 @@ export function ExportDokumentasi({ taksasi, logo }: ExportDokumentasiProps) {
             <span className="font-medium">Debitur: </span>
             {taksasi.nama_nasabah}
           </p>
-          {isKendaraan && detailKendaraan && (
+          {isKendaraan && detail && (
             <p>
               <span className="font-medium">Bukti Kepemilikan: </span>
-              {detailKendaraan.bukti_kepemilikan} No. {detailKendaraan.nomor_bukti_kepemilikan} Tanggal {formatDate(detailKendaraan.tanggal_bukti_kepemilikan)} An. {detailKendaraan.nama_kepemilikan}
+              {detail.bukti_kepemilikan} No. {detail.nomor_bukti_kepemilikan} Tanggal {formatDate(detail.tanggal_bukti_kepemilikan)} An. {detail.nama_kepemilikan}
             </p>
           )}
           <p>
