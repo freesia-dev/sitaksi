@@ -108,10 +108,7 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
           {isKendaraan && detailKendaraan && (
             <>
               <p className="text-base font-semibold print:text-black">{detailKendaraan.jenis}</p>
-              <p className="text-sm print:text-black">
-                An. {detailKendaraan.nama_kepemilikan
-}
-              </p>
+              <p className="text-sm print:text-black">An. {detailKendaraan.nama_kepemilikan}</p>
               <p className="text-xl font-bold text-primary print:text-black mt-1">
                 {detailKendaraan.nomor_polisi}
               </p>
@@ -126,9 +123,9 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
         {/* Front Photo - Large */}
         {frontPhoto && (
           <div className="py-3 flex-1 flex items-center justify-center">
-            <img 
-              src={frontPhoto} 
-              alt="Foto Agunan" 
+            <img
+              src={frontPhoto}
+              alt="Foto Agunan"
               className="export-cover-photo mx-auto w-full max-w-[480px] h-auto max-h-[300px] object-contain border print:max-w-[150mm] print:max-h-[100mm]"
             />
           </div>
@@ -161,12 +158,6 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
 
         {/* Footer - Always at bottom */}
         <div className="border-t space-y-1 text-xs text-center py-3 mt-auto">
-          <p className="font-semibold print:text-black">
-            PT.BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA
-          </p>
-          <p className="font-semibold print:text-black">{taksasi.kantor_cabang}</p>
-          <p className="print:text-black">{taksasi.alamat_cabang}</p>
-        </div>
           <p className="font-semibold print:text-black">
             PT.BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA
           </p>
