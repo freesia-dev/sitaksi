@@ -134,6 +134,80 @@ export interface DetailAgunanTBSimple {
   harga_bangunan_per_meter: number;
   dokumentasi_urls?: string[];
   dokumentasi_labels?: string[];
+  // Full detail arrays for rich data
+  tanah_list?: TanahItemData[];
+  bangunan_list?: BangunanItemData[];
+  // Marketability
+  marketability?: string;
+  catatan_marketability?: string[];
+}
+
+export interface TanahItemData {
+  bukti_kepemilikan: string;
+  nomor_bukti: string;
+  tanggal_bukti: string;
+  masa_berlaku: string;
+  nama_pemegang_hak: string;
+  hubungan_dengan_debitur: string;
+  nomor_gambar_situasi: string;
+  nomor_induk_bidang: string;
+  luas_tanah: number;
+  tempat_didaftarkan: string;
+  lokasi: string;
+  letak_tanah: string;
+  bentuk_tanah: string;
+  arah_menghadap: string;
+  lebar_jalan_depan: string;
+  bahan_jalan: string;
+  batas_depan: string;
+  batas_belakang: string;
+  batas_kanan: string;
+  batas_kiri: string;
+  kondisi_lalu_lintas: string;
+  kelas_jalan: string;
+  listrik_pln: string;
+  air_bersih: string;
+  saluran_telepon: string;
+  fasilitas_penunjang: string[];
+  harga_pembanding: { harga: number; sumber: string }[];
+  safety_margins: {
+    lokasi: string;
+    topography: string;
+    ukuran: string;
+    bukti: string;
+    lingkungan: string;
+    permasalahan: string;
+  };
+}
+
+export interface BangunanItemData {
+  peruntukkan: string;
+  imb_ada: boolean;
+  nomor_imb: string;
+  tanggal_imb: string;
+  nama_di_imb: string;
+  luas_sesuai_imb: string;
+  tinggi_sesuai_imb: string;
+  konstruksi: string;
+  pondasi: string;
+  tinggi_lantai: string;
+  atap: string;
+  dinding: string;
+  plester_dinding: boolean;
+  plafon: string;
+  lantai: string;
+  tiang: string;
+  luas_bangunan: number;
+  keterangan: string;
+  harga_pembanding: { harga: number; sumber: string }[];
+  safety_margins: {
+    design: string;
+    umur: string;
+    peruntukkan: string;
+    imb: string;
+    kesesuaian: string;
+    permasalahan: string;
+  };
 }
 
 export interface DetailAgunanTB {
