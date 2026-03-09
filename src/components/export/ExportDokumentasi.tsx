@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { 
   Taksasi, 
-  DetailAgunanKendaraan, 
   formatDate 
 } from '@/types';
 import { ImageOff } from 'lucide-react';
@@ -62,21 +61,15 @@ function ImageWithFallback({ src, alt }: ImageWithFallbackProps) {
 export function ExportDokumentasi({ taksasi, logo }: ExportDokumentasiProps) {
   const jenisLower = taksasi.jenis_agunan.toLowerCase();
   const isKendaraan = jenisLower === 'kendaraan';
-  const detailKendaraan = isKendaraan ? taksasi.detail_agunan as DetailAgunanKendaraan : null;
+  const detail = taksasi.detail_agunan as Record<string, any>;
 
-  // Get documentation data
-  const dokumentasiUrls = detailKendaraan?.dokumentasi_urls || [];
-  const savedLabels = detailKendaraan?.dokumentasi_labels || [];
+  // Get documentation data from detail_agunan (works for all types)
+  const dokumentasiUrls: string[] = detail?.dokumentasi_urls || [];
+  const savedLabels: string[] = detail?.dokumentasi_labels || [];
   
-  const defaultLabels = [
-    'Tampak Depan',
-    'Tampak Belakang',
-    'Tampak Samping Kiri',
-    'Tampak Samping Kanan',
-    'Speedometer',
-    'Nomor Rangka',
-    'Nomor Mesin',
-  ];
+  const defaultLabels = isKendaraan
+    ? ['Tampak Depan', 'Tampak Belakang', 'Tampak Samping Kiri', 'Tampak Samping Kanan', 'Speedometer', 'Nomor Rangka', 'Nomor Mesin']
+    : ['Tampak Depan', 'Tampak Samping', 'Interior', 'Surat Tanah'];
 
   // Build items array from available images
   const dokumentasiItems = dokumentasiUrls.map((url, index) => ({
@@ -100,10 +93,10 @@ export function ExportDokumentasi({ taksasi, logo }: ExportDokumentasiProps) {
             <span className="font-medium">Debitur: </span>
             {taksasi.nama_nasabah}
           </p>
-          {isKendaraan && detailKendaraan && (
+          {isKendaraan && detail && (
             <p>
               <span className="font-medium">Bukti Kepemilikan: </span>
-              {detailKendaraan.bukti_kepemilikan} No. {detailKendaraan.nomor_bukti_kepemilikan} Tanggal {formatDate(detailKendaraan.tanggal_bukti_kepemilikan)} An. {detailKendaraan.nama_kepemilikan}
+              {detail.bukti_kepemilikan} No. {detail.nomor_bukti_kepemilikan} Tanggal {formatDate(detail.tanggal_bukti_kepemilikan)} An. {detail.nama_kepemilikan}
             </p>
           )}
           <p>
