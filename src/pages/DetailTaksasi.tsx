@@ -108,7 +108,6 @@ export default function DetailTaksasi() {
               border: none !important;
               box-shadow: none !important;
               border-radius: 0 !important;
-              padding: 0 !important;
             }
             
             img[alt="Bankaltimtara"] {
@@ -179,21 +178,56 @@ export default function DetailTaksasi() {
             .py-8 { padding-top: 24px; padding-bottom: 24px; }
             .pt-4 { padding-top: 12px; }
             .pt-8 { padding-top: 24px; }
+            .mt-2 { margin-top: 6px; }
+            .mt-3 { margin-top: 9px; }
             .mt-4 { margin-top: 12px; }
             .mt-8 { margin-top: 24px; }
-            .mb-4 { margin-bottom: 12px; }
+            .mb-1 { margin-bottom: 3px; }
             .mb-2 { margin-bottom: 6px; }
+            .mb-3 { margin-bottom: 9px; }
+            .mb-4 { margin-bottom: 12px; }
+            .mb-8 { margin-bottom: 24px; }
+            .ml-4 { margin-left: 12px; }
             .mx-auto { margin-left: auto; margin-right: auto; }
-            .gap-4 { gap: 12px; }
+            .mt-auto { margin-top: auto; }
+            .max-w-2xl { max-width: 42rem; }
+            .max-w-4xl { max-width: 56rem; }
+            .p-2 { padding: 6px; }
+            .p-4 { padding: 12px; }
+            .p-6 { padding: 18px; }
+            .p-8 { padding: 24px; }
+            .px-3 { padding-left: 9px; padding-right: 9px; }
+            .pr-3 { padding-right: 9px; }
+            .pr-4 { padding-right: 12px; }
+            .pr-6 { padding-right: 18px; }
+            .pl-6 { padding-left: 18px; }
+            .pb-2 { padding-bottom: 6px; }
+            .pb-4 { padding-bottom: 12px; }
             
             .flex { display: flex; }
+            .flex-col { flex-direction: column; }
+            .flex-1 { flex: 1 1 0%; }
+            .flex-wrap { flex-wrap: wrap; }
             .justify-between { justify-content: space-between; }
             .justify-center { justify-content: center; }
             .items-center { align-items: center; }
+            .items-start { align-items: flex-start; }
+            .gap-2 { gap: 6px; }
+            .gap-4 { gap: 12px; }
+            .gap-6 { gap: 18px; }
+            .min-h-full { min-height: 100%; }
+            .w-full { width: 100%; }
             .grid { display: grid; }
             .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
             .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
             .col-span-2 { grid-column: span 2; }
+            .whitespace-pre-line { white-space: pre-line; }
+            .break-all { word-break: break-all; }
+            .capitalize { text-transform: capitalize; }
+            .italic { font-style: italic; }
+            .overflow-hidden { overflow: hidden; }
+            .relative { position: relative; }
+            .block { display: block; }
             
             .border-t { border-top: 1px solid #ccc; }
             .border-b { border-bottom: 1px solid #ccc; }
@@ -221,7 +255,36 @@ export default function DetailTaksasi() {
             .text-muted-foreground { color: #666 !important; }
             .text-primary { color: #1a365d !important; }
             .text-success { color: #166534 !important; }
+            .text-xs { font-size: 8pt; }
+            .text-sm { font-size: 9pt; }
+            .text-base { font-size: 10pt; }
+            .text-lg { font-size: 12pt; }
+            .text-xl { font-size: 13pt; }
             
+            .w-12 { width: 3rem; }
+            .w-48 { width: 12rem; }
+            .w-1\\/3 { width: 33.333%; }
+            .w-4 { width: 1rem; }
+            .h-16 { height: 4rem; }
+            .h-14 { height: 3.5rem; }
+            
+            .list-disc { list-style-type: disc; }
+            .space-y-1 > * + * { margin-top: 3px; }
+            .align-top { vertical-align: top; }
+            
+            .border { border: 1px solid #333; }
+            .border-b { border-bottom: 1px solid #ccc; }
+            .border-t { border-top: 1px solid #ccc; }
+            .border-black { border-color: #000; }
+            
+            .rounded-lg { border-radius: 0 !important; }
+            
+            img[alt="Bankaltimtara"] {
+              height: 48px !important;
+              width: auto !important;
+              max-width: 180px !important;
+            }
+
             [class*="bg-muted"], [class*="bg-success"], [class*="rounded-lg"] {
               background: transparent !important;
             }
