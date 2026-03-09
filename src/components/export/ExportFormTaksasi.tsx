@@ -451,7 +451,7 @@ export function ExportFormTaksasi({ taksasi, logo }: ExportFormTaksasiProps) {
           </table>
           <p className="text-sm mt-2">
             <span className="font-medium">Terbilang : </span>
-            {taksasi.terbilang}
+            {formatTerbilang(taksasi.nilai_taksasi_pembulatan || taksasi.nilai_taksasi)}
           </p>
         </div>
 
