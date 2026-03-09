@@ -388,9 +388,12 @@ export const formatDateWithDay = (date: string): string => {
 const satuan = ['', 'Satu', 'Dua', 'Tiga', 'Empat', 'Lima', 'Enam', 'Tujuh', 'Delapan', 'Sembilan', 'Sepuluh', 'Sebelas'];
 
 export const terbilang = (nilai: number): string => {
+  if (nilai === undefined || nilai === null || isNaN(nilai)) return '';
+  nilai = Math.floor(Math.abs(nilai));
+  if (nilai === 0) return '';
   if (nilai < 12) return satuan[nilai];
   if (nilai < 20) return satuan[nilai - 10] + ' Belas';
-  if (nilai < 100) return satuan[Math.floor(nilai / 10)] + ' Puluh ' + satuan[nilai % 10];
+  if (nilai < 100) return satuan[Math.floor(nilai / 10)] + ' Puluh ' + (satuan[nilai % 10] || '');
   if (nilai < 200) return 'Seratus ' + terbilang(nilai - 100);
   if (nilai < 1000) return satuan[Math.floor(nilai / 100)] + ' Ratus ' + terbilang(nilai % 100);
   if (nilai < 2000) return 'Seribu ' + terbilang(nilai - 1000);
