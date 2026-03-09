@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { 
   Taksasi, 
-  DetailAgunanKendaraan, 
   formatDate 
 } from '@/types';
 import { ImageOff } from 'lucide-react';
