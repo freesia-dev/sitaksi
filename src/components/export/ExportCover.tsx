@@ -86,7 +86,7 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
   const legalitasInfo = getLegalitasInfo();
 
   return (
-    <div className="export-cover-page bg-white h-[297mm] min-h-[297mm] flex flex-col print:shadow-none print:border-none">
+    <div className="export-cover-page bg-white min-h-full flex flex-col">
       <div className="max-w-2xl mx-auto text-center p-6 print:p-4 flex-1 flex flex-col">
         {/* Header with Logo */}
         <div className="space-y-1 mb-4">

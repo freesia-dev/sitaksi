@@ -31,7 +31,7 @@ Nomor Polisi / Nomor Plat : ${detailKendaraan.nomor_polisi}`;
   };
 
   return (
-    <div className="bg-white rounded-xl border shadow-card p-8 print:shadow-none print:border-none">
+    <div className="bg-white p-8">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">
