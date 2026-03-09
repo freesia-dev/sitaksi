@@ -373,7 +373,7 @@ export default function EditTaksasiTanahBangunan() {
     setHasil(null);
   };
 
-  const updateTanah = (index: number, field: keyof TanahItem, value: string) => {
+  const updateTanah = (index: number, field: keyof TanahItem, value: string | boolean | string[]) => {
     setTanahList(prev => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: value };
@@ -382,7 +382,7 @@ export default function EditTaksasiTanahBangunan() {
     setHasil(null);
   };
 
-  const updateBangunan = (index: number, field: keyof BangunanItem, value: string) => {
+  const updateBangunan = (index: number, field: keyof BangunanItem, value: string | boolean) => {
     setBangunanList(prev => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: value };
