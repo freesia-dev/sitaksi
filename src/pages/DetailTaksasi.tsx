@@ -179,12 +179,31 @@ export default function DetailTaksasi() {
             .py-8 { padding-top: 24px; padding-bottom: 24px; }
             .pt-4 { padding-top: 12px; }
             .pt-8 { padding-top: 24px; }
+            .mt-2 { margin-top: 6px; }
+            .mt-3 { margin-top: 9px; }
             .mt-4 { margin-top: 12px; }
             .mt-8 { margin-top: 24px; }
-            .mb-4 { margin-bottom: 12px; }
+            .mb-1 { margin-bottom: 3px; }
             .mb-2 { margin-bottom: 6px; }
+            .mb-3 { margin-bottom: 9px; }
+            .mb-4 { margin-bottom: 12px; }
+            .mb-8 { margin-bottom: 24px; }
+            .ml-4 { margin-left: 12px; }
             .mx-auto { margin-left: auto; margin-right: auto; }
-            .gap-4 { gap: 12px; }
+            .mt-auto { margin-top: auto; }
+            .max-w-2xl { max-width: 42rem; }
+            .max-w-4xl { max-width: 56rem; }
+            .p-2 { padding: 6px; }
+            .p-4 { padding: 12px; }
+            .p-6 { padding: 18px; }
+            .p-8 { padding: 24px; }
+            .px-3 { padding-left: 9px; padding-right: 9px; }
+            .pr-3 { padding-right: 9px; }
+            .pr-4 { padding-right: 12px; }
+            .pr-6 { padding-right: 18px; }
+            .pl-6 { padding-left: 18px; }
+            .pb-2 { padding-bottom: 6px; }
+            .pb-4 { padding-bottom: 12px; }
             
             .flex { display: flex; }
             .flex-col { flex-direction: column; }
