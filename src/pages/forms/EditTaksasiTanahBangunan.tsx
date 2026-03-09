@@ -45,8 +45,32 @@ import {
 
 interface TanahItem {
   id: string;
+  bukti_kepemilikan: string;
+  nomor_bukti: string;
+  tanggal_bukti: string;
+  masa_berlaku: string;
+  nama_pemegang_hak: string;
+  hubungan_dengan_debitur: string;
+  nomor_gambar_situasi: string;
+  nomor_induk_bidang: string;
   luas_tanah: string;
+  tempat_didaftarkan: string;
   lokasi: string;
+  letak_tanah: string;
+  bentuk_tanah: string;
+  arah_menghadap: string;
+  lebar_jalan_depan: string;
+  bahan_jalan: string;
+  batas_depan: string;
+  batas_belakang: string;
+  batas_kanan: string;
+  batas_kiri: string;
+  kondisi_lalu_lintas: string;
+  kelas_jalan: string;
+  listrik_pln: string;
+  air_bersih: string;
+  saluran_telepon: string;
+  fasilitas_penunjang: string[];
   harga_pembanding_1: string;
   sumber_1: string;
   harga_pembanding_2: string;
@@ -63,7 +87,24 @@ interface TanahItem {
 
 interface BangunanItem {
   id: string;
+  peruntukkan: string;
+  imb_ada: boolean;
+  nomor_imb: string;
+  tanggal_imb: string;
+  nama_di_imb: string;
+  luas_sesuai_imb: string;
+  tinggi_sesuai_imb: string;
+  konstruksi: string;
+  pondasi: string;
+  tinggi_lantai: string;
+  atap: string;
+  dinding: string;
+  plester_dinding: boolean;
+  plafon: string;
+  lantai: string;
+  tiang: string;
   luas_bangunan: string;
+  keterangan: string;
   harga_pembanding_1: string;
   sumber_1: string;
   harga_pembanding_2: string;
@@ -80,8 +121,32 @@ interface BangunanItem {
 
 const defaultTanah: TanahItem = {
   id: generateId(),
+  bukti_kepemilikan: 'hak_milik',
+  nomor_bukti: '',
+  tanggal_bukti: '',
+  masa_berlaku: '',
+  nama_pemegang_hak: '',
+  hubungan_dengan_debitur: 'milik_sendiri',
+  nomor_gambar_situasi: '',
+  nomor_induk_bidang: '',
   luas_tanah: '',
+  tempat_didaftarkan: '',
   lokasi: '',
+  letak_tanah: 'normal',
+  bentuk_tanah: 'beraturan',
+  arah_menghadap: 'utara',
+  lebar_jalan_depan: '',
+  bahan_jalan: 'aspal',
+  batas_depan: '',
+  batas_belakang: '',
+  batas_kanan: '',
+  batas_kiri: '',
+  kondisi_lalu_lintas: '',
+  kelas_jalan: 'kampung',
+  listrik_pln: '',
+  air_bersih: 'ada',
+  saluran_telepon: 'tidak_ada',
+  fasilitas_penunjang: [],
   harga_pembanding_1: '',
   sumber_1: '',
   harga_pembanding_2: '',
@@ -98,7 +163,24 @@ const defaultTanah: TanahItem = {
 
 const defaultBangunan: BangunanItem = {
   id: generateId(),
+  peruntukkan: 'rumah_tinggal',
+  imb_ada: false,
+  nomor_imb: '',
+  tanggal_imb: '',
+  nama_di_imb: '',
+  luas_sesuai_imb: '',
+  tinggi_sesuai_imb: '',
+  konstruksi: 'permanent',
+  pondasi: 'beton',
+  tinggi_lantai: '1',
+  atap: 'genteng',
+  dinding: 'batu_bata',
+  plester_dinding: true,
+  plafon: 'gypsum',
+  lantai: 'keramik',
+  tiang: 'beton',
   luas_bangunan: '',
+  keterangan: '',
   harga_pembanding_1: '',
   sumber_1: '',
   harga_pembanding_2: '',
