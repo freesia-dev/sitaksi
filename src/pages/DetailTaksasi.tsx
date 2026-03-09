@@ -187,13 +187,29 @@ export default function DetailTaksasi() {
             .gap-4 { gap: 12px; }
             
             .flex { display: flex; }
+            .flex-col { flex-direction: column; }
+            .flex-1 { flex: 1 1 0%; }
+            .flex-wrap { flex-wrap: wrap; }
             .justify-between { justify-content: space-between; }
             .justify-center { justify-content: center; }
             .items-center { align-items: center; }
+            .items-start { align-items: flex-start; }
+            .gap-2 { gap: 6px; }
+            .gap-4 { gap: 12px; }
+            .gap-6 { gap: 18px; }
+            .min-h-full { min-height: 100%; }
+            .w-full { width: 100%; }
             .grid { display: grid; }
             .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
             .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
             .col-span-2 { grid-column: span 2; }
+            .whitespace-pre-line { white-space: pre-line; }
+            .break-all { word-break: break-all; }
+            .capitalize { text-transform: capitalize; }
+            .italic { font-style: italic; }
+            .overflow-hidden { overflow: hidden; }
+            .relative { position: relative; }
+            .block { display: block; }
             
             .border-t { border-top: 1px solid #ccc; }
             .border-b { border-bottom: 1px solid #ccc; }
