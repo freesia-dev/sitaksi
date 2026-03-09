@@ -86,8 +86,8 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
   const legalitasInfo = getLegalitasInfo();
 
   return (
-    <div className="export-cover-page bg-white print:shadow-none print:border-none print:h-[297mm] print:min-h-[297mm] print:flex print:flex-col">
-      <div className="max-w-2xl mx-auto text-center p-6 print:p-4 print:flex-1 print:flex print:flex-col">
+    <div className="export-cover-page bg-white h-[297mm] min-h-[297mm] flex flex-col print:shadow-none print:border-none">
+      <div className="max-w-2xl mx-auto text-center p-6 print:p-4 flex-1 flex flex-col">
         {/* Header with Logo */}
         <div className="space-y-1 mb-4">
           <img src={logo} alt="Bankaltimtara" className="h-16 mx-auto print:h-14" />
@@ -108,9 +108,7 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
           {isKendaraan && detailKendaraan && (
             <>
               <p className="text-base font-semibold print:text-black">{detailKendaraan.jenis}</p>
-              <p className="text-sm print:text-black">
-                An. {detailKendaraan.nama_kepemilikan}
-              </p>
+              <p className="text-sm print:text-black">An. {detailKendaraan.nama_kepemilikan}</p>
               <p className="text-xl font-bold text-primary print:text-black mt-1">
                 {detailKendaraan.nomor_polisi}
               </p>
@@ -125,9 +123,9 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
         {/* Front Photo - Large */}
         {frontPhoto && (
           <div className="py-3 flex-1 flex items-center justify-center">
-            <img 
-              src={frontPhoto} 
-              alt="Foto Agunan" 
+            <img
+              src={frontPhoto}
+              alt="Foto Agunan"
               className="export-cover-photo mx-auto w-full max-w-[480px] h-auto max-h-[300px] object-contain border print:max-w-[150mm] print:max-h-[100mm]"
             />
           </div>
@@ -158,12 +156,8 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
           </table>
         </div>
 
-        {/* Spacer - empty rows to push footer down for print */}
-        <div className="flex-1"></div>
-        <div className="h-[80px] print:h-[50mm]">&nbsp;</div>
-
         {/* Footer - Always at bottom */}
-        <div className="border-t space-y-1 text-xs text-center py-3">
+        <div className="border-t space-y-1 text-xs text-center py-3 mt-auto">
           <p className="font-semibold print:text-black">
             PT.BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA
           </p>
