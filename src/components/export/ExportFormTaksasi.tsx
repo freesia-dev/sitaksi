@@ -8,7 +8,8 @@ import {
   BangunanItemData,
   formatCurrency, 
   formatCurrencyWithDecimals,
-  formatDate 
+  formatDate,
+  formatTerbilang
 } from '@/types';
 import {
   SAFETY_MARGIN_TANAH,
