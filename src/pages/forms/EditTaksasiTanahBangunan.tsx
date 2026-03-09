@@ -240,20 +240,105 @@ export default function EditTaksasiTanahBangunan() {
 
       const detail = existingTaksasi.detail_agunan as DetailAgunanTBSimple;
       if (detail) {
-        const loadedTanah: TanahItem = {
-          ...defaultTanah,
-          luas_tanah: detail.luas_tanah?.toString() || '',
-          harga_pembanding_1: detail.harga_tanah_per_meter?.toString() || '',
-          lokasi: existingTaksasi.alamat,
-        };
-        setTanahList([loadedTanah]);
+        // Load from tanah_list if available (rich data), fallback to simple fields
+        if (detail.tanah_list && detail.tanah_list.length > 0) {
+          const loadedTanah: TanahItem[] = detail.tanah_list.map((t, i) => ({
+            ...defaultTanah,
+            id: generateId(),
+            bukti_kepemilikan: t.bukti_kepemilikan || 'hak_milik',
+            nomor_bukti: t.nomor_bukti || '',
+            tanggal_bukti: t.tanggal_bukti || '',
+            masa_berlaku: t.masa_berlaku || '',
+            nama_pemegang_hak: t.nama_pemegang_hak || '',
+            hubungan_dengan_debitur: t.hubungan_dengan_debitur || 'milik_sendiri',
+            nomor_gambar_situasi: t.nomor_gambar_situasi || '',
+            nomor_induk_bidang: t.nomor_induk_bidang || '',
+            luas_tanah: t.luas_tanah?.toString() || '',
+            tempat_didaftarkan: t.tempat_didaftarkan || '',
+            lokasi: t.lokasi || '',
+            letak_tanah: t.letak_tanah || 'normal',
+            bentuk_tanah: t.bentuk_tanah || 'beraturan',
+            arah_menghadap: t.arah_menghadap || 'utara',
+            lebar_jalan_depan: t.lebar_jalan_depan || '',
+            bahan_jalan: t.bahan_jalan || 'aspal',
+            batas_depan: t.batas_depan || '',
+            batas_belakang: t.batas_belakang || '',
+            batas_kanan: t.batas_kanan || '',
+            batas_kiri: t.batas_kiri || '',
+            kondisi_lalu_lintas: t.kondisi_lalu_lintas || '',
+            kelas_jalan: t.kelas_jalan || 'kampung',
+            listrik_pln: t.listrik_pln || '',
+            air_bersih: t.air_bersih || 'ada',
+            saluran_telepon: t.saluran_telepon || 'tidak_ada',
+            fasilitas_penunjang: t.fasilitas_penunjang || [],
+            harga_pembanding_1: t.harga_pembanding?.[0]?.harga?.toString() || '',
+            sumber_1: t.harga_pembanding?.[0]?.sumber || '',
+            harga_pembanding_2: t.harga_pembanding?.[1]?.harga?.toString() || '',
+            sumber_2: t.harga_pembanding?.[1]?.sumber || '',
+            harga_pembanding_3: t.harga_pembanding?.[2]?.harga?.toString() || '',
+            sumber_3: t.harga_pembanding?.[2]?.sumber || '',
+            safety_lokasi: t.safety_margins?.lokasi || 'cukup_strategis',
+            safety_topography: t.safety_margins?.topography || 'datar',
+            safety_ukuran: t.safety_margins?.ukuran || 'ideal',
+            safety_bukti: t.safety_margins?.bukti || 'hak_milik',
+            safety_lingkungan: t.safety_margins?.lingkungan || 'prospek_berkembang',
+            safety_permasalahan: t.safety_margins?.permasalahan || 'aman',
+          }));
+          setTanahList(loadedTanah);
+        } else {
+          const loadedTanah: TanahItem = {
+            ...defaultTanah,
+            luas_tanah: detail.luas_tanah?.toString() || '',
+            harga_pembanding_1: detail.harga_tanah_per_meter?.toString() || '',
+            lokasi: existingTaksasi.alamat,
+          };
+          setTanahList([loadedTanah]);
+        }
 
-        const loadedBangunan: BangunanItem = {
-          ...defaultBangunan,
-          luas_bangunan: detail.luas_bangunan?.toString() || '',
-          harga_pembanding_1: detail.harga_bangunan_per_meter?.toString() || '',
-        };
-        setBangunanList([loadedBangunan]);
+        if (detail.bangunan_list && detail.bangunan_list.length > 0) {
+          const loadedBangunan: BangunanItem[] = detail.bangunan_list.map(b => ({
+            ...defaultBangunan,
+            id: generateId(),
+            peruntukkan: b.peruntukkan || 'rumah_tinggal',
+            imb_ada: b.imb_ada || false,
+            nomor_imb: b.nomor_imb || '',
+            tanggal_imb: b.tanggal_imb || '',
+            nama_di_imb: b.nama_di_imb || '',
+            luas_sesuai_imb: b.luas_sesuai_imb || '',
+            tinggi_sesuai_imb: b.tinggi_sesuai_imb || '',
+            konstruksi: b.konstruksi || 'permanent',
+            pondasi: b.pondasi || 'beton',
+            tinggi_lantai: b.tinggi_lantai || '1',
+            atap: b.atap || 'genteng',
+            dinding: b.dinding || 'batu_bata',
+            plester_dinding: b.plester_dinding ?? true,
+            plafon: b.plafon || 'gypsum',
+            lantai: b.lantai || 'keramik',
+            tiang: b.tiang || 'beton',
+            luas_bangunan: b.luas_bangunan?.toString() || '',
+            keterangan: b.keterangan || '',
+            harga_pembanding_1: b.harga_pembanding?.[0]?.harga?.toString() || '',
+            sumber_1: b.harga_pembanding?.[0]?.sumber || '',
+            harga_pembanding_2: b.harga_pembanding?.[1]?.harga?.toString() || '',
+            sumber_2: b.harga_pembanding?.[1]?.sumber || '',
+            harga_pembanding_3: b.harga_pembanding?.[2]?.harga?.toString() || '',
+            sumber_3: b.harga_pembanding?.[2]?.sumber || '',
+            safety_design: b.safety_margins?.design || 'semi_modern',
+            safety_umur: b.safety_margins?.umur || 'muda',
+            safety_peruntukkan: b.safety_margins?.peruntukkan || 'non_produktif',
+            safety_imb: b.safety_margins?.imb || 'tidak_ada_non_produktif',
+            safety_kesesuaian: b.safety_margins?.kesesuaian || 'ideal',
+            safety_permasalahan: b.safety_margins?.permasalahan || 'aman',
+          }));
+          setBangunanList(loadedBangunan);
+        } else {
+          const loadedBangunan: BangunanItem = {
+            ...defaultBangunan,
+            luas_bangunan: detail.luas_bangunan?.toString() || '',
+            harga_pembanding_1: detail.harga_bangunan_per_meter?.toString() || '',
+          };
+          setBangunanList([loadedBangunan]);
+        }
 
         // Load dokumentasi
         const defaultLabels = ['Tampak Depan', 'Tampak Samping', 'Interior', 'Surat Tanah'];
