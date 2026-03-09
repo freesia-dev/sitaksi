@@ -108,7 +108,6 @@ export default function DetailTaksasi() {
               border: none !important;
               box-shadow: none !important;
               border-radius: 0 !important;
-              padding: 0 !important;
             }
             
             img[alt="Bankaltimtara"] {
