@@ -50,6 +50,41 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
     return 'TANAH';
   };
 
+  // Get legality info for tanah/tanah & bangunan
+  const getLegalitasInfo = (): string | undefined => {
+    if (isKendaraan && detailKendaraan) {
+      if (detailKendaraan.bukti_kepemilikan && detailKendaraan.nomor_bukti_kepemilikan) {
+        const tgl = detailKendaraan.tanggal_bukti_kepemilikan ? ` Tanggal ${formatDate(detailKendaraan.tanggal_bukti_kepemilikan)}` : '';
+        return `${detailKendaraan.bukti_kepemilikan} Nomor ${detailKendaraan.nomor_bukti_kepemilikan}${tgl}`;
+      }
+      return undefined;
+    }
+    // For Tanah & Bangunan - get from tanah_list
+    if (isTanahBangunan && detailTB) {
+      const tb = detailTB as any;
+      if (tb.tanah_list?.[0]) {
+        const t = tb.tanah_list[0];
+        if (t.bukti_kepemilikan && t.nomor_bukti) {
+          const tgl = t.tanggal_bukti ? ` Tanggal ${formatDate(t.tanggal_bukti)}` : '';
+          return `${t.bukti_kepemilikan} Nomor ${t.nomor_bukti}${tgl}`;
+        }
+      }
+      return undefined;
+    }
+    // For Tanah
+    if (isTanah && detailTanah) {
+      const dt = detailTanah as any;
+      if (dt.bukti_kepemilikan && dt.nomor_bukti) {
+        const tgl = dt.tanggal_bukti ? ` Tanggal ${formatDate(dt.tanggal_bukti)}` : '';
+        return `${dt.bukti_kepemilikan} Nomor ${dt.nomor_bukti}${tgl}`;
+      }
+      return undefined;
+    }
+    return undefined;
+  };
+
+  const legalitasInfo = getLegalitasInfo();
+
   return (
     <div className="export-cover-page bg-white print:shadow-none print:border-none print:h-[297mm] print:min-h-[297mm] print:flex print:flex-col">
       <div className="max-w-2xl mx-auto text-center p-6 print:p-4 print:flex-1 print:flex print:flex-col">
@@ -62,48 +97,50 @@ export function ExportCover({ taksasi, logo }: ExportCoverProps) {
           <h2 className="text-sm font-semibold print:text-black">{taksasi.kantor_cabang}</h2>
         </div>
 
-        {/* Jenis Agunan */}
-        <div className="py-4 space-y-2">
+        {/* Jenis Agunan + Legalitas */}
+        <div className="py-3 space-y-1">
           <h3 className="text-lg font-bold print:text-black">{getJenisAgunanTitle()}</h3>
           
+          {legalitasInfo && (
+            <p className="text-sm font-semibold text-primary print:text-black">{legalitasInfo}</p>
+          )}
+
           {isKendaraan && detailKendaraan && (
             <>
               <p className="text-base font-semibold print:text-black">{detailKendaraan.jenis}</p>
               <p className="text-sm print:text-black">
-                {detailKendaraan.bukti_kepemilikan} No. {detailKendaraan.nomor_bukti_kepemilikan} Tanggal {formatDate(detailKendaraan.tanggal_bukti_kepemilikan)} An. {detailKendaraan.nama_kepemilikan}
+                An. {detailKendaraan.nama_kepemilikan}
               </p>
-              <p className="text-xl font-bold text-primary print:text-black mt-2">
+              <p className="text-xl font-bold text-primary print:text-black mt-1">
                 {detailKendaraan.nomor_polisi}
               </p>
             </>
           )}
 
           {(isTanah || isTanahBangunan) && (
-            <>
-              <p className="text-sm print:text-black">{taksasi.alamat}</p>
-            </>
-          )}
-
-          {/* Front Photo - Center of document */}
-          {frontPhoto && (
-            <div className="py-4">
-              <img 
-                src={frontPhoto} 
-                alt="Foto Agunan" 
-                className="export-cover-photo mx-auto w-auto max-w-[350px] h-auto max-h-[200px] object-contain rounded-lg border print:max-w-[120mm] print:max-h-[80mm]"
-              />
-            </div>
-          )}
-
-          {/* Placeholder if no photo */}
-          {!frontPhoto && (
-            <div className="py-4">
-              <div className="mx-auto w-[350px] h-[250px] bg-muted/30 border-2 border-dashed border-muted-foreground/30 rounded-lg flex items-center justify-center">
-                <p className="text-muted-foreground text-sm">Foto Agunan</p>
-              </div>
-            </div>
+            <p className="text-sm font-semibold text-primary print:text-black">{taksasi.alamat}</p>
           )}
         </div>
+
+        {/* Front Photo - Large */}
+        {frontPhoto && (
+          <div className="py-3 flex-1 flex items-center justify-center">
+            <img 
+              src={frontPhoto} 
+              alt="Foto Agunan" 
+              className="export-cover-photo mx-auto w-full max-w-[480px] h-auto max-h-[300px] object-contain border print:max-w-[150mm] print:max-h-[100mm]"
+            />
+          </div>
+        )}
+
+        {/* Placeholder if no photo */}
+        {!frontPhoto && (
+          <div className="py-3 flex-1 flex items-center justify-center">
+            <div className="mx-auto w-[480px] h-[300px] bg-muted/30 border-2 border-dashed border-muted-foreground/30 flex items-center justify-center">
+              <p className="text-muted-foreground text-sm">Foto Agunan</p>
+            </div>
+          </div>
+        )}
 
         {/* Tim Penilai */}
         <div className="py-4">
