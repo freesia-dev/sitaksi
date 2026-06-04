@@ -199,10 +199,10 @@ export default function MonitoringForm() {
       {/* Data kredit */}
       <Section title="Data Kredit">
         <Grid>
-          <Field label="Plafond"><CurrencyInput value={form.plafond} onChange={(v) => set('plafond', v)} /></Field>
-          <Field label="Baki Debet"><CurrencyInput value={form.baki_debet} onChange={(v) => set('baki_debet', v)} /></Field>
-          <Field label="Tunggakan Pokok"><CurrencyInput value={form.tunggakan_pokok} onChange={(v) => set('tunggakan_pokok', v)} /></Field>
-          <Field label="Tunggakan Bunga"><CurrencyInput value={form.tunggakan_bunga} onChange={(v) => set('tunggakan_bunga', v)} /></Field>
+          <Field label="Plafond"><CurrencyInput value={form.plafond} onChange={(v) => set('plafond', Number(v) || 0)} /></Field>
+          <Field label="Baki Debet"><CurrencyInput value={form.baki_debet} onChange={(v) => set('baki_debet', Number(v) || 0)} /></Field>
+          <Field label="Tunggakan Pokok"><CurrencyInput value={form.tunggakan_pokok} onChange={(v) => set('tunggakan_pokok', Number(v) || 0)} /></Field>
+          <Field label="Tunggakan Bunga"><CurrencyInput value={form.tunggakan_bunga} onChange={(v) => set('tunggakan_bunga', Number(v) || 0)} /></Field>
           <Field label="Hari Tunggakan"><Input type="number" value={form.hari_tunggakan} onChange={e => set('hari_tunggakan', Number(e.target.value))} /></Field>
         </Grid>
       </Section>
@@ -220,7 +220,7 @@ export default function MonitoringForm() {
       <Section title="Rencana Tindak Lanjut & Komitmen Bayar">
         <Grid>
           <Field label="Rencana Tindak Lanjut" full><Textarea rows={2} value={form.rencana_tindak_lanjut} onChange={e => set('rencana_tindak_lanjut', e.target.value)} /></Field>
-          <Field label="Komitmen Bayar (Nominal)"><CurrencyInput value={form.komitmen_bayar_nominal} onChange={(v) => set('komitmen_bayar_nominal', v)} /></Field>
+          <Field label="Komitmen Bayar (Nominal)"><CurrencyInput value={form.komitmen_bayar_nominal} onChange={(v) => set('komitmen_bayar_nominal', Number(v) || 0)} /></Field>
           <Field label="Komitmen Bayar (Tanggal)"><Input type="date" value={form.komitmen_bayar_tanggal} onChange={e => set('komitmen_bayar_tanggal', e.target.value)} /></Field>
         </Grid>
       </Section>
