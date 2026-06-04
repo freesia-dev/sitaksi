@@ -28,6 +28,11 @@ const Profile = lazy(() => import("@/pages/Profile"));
 const DetailTaksasi = lazy(() => import("@/pages/DetailTaksasi"));
 const About = lazy(() => import("@/pages/About"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
+const MonitoringList = lazy(() => import("@/pages/monitoring/MonitoringList"));
+const MonitoringForm = lazy(() => import("@/pages/monitoring/MonitoringForm"));
+const MonitoringDetail = lazy(() => import("@/pages/monitoring/MonitoringDetail"));
+const MonitoringJadwal = lazy(() => import("@/pages/monitoring/MonitoringJadwal"));
+const MonitoringDashboard = lazy(() => import("@/pages/monitoring/MonitoringDashboard"));
 
 // Optimized QueryClient with caching
 const queryClient = new QueryClient({
@@ -82,6 +87,12 @@ const App = () => (
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/taksasi/:id" element={<DetailTaksasi />} />
                   <Route path="/about" element={<About />} />
+                  <Route path="/monitoring" element={<MonitoringList />} />
+                  <Route path="/monitoring/new" element={<MonitoringForm />} />
+                  <Route path="/monitoring/edit/:id" element={<MonitoringForm />} />
+                  <Route path="/monitoring/jadwal" element={<MonitoringJadwal />} />
+                  <Route path="/monitoring/dashboard" element={<MonitoringDashboard />} />
+                  <Route path="/monitoring/:id" element={<MonitoringDetail />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>
