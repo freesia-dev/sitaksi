@@ -38,6 +38,155 @@ export type Database = {
         }
         Relationships: []
       }
+      monitoring_jadwal: {
+        Row: {
+          created_at: string
+          id: string
+          jam_rencana: string | null
+          kategori: Database["public"]["Enums"]["kategori_kunjungan"]
+          keterangan: string | null
+          nama_debitur: string
+          no_rekening: string | null
+          status: Database["public"]["Enums"]["jadwal_status"]
+          tanggal_rencana: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          jam_rencana?: string | null
+          kategori?: Database["public"]["Enums"]["kategori_kunjungan"]
+          keterangan?: string | null
+          nama_debitur: string
+          no_rekening?: string | null
+          status?: Database["public"]["Enums"]["jadwal_status"]
+          tanggal_rencana: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          jam_rencana?: string | null
+          kategori?: Database["public"]["Enums"]["kategori_kunjungan"]
+          keterangan?: string | null
+          nama_debitur?: string
+          no_rekening?: string | null
+          status?: Database["public"]["Enums"]["jadwal_status"]
+          tanggal_rencana?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      monitoring_kunjungan: {
+        Row: {
+          alamat: string | null
+          baki_debet: number | null
+          created_at: string
+          foto_kunjungan: string[] | null
+          hari_tunggakan: number | null
+          hasil_kunjungan: string | null
+          id: string
+          jam_kunjungan: string | null
+          kantor_cabang: string | null
+          kategori: Database["public"]["Enums"]["kategori_kunjungan"]
+          komitmen_bayar_nominal: number | null
+          komitmen_bayar_tanggal: string | null
+          kondisi_agunan: string | null
+          kondisi_usaha: string | null
+          nama_debitur: string
+          no_hp: string | null
+          no_rekening: string | null
+          nomor_ba: string | null
+          officer_nama: string | null
+          pimpinan_nama: string | null
+          plafond: number | null
+          rencana_tindak_lanjut: string | null
+          status: Database["public"]["Enums"]["monitoring_status"]
+          taksasi_id: string | null
+          tanggal_kunjungan: string
+          tujuan_kunjungan: string | null
+          tunggakan_bunga: number | null
+          tunggakan_pokok: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alamat?: string | null
+          baki_debet?: number | null
+          created_at?: string
+          foto_kunjungan?: string[] | null
+          hari_tunggakan?: number | null
+          hasil_kunjungan?: string | null
+          id?: string
+          jam_kunjungan?: string | null
+          kantor_cabang?: string | null
+          kategori: Database["public"]["Enums"]["kategori_kunjungan"]
+          komitmen_bayar_nominal?: number | null
+          komitmen_bayar_tanggal?: string | null
+          kondisi_agunan?: string | null
+          kondisi_usaha?: string | null
+          nama_debitur: string
+          no_hp?: string | null
+          no_rekening?: string | null
+          nomor_ba?: string | null
+          officer_nama?: string | null
+          pimpinan_nama?: string | null
+          plafond?: number | null
+          rencana_tindak_lanjut?: string | null
+          status?: Database["public"]["Enums"]["monitoring_status"]
+          taksasi_id?: string | null
+          tanggal_kunjungan?: string
+          tujuan_kunjungan?: string | null
+          tunggakan_bunga?: number | null
+          tunggakan_pokok?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alamat?: string | null
+          baki_debet?: number | null
+          created_at?: string
+          foto_kunjungan?: string[] | null
+          hari_tunggakan?: number | null
+          hasil_kunjungan?: string | null
+          id?: string
+          jam_kunjungan?: string | null
+          kantor_cabang?: string | null
+          kategori?: Database["public"]["Enums"]["kategori_kunjungan"]
+          komitmen_bayar_nominal?: number | null
+          komitmen_bayar_tanggal?: string | null
+          kondisi_agunan?: string | null
+          kondisi_usaha?: string | null
+          nama_debitur?: string
+          no_hp?: string | null
+          no_rekening?: string | null
+          nomor_ba?: string | null
+          officer_nama?: string | null
+          pimpinan_nama?: string | null
+          plafond?: number | null
+          rencana_tindak_lanjut?: string | null
+          status?: Database["public"]["Enums"]["monitoring_status"]
+          taksasi_id?: string | null
+          tanggal_kunjungan?: string
+          tujuan_kunjungan?: string | null
+          tunggakan_bunga?: number | null
+          tunggakan_pokok?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monitoring_kunjungan_taksasi_id_fkey"
+            columns: ["taksasi_id"]
+            isOneToOne: false
+            referencedRelation: "taksasi"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -219,6 +368,9 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user" | "demo"
+      jadwal_status: "scheduled" | "done" | "canceled"
+      kategori_kunjungan: "prospek" | "aktif" | "menunggak" | "restrukturisasi"
+      monitoring_status: "draft" | "final"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -347,6 +499,9 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user", "demo"],
+      jadwal_status: ["scheduled", "done", "canceled"],
+      kategori_kunjungan: ["prospek", "aktif", "menunggak", "restrukturisasi"],
+      monitoring_status: ["draft", "final"],
     },
   },
 } as const

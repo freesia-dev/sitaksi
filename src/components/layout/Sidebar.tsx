@@ -14,7 +14,11 @@ import {
   Info,
   UserCircle,
   FolderOpen,
-  Settings
+  Settings,
+  ClipboardCheck,
+  CalendarClock,
+  BarChart3,
+  ListChecks
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -57,6 +61,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
 
   const [taksasiOpen, setTaksasiOpen] = useState(true);
   const [configOpen, setConfigOpen] = useState(false);
+  const [monitoringOpen, setMonitoringOpen] = useState(false);
 
   // Single menu items
   const singleMenuItems: MenuItem[] = [
@@ -104,6 +109,18 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
         href: '/list/kendaraan',
         show: true,
       },
+    ],
+  };
+
+  // Grouped menu - Monitoring
+  const monitoringGroup: MenuGroup = {
+    label: 'Monitoring',
+    icon: ClipboardCheck,
+    show: true,
+    items: [
+      { label: 'Daftar Kunjungan', icon: ListChecks, href: '/monitoring', show: true },
+      { label: 'Jadwal Kunjungan', icon: CalendarClock, href: '/monitoring/jadwal', show: true },
+      { label: 'Dashboard', icon: BarChart3, href: '/monitoring/dashboard', show: true },
     ],
   };
 
@@ -232,7 +249,10 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
         
         {/* Taksasi Group */}
         {renderMenuGroup(taksasiGroup, taksasiOpen, setTaksasiOpen)}
-        
+
+        {/* Monitoring Group */}
+        {renderMenuGroup(monitoringGroup, monitoringOpen, setMonitoringOpen)}
+
         {/* Riwayat */}
         {renderMenuItem(singleMenuItems[1])}
         
