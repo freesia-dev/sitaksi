@@ -213,6 +213,14 @@ export default function MonitoringForm() {
       {/* Data dasar */}
       <Section title="Data Kunjungan">
         <Grid>
+          <Field label="Nomor Surat" full>
+            <Input
+              value={form.nomor_ba}
+              onChange={e => set('nomor_ba', e.target.value)}
+              placeholder="Contoh: 001/F-3/BPD-TLH/VI/2026"
+            />
+            <p className="text-xs text-muted-foreground">Format: [nomor 3 digit]/F-3/BPD-TLH/[bulan romawi]/[tahun]</p>
+          </Field>
           <Field label="Kategori Kunjungan">
             <Select value={form.kategori} onValueChange={(v) => set('kategori', v as KategoriKunjungan)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
