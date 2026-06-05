@@ -37,7 +37,7 @@ export default function MonitoringList() {
 
   const filtered = useMemo(() => items.filter(i => {
     if (kategori !== 'all' && i.kategori !== kategori) return false;
-    if (search && !`${i.nama_debitur} ${i.no_rekening || ''}`.toLowerCase().includes(search.toLowerCase())) return false;
+    if (search && !`${i.nama_debitur} ${i.no_loan || ''}`.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   }), [items, search, kategori]);
 
@@ -67,7 +67,7 @@ export default function MonitoringList() {
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
-          <Input className="pl-9" placeholder="Cari nama debitur / no. rekening..." value={search} onChange={e => setSearch(e.target.value)} />
+          <Input className="pl-9" placeholder="Cari nama debitur / no. loan..." value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         <Select value={kategori} onValueChange={setKategori}>
           <SelectTrigger className="w-full sm:w-64"><SelectValue /></SelectTrigger>
@@ -88,7 +88,7 @@ export default function MonitoringList() {
                 <th className="p-3">Tanggal</th>
                 <th className="p-3">Debitur</th>
                 <th className="p-3">Kategori</th>
-                <th className="p-3">No. Rekening</th>
+                <th className="p-3">No. Loan</th>
                 <th className="p-3 text-right">Baki Debet</th>
                 <th className="p-3 text-right">Tunggakan</th>
                 <th className="p-3 text-center">Aksi</th>
@@ -108,7 +108,7 @@ export default function MonitoringList() {
                       {KATEGORI_LABEL[i.kategori]}
                     </span>
                   </td>
-                  <td className="p-3">{i.no_rekening || '-'}</td>
+                  <td className="p-3">{i.no_loan || '-'}</td>
                   <td className="p-3 text-right">{formatCurrency(i.baki_debet || 0)}</td>
                   <td className="p-3 text-right text-destructive">{formatCurrency((i.tunggakan_pokok || 0) + (i.tunggakan_bunga || 0))}</td>
                   <td className="p-3">

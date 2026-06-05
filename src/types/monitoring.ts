@@ -10,7 +10,7 @@ export interface MonitoringKunjungan {
   tanggal_kunjungan: string;
   jam_kunjungan: string | null;
   nama_debitur: string;
-  no_rekening: string | null;
+  no_loan: string | null;
   no_hp: string | null;
   alamat: string | null;
   plafond: number;
@@ -41,7 +41,7 @@ export interface MonitoringJadwal {
   tanggal_rencana: string;
   jam_rencana: string | null;
   nama_debitur: string;
-  no_rekening: string | null;
+  no_loan: string | null;
   kategori: KategoriKunjungan;
   keterangan: string | null;
   status: JadwalStatus;

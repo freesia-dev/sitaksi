@@ -46,7 +46,7 @@ export type Database = {
           kategori: Database["public"]["Enums"]["kategori_kunjungan"]
           keterangan: string | null
           nama_debitur: string
-          no_rekening: string | null
+          no_loan: string | null
           status: Database["public"]["Enums"]["jadwal_status"]
           tanggal_rencana: string
           updated_at: string
@@ -59,7 +59,7 @@ export type Database = {
           kategori?: Database["public"]["Enums"]["kategori_kunjungan"]
           keterangan?: string | null
           nama_debitur: string
-          no_rekening?: string | null
+          no_loan?: string | null
           status?: Database["public"]["Enums"]["jadwal_status"]
           tanggal_rencana: string
           updated_at?: string
@@ -72,7 +72,7 @@ export type Database = {
           kategori?: Database["public"]["Enums"]["kategori_kunjungan"]
           keterangan?: string | null
           nama_debitur?: string
-          no_rekening?: string | null
+          no_loan?: string | null
           status?: Database["public"]["Enums"]["jadwal_status"]
           tanggal_rencana?: string
           updated_at?: string
@@ -98,7 +98,7 @@ export type Database = {
           kondisi_usaha: string | null
           nama_debitur: string
           no_hp: string | null
-          no_rekening: string | null
+          no_loan: string | null
           nomor_ba: string | null
           officer_nama: string | null
           pimpinan_nama: string | null
@@ -130,7 +130,7 @@ export type Database = {
           kondisi_usaha?: string | null
           nama_debitur: string
           no_hp?: string | null
-          no_rekening?: string | null
+          no_loan?: string | null
           nomor_ba?: string | null
           officer_nama?: string | null
           pimpinan_nama?: string | null
@@ -162,7 +162,7 @@ export type Database = {
           kondisi_usaha?: string | null
           nama_debitur?: string
           no_hp?: string | null
-          no_rekening?: string | null
+          no_loan?: string | null
           nomor_ba?: string | null
           officer_nama?: string | null
           pimpinan_nama?: string | null

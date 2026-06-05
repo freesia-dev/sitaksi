@@ -10,7 +10,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { CloudImageUploader, LabeledImage } from '@/components/shared/CloudImageUploader';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, UserSearch, Check } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { useToast } from '@/hooks/use-toast';
 import { KATEGORI_LABEL, KategoriKunjungan } from '@/types/monitoring';
 
@@ -19,7 +21,7 @@ interface FormState {
   tanggal_kunjungan: string;
   jam_kunjungan: string;
   nama_debitur: string;
-  no_rekening: string;
+  no_loan: string;
   no_hp: string;
   alamat: string;
   plafond: number;
@@ -45,7 +47,7 @@ const initial: FormState = {
   tanggal_kunjungan: new Date().toISOString().slice(0, 10),
   jam_kunjungan: '',
   nama_debitur: '',
-  no_rekening: '',
+  no_loan: '',
   no_hp: '',
   alamat: '',
   plafond: 0,
@@ -76,6 +78,29 @@ export default function MonitoringForm() {
   const [photos, setPhotos] = useState<LabeledImage[]>([]);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(isEdit);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [savedDebiturs, setSavedDebiturs] = useState<any[]>([]);
+
+  // Load list of unique debitur (latest record per nama_debitur) for autofill
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from('monitoring_kunjungan')
+        .select('*')
+        .order('tanggal_kunjungan', { ascending: false })
+        .limit(500);
+      if (!data) return;
+      const seen = new Set<string>();
+      const unique: any[] = [];
+      for (const row of data) {
+        const key = (row.nama_debitur || '').toLowerCase().trim();
+        if (!key || seen.has(key)) continue;
+        seen.add(key);
+        unique.push(row);
+      }
+      setSavedDebiturs(unique);
+    })();
+  }, []);
 
   useEffect(() => {
     if (!isEdit || !id) return;
@@ -91,7 +116,7 @@ export default function MonitoringForm() {
         tanggal_kunjungan: data.tanggal_kunjungan,
         jam_kunjungan: data.jam_kunjungan || '',
         nama_debitur: data.nama_debitur,
-        no_rekening: data.no_rekening || '',
+        no_loan: data.no_loan || '',
         no_hp: data.no_hp || '',
         alamat: data.alamat || '',
         plafond: Number(data.plafond) || 0,
@@ -117,6 +142,24 @@ export default function MonitoringForm() {
   }, [id, isEdit, navigate, toast]);
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) => setForm(s => ({ ...s, [k]: v }));
+
+  const applyDebitur = (d: any) => {
+    setForm(s => ({
+      ...s,
+      nama_debitur: d.nama_debitur || '',
+      no_loan: d.no_loan || '',
+      no_hp: d.no_hp || '',
+      alamat: d.alamat || '',
+      kategori: (d.kategori as KategoriKunjungan) || s.kategori,
+      plafond: Number(d.plafond) || 0,
+      baki_debet: Number(d.baki_debet) || 0,
+      tunggakan_pokok: Number(d.tunggakan_pokok) || 0,
+      tunggakan_bunga: Number(d.tunggakan_bunga) || 0,
+      hari_tunggakan: d.hari_tunggakan || 0,
+    }));
+    setPickerOpen(false);
+    toast({ title: 'Data debitur dimuat', description: `Data ${d.nama_debitur} berhasil diisi otomatis` });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -188,9 +231,46 @@ export default function MonitoringForm() {
 
       {/* Data debitur */}
       <Section title="Identitas Debitur">
+        {!isEdit && savedDebiturs.length > 0 && (
+          <div className="mb-4 flex items-center gap-3 rounded-lg bg-primary/5 border border-primary/20 p-3">
+            <UserSearch size={18} className="text-primary shrink-0" />
+            <div className="flex-1 text-sm">
+              <p className="font-medium">Kunjungan ulang? Pilih debitur tersimpan</p>
+              <p className="text-xs text-muted-foreground">Tersedia {savedDebiturs.length} debitur — data akan diisi otomatis.</p>
+            </div>
+            <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
+              <PopoverTrigger asChild>
+                <Button type="button" variant="outline" size="sm">Pilih Debitur</Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[360px] p-0" align="end">
+                <Command>
+                  <CommandInput placeholder="Cari nama / no. loan..." />
+                  <CommandList>
+                    <CommandEmpty>Tidak ditemukan.</CommandEmpty>
+                    <CommandGroup>
+                      {savedDebiturs.map(d => (
+                        <CommandItem
+                          key={d.id}
+                          value={`${d.nama_debitur} ${d.no_loan || ''}`}
+                          onSelect={() => applyDebitur(d)}
+                        >
+                          <Check className="mr-2 h-4 w-4 opacity-0" />
+                          <div className="flex-1">
+                            <div className="font-medium">{d.nama_debitur}</div>
+                            <div className="text-xs text-muted-foreground">{d.no_loan || '-'} · {KATEGORI_LABEL[d.kategori as KategoriKunjungan]}</div>
+                          </div>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </div>
+        )}
         <Grid>
           <Field label="Nama Debitur *"><Input value={form.nama_debitur} onChange={e => set('nama_debitur', e.target.value)} required /></Field>
-          <Field label="No. Rekening"><Input value={form.no_rekening} onChange={e => set('no_rekening', e.target.value)} /></Field>
+          <Field label="No. Loan"><Input value={form.no_loan} onChange={e => set('no_loan', e.target.value)} /></Field>
           <Field label="No. HP"><Input value={form.no_hp} onChange={e => set('no_hp', e.target.value)} /></Field>
           <Field label="Alamat" full><Textarea value={form.alamat} onChange={e => set('alamat', e.target.value)} rows={2} /></Field>
         </Grid>
