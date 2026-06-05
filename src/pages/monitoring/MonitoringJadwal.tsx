@@ -24,7 +24,7 @@ export default function MonitoringJadwalPage() {
     tanggal_rencana: new Date().toISOString().slice(0, 10),
     jam_rencana: '',
     nama_debitur: '',
-    no_rekening: '',
+    no_loan: '',
     kategori: 'aktif' as KategoriKunjungan,
     keterangan: '',
   });
@@ -53,7 +53,7 @@ export default function MonitoringJadwalPage() {
     } else {
       toast({ title: 'Jadwal ditambahkan' });
       setOpen(false);
-      setForm({ ...form, nama_debitur: '', no_rekening: '', keterangan: '' });
+      setForm({ ...form, nama_debitur: '', no_loan: '', keterangan: '' });
       load();
     }
   };
@@ -112,7 +112,7 @@ export default function MonitoringJadwalPage() {
                       </div>
                     </td>
                     <td className="p-3">{j.jam_rencana || '-'}</td>
-                    <td className="p-3 font-medium">{j.nama_debitur}<div className="text-xs text-muted-foreground">{j.no_rekening}</div></td>
+                    <td className="p-3 font-medium">{j.nama_debitur}<div className="text-xs text-muted-foreground">{j.no_loan}</div></td>
                     <td className="p-3"><span className={cn("px-2 py-0.5 rounded-full text-xs border", KATEGORI_COLOR[j.kategori])}>{KATEGORI_LABEL[j.kategori]}</span></td>
                     <td className="p-3 max-w-xs">{j.keterangan || '-'}</td>
                     <td className="p-3">
@@ -148,7 +148,7 @@ export default function MonitoringJadwalPage() {
             </div>
             <div className="space-y-1.5"><Label>Nama Debitur *</Label><Input value={form.nama_debitur} onChange={e => setForm({ ...form, nama_debitur: e.target.value })} /></div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5"><Label>No. Rekening</Label><Input value={form.no_rekening} onChange={e => setForm({ ...form, no_rekening: e.target.value })} /></div>
+              <div className="space-y-1.5"><Label>No. Loan</Label><Input value={form.no_loan} onChange={e => setForm({ ...form, no_loan: e.target.value })} /></div>
               <div className="space-y-1.5">
                 <Label>Kategori</Label>
                 <Select value={form.kategori} onValueChange={(v) => setForm({ ...form, kategori: v as KategoriKunjungan })}>
