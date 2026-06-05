@@ -1,6 +1,6 @@
 import React from 'react';
 import { formatDate, formatCurrency } from '@/types';
-import { KATEGORI_LABEL, MonitoringKunjungan } from '@/types/monitoring';
+import { MonitoringKunjungan } from '@/types/monitoring';
 import bpdLogoAsset from '@/assets/logo-asbanda.png.asset.json';
 
 interface Props {
