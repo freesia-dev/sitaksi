@@ -52,7 +52,23 @@ export default function MonitoringDetail() {
         body { font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 10pt; line-height:1.4; color:#000; background:#fff; }
         .print-container { max-width: 190mm; margin:0 auto; }
         img { max-width:100%; height:auto; }
-        img[alt="Bankaltimtara"] { height: 56px !important; width:auto !important; }
+        img[alt="Bankaltimtara"], img[alt="BPD"] { height: 56px !important; width:auto !important; }
+        .border-b-\\[3px\\] { border-bottom: 3px solid #1d4ed8 !important; }
+        .border-\\[\\#1d4ed8\\] { border-color: #1d4ed8 !important; }
+        .bg-\\[\\#1d4ed8\\] { background-color: #1d4ed8 !important; }
+        .bg-\\[\\#f59e0b\\] { background-color: #f59e0b !important; }
+        .text-\\[9pt\\] { font-size: 9pt; } .text-\\[11pt\\] { font-size: 11pt; } .text-\\[12pt\\] { font-size: 12pt; }
+        .tracking-wide { letter-spacing: 0.025em; }
+        .leading-tight { line-height: 1.2; }
+        .items-start { align-items: flex-start; } .pt-1 { padding-top: 4px; } .gap-3 { gap: 9px; }
+        .shrink-0 { flex-shrink: 0; } .object-contain { object-fit: contain; }
+        .relative { position: relative; } .absolute { position: absolute; }
+        .left-0 { left:0; } .right-0 { right:0; } .bottom-0 { bottom:0; }
+        .h-3 { height: 0.75rem; } .h-6 { height: 1.5rem; }
+        .w-\\[72\\%\\] { width: 72%; } .w-\\[28\\%\\] { width: 28%; }
+        .rounded-tr-\\[40px\\] { border-top-right-radius: 40px; }
+        .rounded-tl-\\[40px\\] { border-top-left-radius: 40px; }
+        .pb-14 { padding-bottom: 3.5rem; } .pointer-events-none { pointer-events: none; }
         table { border-collapse: collapse; width: 100%; }
         td { vertical-align: top; padding: 2px 4px; font-size: 9pt; }
         h1 { font-size: 12pt; } h2 { font-size: 11pt; } h3 { font-size: 10pt; }
