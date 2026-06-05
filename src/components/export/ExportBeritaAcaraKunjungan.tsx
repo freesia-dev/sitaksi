@@ -1,7 +1,7 @@
 import React from 'react';
 import { formatDate, formatCurrency } from '@/types';
-import { KATEGORI_LABEL, MonitoringKunjungan } from '@/types/monitoring';
-import bpdLogoAsset from '@/assets/bpd-logo.jpg.asset.json';
+import { MonitoringKunjungan } from '@/types/monitoring';
+import bpdLogoAsset from '@/assets/logo-asbanda.png.asset.json';
 
 interface Props {
   data: MonitoringKunjungan;
@@ -17,7 +17,7 @@ export function ExportBeritaAcaraKunjungan({ data, logo }: Props) {
       <div className="flex items-start gap-3 pb-3 mb-4 border-b-[3px] border-[#1d4ed8]">
         <img src={logo} alt="Bankaltimtara" className="h-16 print:h-14 object-contain shrink-0" />
         <div className="flex-1 text-center pt-1">
-          <p className="text-[11pt] print:text-black leading-tight">PT. BPD Kaltim Kaltara</p>
+          <p className="text-[10pt] print:text-black leading-tight">PT Bank Pembangunan Daerah Kalimantan Timur dan Kalimantan Utara</p>
           <h1 className="text-[12pt] font-bold print:text-black uppercase tracking-wide">
             KANTOR CABANG PEMBANTU TELIHAN
           </h1>
@@ -27,7 +27,7 @@ export function ExportBeritaAcaraKunjungan({ data, logo }: Props) {
             Email: <span className="underline">kcp.telihan@bankaltimtara.co.id</span> · www.bankaltimtara.co.id
           </p>
         </div>
-        <img src={bpdLogoAsset.url} alt="BPD" className="h-16 print:h-14 object-contain shrink-0" />
+        <img src={bpdLogoAsset.url} alt="ASBANDA" className="h-16 print:h-14 object-contain shrink-0" />
       </div>
 
       {/* Judul */}
@@ -38,8 +38,7 @@ export function ExportBeritaAcaraKunjungan({ data, logo }: Props) {
 
       <p className="text-justify mb-3 print:text-black">
         Pada hari ini, {formatDate(data.tanggal_kunjungan)}
-        {data.jam_kunjungan && ` pukul ${data.jam_kunjungan} WITA`}, telah dilaksanakan kunjungan kepada debitur dengan kategori{' '}
-        <strong>{KATEGORI_LABEL[data.kategori]}</strong> dengan rincian sebagai berikut:
+        {data.jam_kunjungan && ` pukul ${data.jam_kunjungan} WITA`}, telah dilaksanakan kunjungan kepada debitur dengan rincian sebagai berikut:
       </p>
 
       {/* Identitas Debitur */}

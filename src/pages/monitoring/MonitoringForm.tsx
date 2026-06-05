@@ -18,6 +18,7 @@ import { KATEGORI_LABEL, KategoriKunjungan } from '@/types/monitoring';
 
 interface FormState {
   kategori: KategoriKunjungan;
+  nomor_ba: string;
   tanggal_kunjungan: string;
   jam_kunjungan: string;
   nama_debitur: string;
@@ -44,6 +45,7 @@ interface FormState {
 
 const initial: FormState = {
   kategori: 'aktif',
+  nomor_ba: '',
   tanggal_kunjungan: new Date().toISOString().slice(0, 10),
   jam_kunjungan: '',
   nama_debitur: '',
@@ -113,6 +115,7 @@ export default function MonitoringForm() {
       }
       setForm({
         kategori: data.kategori as KategoriKunjungan,
+        nomor_ba: data.nomor_ba || '',
         tanggal_kunjungan: data.tanggal_kunjungan,
         jam_kunjungan: data.jam_kunjungan || '',
         nama_debitur: data.nama_debitur,
@@ -171,6 +174,7 @@ export default function MonitoringForm() {
     setSaving(true);
     const payload: any = {
       ...form,
+      nomor_ba: form.nomor_ba || null,
       jam_kunjungan: form.jam_kunjungan || null,
       komitmen_bayar_tanggal: form.komitmen_bayar_tanggal || null,
       foto_kunjungan: photos.map(p => p.url),
@@ -180,10 +184,6 @@ export default function MonitoringForm() {
     if (isEdit && id) {
       ({ error } = await supabase.from('monitoring_kunjungan').update(payload).eq('id', id));
     } else {
-      // generate nomor BA
-      const now = new Date();
-      const nomor = `BA-MON/${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${Date.now().toString().slice(-4)}`;
-      payload.nomor_ba = nomor;
       ({ error } = await supabase.from('monitoring_kunjungan').insert(payload));
     }
     setSaving(false);
@@ -213,6 +213,14 @@ export default function MonitoringForm() {
       {/* Data dasar */}
       <Section title="Data Kunjungan">
         <Grid>
+          <Field label="Nomor Surat" full>
+            <Input
+              value={form.nomor_ba}
+              onChange={e => set('nomor_ba', e.target.value)}
+              placeholder="Contoh: 001/F-3/BPD-TLH/VI/2026"
+            />
+            <p className="text-xs text-muted-foreground">Format: [nomor 3 digit]/F-3/BPD-TLH/[bulan romawi]/[tahun]</p>
+          </Field>
           <Field label="Kategori Kunjungan">
             <Select value={form.kategori} onValueChange={(v) => set('kategori', v as KategoriKunjungan)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
