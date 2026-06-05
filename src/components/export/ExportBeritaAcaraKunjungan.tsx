@@ -1,6 +1,7 @@
 import React from 'react';
 import { formatDate, formatCurrency } from '@/types';
 import { KATEGORI_LABEL, MonitoringKunjungan } from '@/types/monitoring';
+import bpdLogoAsset from '@/assets/bpd-logo.jpg.asset.json';
 
 interface Props {
   data: MonitoringKunjungan;
@@ -11,17 +12,22 @@ export function ExportBeritaAcaraKunjungan({ data, logo }: Props) {
   const totalTunggakan = (data.tunggakan_pokok || 0) + (data.tunggakan_bunga || 0);
 
   return (
-    <div className="bg-white p-8 print:p-4 text-sm flex flex-col min-h-full">
-      {/* KOP */}
-      <div className="flex items-center gap-4 border-b-2 border-black pb-3 mb-4">
-        <img src={logo} alt="Bankaltimtara" className="h-16 print:h-14" />
-        <div className="flex-1 text-center">
-          <h1 className="text-base font-bold print:text-black uppercase">
-            PT. Bank Pembangunan Daerah Kalimantan Timur dan Kalimantan Utara
+    <div className="bg-white p-8 print:p-4 text-sm flex flex-col min-h-full relative pb-14">
+      {/* KOP - sesuai template Bankaltimtara KCP Telihan */}
+      <div className="flex items-start gap-3 pb-3 mb-4 border-b-[3px] border-[#1d4ed8]">
+        <img src={logo} alt="Bankaltimtara" className="h-16 print:h-14 object-contain shrink-0" />
+        <div className="flex-1 text-center pt-1">
+          <p className="text-[11pt] print:text-black leading-tight">PT. BPD Kaltim Kaltara</p>
+          <h1 className="text-[12pt] font-bold print:text-black uppercase tracking-wide">
+            KANTOR CABANG PEMBANTU TELIHAN
           </h1>
-          <h2 className="text-sm font-semibold print:text-black">{data.kantor_cabang || 'KCP TELIHAN'}</h2>
-          <p className="text-xs print:text-black">Jl. Mulawarman, Telihan, Balikpapan</p>
+          <p className="text-[9pt] print:text-black leading-tight">Jl. Letjend S. Parman No.14-15 – Kota Bontang 75383</p>
+          <p className="text-[9pt] print:text-black leading-tight">Telp: 0548 - 26567</p>
+          <p className="text-[9pt] print:text-black leading-tight">
+            Email: <span className="underline">kcp.telihan@bankaltimtara.co.id</span> · www.bankaltimtara.co.id
+          </p>
         </div>
+        <img src={bpdLogoAsset.url} alt="BPD" className="h-16 print:h-14 object-contain shrink-0" />
       </div>
 
       {/* Judul */}
@@ -41,7 +47,7 @@ export function ExportBeritaAcaraKunjungan({ data, logo }: Props) {
       <table className="w-full mb-3 text-xs">
         <tbody>
           <Row label="Nama Debitur" value={data.nama_debitur} />
-          <Row label="No. Rekening" value={data.no_rekening || '-'} />
+          <Row label="No. Loan" value={data.no_loan || '-'} />
           <Row label="No. Handphone" value={data.no_hp || '-'} />
           <Row label="Alamat" value={data.alamat || '-'} />
         </tbody>
@@ -112,6 +118,12 @@ export function ExportBeritaAcaraKunjungan({ data, logo }: Props) {
           <div className="h-20" />
           <p className="font-bold underline print:text-black">{data.pimpinan_nama || '(.......................)'}</p>
         </div>
+      </div>
+
+      {/* Footer banner ala KOP Telihan */}
+      <div className="kop-footer-banner absolute left-0 right-0 bottom-0 h-6 pointer-events-none">
+        <div className="absolute left-0 bottom-0 h-3 w-[72%] bg-[#1d4ed8] rounded-tr-[40px]" />
+        <div className="absolute right-0 bottom-0 h-3 w-[28%] bg-[#f59e0b] rounded-tl-[40px]" />
       </div>
     </div>
   );
