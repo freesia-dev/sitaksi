@@ -147,7 +147,7 @@ function DocumentRow({ children }: { children: React.ReactNode }) {
   return (
     <tr data-pdf-section>
       <td>
-        <main className="ba-content">{children}</main>
+        <div className="ba-content">{children}</div>
       </td>
     </tr>
   );
