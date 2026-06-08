@@ -47,12 +47,20 @@ export default function MonitoringDetail() {
     printWindow.document.write(`
       <!DOCTYPE html><html><head><title>Berita Acara - ${data?.nama_debitur || ''}</title>
       <style>
-        @page { size: A4; margin: 12mm 10mm; }
+        @page { size: A4; margin: 10mm 10mm 9mm; }
         * { margin:0; padding:0; box-sizing:border-box; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 10pt; line-height:1.4; color:#000; background:#fff; }
         .print-container { max-width: 190mm; margin:0 auto; }
         img { max-width:100%; height:auto; }
-        img[alt="Bankaltimtara"], img[alt="BPD"] { height: 56px !important; width:auto !important; }
+        .ba-page-table { width:100%; border-collapse:collapse; table-layout:fixed; }
+        .ba-repeat-header { display: table-header-group; }
+        .ba-repeat-footer { display: table-footer-group; }
+        .ba-page-table > thead > tr > td, .ba-page-table > tbody > tr > td, .ba-page-table > tfoot > tr > td { padding:0; vertical-align:top; }
+        .ba-content { display:block; }
+        .ba-kop-header { min-height: 22mm; }
+        .ba-kop-logo, img[alt="Bankaltimtara"], img[alt="ASBANDA"] { width: 32mm !important; height: 16mm !important; max-width: 32mm !important; max-height: 16mm !important; object-fit: contain !important; }
+        [data-pdf-section], section, tr, .break-inside-avoid { break-inside: avoid; page-break-inside: avoid; }
+        .kop-footer-banner { height: 7mm !important; break-inside: avoid; page-break-inside: avoid; }
         .border-b-\\[3px\\] { border-bottom: 3px solid #1d4ed8 !important; }
         .border-\\[\\#1d4ed8\\] { border-color: #1d4ed8 !important; }
         .bg-\\[\\#1d4ed8\\] { background-color: #1d4ed8 !important; }
