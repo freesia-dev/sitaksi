@@ -96,7 +96,7 @@ export function ExportBeritaAcaraKunjungan({ data, logo }: Props) {
           </DocumentRow>
 
           {photoRows.map((row, rowIndex) => (
-            <DocumentRow>
+            <DocumentRow key={`photo-row-${rowIndex}`}>
               <section data-pdf-section>
                 {rowIndex === 0 && <SectionTitle>E. Foto Dokumentasi Kunjungan</SectionTitle>}
                 <div className="grid grid-cols-2 gap-3 mb-4">
