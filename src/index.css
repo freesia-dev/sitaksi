@@ -359,6 +359,43 @@
     -webkit-print-color-adjust: exact !important;
   }
 
+  .ba-page-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    table-layout: fixed !important;
+  }
+
+  .ba-repeat-header {
+    display: table-header-group !important;
+  }
+
+  .ba-repeat-footer {
+    display: table-footer-group !important;
+  }
+
+  .ba-page-table > thead > tr > td,
+  .ba-page-table > tbody > tr > td,
+  .ba-page-table > tfoot > tr > td {
+    border: 0 !important;
+    padding: 0 !important;
+  }
+
+  .ba-kop-logo {
+    width: 32mm !important;
+    height: 16mm !important;
+    max-width: 32mm !important;
+    max-height: 16mm !important;
+    object-fit: contain !important;
+  }
+
+  .ba-document [data-pdf-section],
+  .ba-document section,
+  .ba-document tr,
+  .ba-document .break-inside-avoid {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
   /* Export cover: keep photo from stretching to full page */
   .print-area .export-cover-photo {
     max-width: 120mm !important;
