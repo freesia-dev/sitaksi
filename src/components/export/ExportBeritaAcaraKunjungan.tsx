@@ -11,6 +11,7 @@ interface Props {
 export function ExportBeritaAcaraKunjungan({ data, logo }: Props) {
   const totalTunggakan = (data.tunggakan_pokok || 0) + (data.tunggakan_bunga || 0);
   const photos = data.foto_kunjungan || [];
+  const photoRows = chunkArray(photos, 2);
 
   return (
     <div className="ba-document bg-white p-8 print:p-0 text-sm min-h-full">
@@ -94,21 +95,24 @@ export function ExportBeritaAcaraKunjungan({ data, logo }: Props) {
             </section>
           </DocumentRow>
 
-          {photos.length > 0 && (
+          {photoRows.map((row, rowIndex) => (
             <DocumentRow>
               <section data-pdf-section>
-                <SectionTitle>E. Foto Dokumentasi Kunjungan</SectionTitle>
+                {rowIndex === 0 && <SectionTitle>E. Foto Dokumentasi Kunjungan</SectionTitle>}
                 <div className="grid grid-cols-2 gap-3 mb-4">
-                  {photos.map((url, i) => (
-                    <div key={i} className="border p-1 break-inside-avoid">
-                      <img src={url} alt={`Foto ${i + 1}`} className="w-full h-40 object-cover" />
-                      <p className="text-xs text-center mt-1 print:text-black">Foto {i + 1}</p>
+                  {row.map((url, i) => {
+                    const photoNumber = rowIndex * 2 + i + 1;
+                    return (
+                    <div key={url} className="border p-1 break-inside-avoid">
+                      <img src={url} alt={`Foto ${photoNumber}`} className="w-full h-40 object-cover" />
+                      <p className="text-xs text-center mt-1 print:text-black">Foto {photoNumber}</p>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </section>
             </DocumentRow>
-          )}
+          ))}
 
           <DocumentRow>
             <section data-pdf-section>
