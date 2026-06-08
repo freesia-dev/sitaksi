@@ -135,13 +135,6 @@ export function ExportBeritaAcaraKunjungan({ data, logo }: Props) {
             </section>
           </DocumentRow>
         </tbody>
-        <tfoot className="ba-repeat-footer">
-          <tr>
-            <td>
-              <KopFooter />
-            </td>
-          </tr>
-        </tfoot>
       </table>
     </div>
   );
@@ -173,15 +166,6 @@ function KopHeader({ logo }: { logo: string }) {
         </p>
       </div>
       <img src={bpdLogoAsset.url} alt="ASBANDA" className="ba-kop-logo h-16 print:h-14 object-contain shrink-0" />
-    </div>
-  );
-}
-
-function KopFooter() {
-  return (
-    <div className="kop-footer-banner relative h-6 pointer-events-none mt-4">
-      <div className="absolute left-0 bottom-0 h-3 w-[72%] bg-[#1d4ed8] rounded-tr-[40px]" />
-      <div className="absolute right-0 bottom-0 h-3 w-[28%] bg-[#f59e0b] rounded-tl-[40px]" />
     </div>
   );
 }
