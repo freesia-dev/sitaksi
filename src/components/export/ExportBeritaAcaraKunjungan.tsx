@@ -143,6 +143,16 @@ export function ExportBeritaAcaraKunjungan({ data, logo }: Props) {
   );
 }
 
+function DocumentRow({ children }: { children: React.ReactNode }) {
+  return (
+    <tr data-pdf-section>
+      <td>
+        <main className="ba-content">{children}</main>
+      </td>
+    </tr>
+  );
+}
+
 function KopHeader({ logo }: { logo: string }) {
   return (
     <div className="ba-kop-header flex items-start gap-3 pb-3 mb-4 border-b-[3px] border-[#1d4ed8]">
