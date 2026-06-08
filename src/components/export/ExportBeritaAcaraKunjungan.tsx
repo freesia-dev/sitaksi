@@ -186,6 +186,14 @@ function KopFooter() {
   );
 }
 
+function chunkArray<T>(items: T[], size: number): T[][] {
+  const chunks: T[][] = [];
+  for (let i = 0; i < items.length; i += size) {
+    chunks.push(items.slice(i, i + size));
+  }
+  return chunks;
+}
+
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return <h3 className="font-bold mb-1 mt-2 print:text-black">{children}</h3>;
 }
