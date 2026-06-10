@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, FileDown, Edit, Trash2, FileSpreadsheet } from 'lucide-react';
+import { Plus, Edit, Trash2, FileSpreadsheet, FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { toast } from '@/hooks/use-toast';
-import { periodeLabel, exportSubrogasiToExcel } from '@/lib/rkoExport';
+import { periodeLabel, exportSubrogasiToExcel, exportSubrogasiToPdf, type SubrogasiItemRow } from '@/lib/rkoExport';
 
 interface LaporanRow {
   id: string;
@@ -67,21 +67,17 @@ export default function SubrogasiList() {
     setConfirmId(null);
   };
 
-  const handleExport = async (id: string) => {
+  const fetchExportData = async (id: string): Promise<{ lap: any; items: SubrogasiItemRow[] } | null> => {
     const { data: lap, error: e1 } = await supabase
       .from('subrogasi_laporan').select('*').eq('id', id).single();
-    if (e1 || !lap) return toast({ title: 'Gagal export', description: e1?.message, variant: 'destructive' });
+    if (e1 || !lap) { toast({ title: 'Gagal export', description: e1?.message, variant: 'destructive' }); return null; }
     const { data: items, error: e2 } = await supabase
       .from('subrogasi_laporan_item')
       .select('*, subrogasi_debitur(*)')
       .eq('laporan_id', id)
       .order('urutan');
-    if (e2) return toast({ title: 'Gagal export', description: e2.message, variant: 'destructive' });
-    exportSubrogasiToExcel({
-      periode: lap.periode,
-      namaKantor: lap.nama_kantor,
-      tanggalLaporan: lap.tanggal_laporan,
-      items: (items || []).map((it: any, idx: number) => ({
+    if (e2) { toast({ title: 'Gagal export', description: e2.message, variant: 'destructive' }); return null; }
+    const mapped: SubrogasiItemRow[] = (items || []).map((it: any, idx: number) => ({
         no: idx + 1,
         asuransi: (it.subrogasi_debitur?.asuransi || 'askrida') as 'askrida' | 'jamkrindo',
         nama_debitur: it.subrogasi_debitur?.nama_debitur || '',
@@ -99,8 +95,19 @@ export default function SubrogasiList() {
         konfirmasi_asuransi: it.konfirmasi_asuransi || '',
         konfirmasi_cabang: it.konfirmasi_cabang || '',
         hasil_kesepakatan: it.hasil_kesepakatan || '',
-      })),
-    });
+    }));
+    return { lap, items: mapped };
+  };
+
+  const handleExportExcel = async (id: string) => {
+    const d = await fetchExportData(id);
+    if (!d) return;
+    await exportSubrogasiToExcel({ periode: d.lap.periode, namaKantor: d.lap.nama_kantor, tanggalLaporan: d.lap.tanggal_laporan, items: d.items });
+  };
+  const handleExportPdf = async (id: string) => {
+    const d = await fetchExportData(id);
+    if (!d) return;
+    exportSubrogasiToPdf({ periode: d.lap.periode, namaKantor: d.lap.nama_kantor, tanggalLaporan: d.lap.tanggal_laporan, items: d.items });
   };
 
   const fmtRp = (n: number) =>
@@ -141,8 +148,11 @@ export default function SubrogasiList() {
                 <TableCell className="text-right font-mono">{fmtRp(r.total_sisa)}</TableCell>
                 <TableCell>
                   <div className="flex gap-1">
-                    <Button size="sm" variant="ghost" onClick={() => handleExport(r.id)} title="Export Excel">
+                    <Button size="sm" variant="ghost" onClick={() => handleExportExcel(r.id)} title="Export Excel">
                       <FileSpreadsheet className="h-4 w-4" />
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => handleExportPdf(r.id)} title="Export PDF">
+                      <FileText className="h-4 w-4" />
                     </Button>
                     <Button size="sm" variant="ghost" asChild title="Edit">
                       <Link to={`/laporan-rko/subrogasi/edit/${r.id}`}>
