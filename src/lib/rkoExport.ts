@@ -359,46 +359,182 @@ export interface PlNplItemRow {
   alasan_npl: string;
 }
 
-export function exportPlNplToExcel(opts: {
+export async function exportPlNplToExcel(opts: {
   periode: string;
   mlfJobdate?: string | null;
   items: PlNplItemRow[];
 }) {
   const { periode, mlfJobdate, items } = opts;
   const periodeLbl = periodeLabel(periode);
-  const header = [
-    'No', 'Nomor Loan', 'Kolektabilitas', 'Nama Debitur', 'Nomor PK',
-    'Tanggal Mulai', 'Tanggal Mature', 'Nomor Rekening', 'Plafon Kredit',
+  const wb = new ExcelJS.Workbook();
+  wb.creator = 'SiTaksi';
+  const ws = wb.addWorksheet(`PL-NPL ${periodeLbl}`, {
+    pageSetup: { paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0 },
+  });
+  const widths = [5, 14, 10, 30, 28, 14, 14, 18, 18, 18, 16, 16, 14, 22, 36];
+  ws.columns = widths.map((w) => ({ width: w }));
+  const COLS = 15;
+  const lastCol = String.fromCharCode(64 + COLS); // O
+
+  // Title block
+  const t1 = ws.addRow(['LAPORAN PROYEKSI PL TO NPL']);
+  ws.mergeCells(`A${t1.number}:${lastCol}${t1.number}`);
+  t1.height = 28;
+  const c1 = ws.getCell(`A${t1.number}`);
+  c1.font = { size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+  c1.alignment = { horizontal: 'center', vertical: 'middle' };
+  c1.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF7C2D12' } };
+
+  const t2 = ws.addRow(['PT. BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA']);
+  ws.mergeCells(`A${t2.number}:${lastCol}${t2.number}`);
+  ws.getCell(`A${t2.number}`).font = { bold: true };
+  ws.getCell(`A${t2.number}`).alignment = { horizontal: 'center' };
+
+  const t3 = ws.addRow([`Periode: ${periodeLbl}   •   Data MLF per: ${mlfJobdate ? formatTanggalLengkap(mlfJobdate) : '-'}`]);
+  ws.mergeCells(`A${t3.number}:${lastCol}${t3.number}`);
+  ws.getCell(`A${t3.number}`).font = { italic: true };
+  ws.getCell(`A${t3.number}`).alignment = { horizontal: 'center' };
+  ws.addRow([]);
+
+  const headerCols = [
+    'No', 'Nomor Loan', 'Kol.', 'Nama Debitur', 'Nomor PK',
+    'Tgl Mulai', 'Tgl Mature', 'Nomor Rekening', 'Plafon Kredit',
     'Baki Debet', 'Tunggakan Pokok', 'Tunggakan Bunga',
-    'Proyeksi Masuk NPL', 'Jenis Kredit', 'Alasan Masuk NPL',
+    'Proyeksi', 'Jenis Kredit', 'Alasan Masuk NPL',
   ];
-  const aoa: (string | number | null)[][] = [
-    ['Laporan Proyeksi PL to NPL'],
-    ['PT. BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA'],
-    [`Periode: ${periodeLbl}`],
-    [`Data MLF per: ${mlfJobdate ? formatTanggalLengkap(mlfJobdate) : '-'}`],
-    [],
-    header,
-  ];
-  items.forEach((it) => {
-    aoa.push([
-      it.no, it.no_loan, it.kolektabilitas, it.nama_debitur, it.no_pk,
+  const hRow = ws.addRow(headerCols);
+  hRow.height = 30;
+  hRow.eachCell((cell) => {
+    cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 10 };
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEA580C' } };
+    cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+    cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+  });
+
+  items.forEach((it, i) => {
+    const r = ws.addRow([
+      i + 1, it.no_loan, it.kolektabilitas, it.nama_debitur, it.no_pk,
       it.tanggal_mulai ? formatTanggalLengkap(it.tanggal_mulai) : '',
       it.tanggal_mature ? formatTanggalLengkap(it.tanggal_mature) : '',
-      it.no_rekening, it.plafon || null, it.baki_debet || null,
-      it.tunggakan_pokok || null, it.tunggakan_bunga || null,
+      it.no_rekening,
+      Number(it.plafon) || 0, Number(it.baki_debet) || 0,
+      Number(it.tunggakan_pokok) || 0, Number(it.tunggakan_bunga) || 0,
       it.proyeksi_tw, it.jenis_kredit, it.alasan_npl,
     ]);
+    r.height = 32;
+    r.eachCell({ includeEmpty: true }, (cell, colNum) => {
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+        left: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+        bottom: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+        right: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+      };
+      cell.alignment = { vertical: 'middle', wrapText: true };
+      if (i % 2 === 1) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF7ED' } };
+      if ([1, 3, 13].includes(colNum)) cell.alignment = { ...cell.alignment, horizontal: 'center' };
+      if ([9, 10, 11, 12].includes(colNum)) {
+        cell.numFmt = '"Rp"#,##0;[Red]("Rp"#,##0);"-"';
+        cell.alignment = { ...cell.alignment, horizontal: 'right' };
+      }
+    });
   });
-  const ws = XLSX.utils.aoa_to_sheet(aoa);
-  ws['!cols'] = [
-    { wch: 5 }, { wch: 14 }, { wch: 8 }, { wch: 32 }, { wch: 28 },
-    { wch: 14 }, { wch: 14 }, { wch: 18 }, { wch: 18 }, { wch: 18 },
-    { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 24 }, { wch: 40 },
-  ];
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, `PL-NPL ${periodeLbl}`);
-  XLSX.writeFile(wb, `Laporan_PL_to_NPL_${periodeLbl.replace(' ', '_')}.xlsx`);
+
+  // Total row
+  if (items.length > 0) {
+    const sum = (k: keyof PlNplItemRow) => items.reduce((s, x) => s + Number((x[k] as number) || 0), 0);
+    const tr = ws.addRow(['', 'TOTAL', '', '', '', '', '', '',
+      sum('plafon'), sum('baki_debet'), sum('tunggakan_pokok'), sum('tunggakan_bunga'), '', '', '']);
+    tr.eachCell({ includeEmpty: true }, (cell, colNum) => {
+      cell.font = { bold: true };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE5E7EB' } };
+      cell.border = { top: { style: 'medium' }, bottom: { style: 'medium' } };
+      if ([9, 10, 11, 12].includes(colNum)) {
+        cell.numFmt = '"Rp"#,##0;[Red]("Rp"#,##0);"-"';
+        cell.alignment = { horizontal: 'right' };
+      }
+      if (colNum === 2) cell.alignment = { horizontal: 'right' };
+    });
+  }
+
+  const buf = await wb.xlsx.writeBuffer();
+  saveBlob(new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
+    `Laporan_PL_to_NPL_${periodeLbl.replace(' ', '_')}.xlsx`);
+}
+
+export function exportPlNplToPdf(opts: {
+  periode: string;
+  mlfJobdate?: string | null;
+  items: PlNplItemRow[];
+}) {
+  const { periode, mlfJobdate, items } = opts;
+  const periodeLbl = periodeLabel(periode);
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  const pageW = doc.internal.pageSize.getWidth();
+
+  doc.setFillColor(124, 45, 18);
+  doc.rect(10, 10, pageW - 20, 10, 'F');
+  doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(13);
+  doc.text('LAPORAN PROYEKSI PL TO NPL', pageW / 2, 17, { align: 'center' });
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(10);
+  doc.text('PT. BPD KALTIM KALTARA — KALIMANTAN TIMUR DAN KALIMANTAN UTARA', pageW / 2, 25, { align: 'center' });
+  doc.setFont('helvetica', 'italic'); doc.setFontSize(9);
+  doc.text(`Periode: ${periodeLbl}   •   Data MLF per: ${mlfJobdate ? formatTanggalLengkap(mlfJobdate) : '-'}`,
+    pageW / 2, 31, { align: 'center' });
+
+  const body = items.map((it, i) => [
+    i + 1, it.no_loan, it.kolektabilitas, it.nama_debitur, it.no_pk,
+    it.tanggal_mulai ? formatTanggalLengkap(it.tanggal_mulai) : '-',
+    it.tanggal_mature ? formatTanggalLengkap(it.tanggal_mature) : '-',
+    it.no_rekening,
+    fmtRp(Number(it.plafon)), fmtRp(Number(it.baki_debet)),
+    fmtRp(Number(it.tunggakan_pokok)), fmtRp(Number(it.tunggakan_bunga)),
+    it.proyeksi_tw, it.jenis_kredit, it.alasan_npl || '-',
+  ]);
+
+  const sum = (k: keyof PlNplItemRow) => items.reduce((s, x) => s + Number((x[k] as number) || 0), 0);
+
+  autoTable(doc, {
+    startY: 36,
+    head: [['No', 'Nomor Loan', 'Kol', 'Nama Debitur', 'Nomor PK', 'Tgl Mulai', 'Tgl Mature',
+      'No Rekening', 'Plafon', 'Baki Debet', 'Tungg. Pokok', 'Tungg. Bunga', 'Proy', 'Jenis Kredit', 'Alasan NPL']],
+    body,
+    foot: items.length > 0 ? [['', 'TOTAL', '', '', '', '', '', '',
+      fmtRp(sum('plafon')), fmtRp(sum('baki_debet')), fmtRp(sum('tunggakan_pokok')), fmtRp(sum('tunggakan_bunga')),
+      '', '', '']] : undefined,
+    theme: 'grid',
+    styles: { fontSize: 7, cellPadding: 1.3, valign: 'middle', overflow: 'linebreak' },
+    headStyles: { fillColor: [234, 88, 12], textColor: 255, fontStyle: 'bold', halign: 'center' },
+    footStyles: { fillColor: [229, 231, 235], textColor: 0, fontStyle: 'bold' },
+    alternateRowStyles: { fillColor: [255, 247, 237] },
+    columnStyles: {
+      0: { halign: 'center', cellWidth: 7 },
+      1: { cellWidth: 17 },
+      2: { halign: 'center', cellWidth: 8 },
+      3: { cellWidth: 30 },
+      4: { cellWidth: 26 },
+      5: { halign: 'center', cellWidth: 16 },
+      6: { halign: 'center', cellWidth: 16 },
+      7: { cellWidth: 18 },
+      8: { halign: 'right', cellWidth: 20 },
+      9: { halign: 'right', cellWidth: 20 },
+      10: { halign: 'right', cellWidth: 18 },
+      11: { halign: 'right', cellWidth: 18 },
+      12: { halign: 'center', cellWidth: 10 },
+      13: { cellWidth: 22 },
+      14: { cellWidth: 30 },
+    },
+    margin: { left: 10, right: 10 },
+  });
+
+  const pageCount = doc.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    const pageH = doc.internal.pageSize.getHeight();
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(120, 120, 120);
+    doc.text(`Hal ${i} dari ${pageCount}`, pageW / 2, pageH - 5, { align: 'center' });
+  }
+  doc.save(`Laporan_PL_to_NPL_${periodeLbl.replace(' ', '_')}.pdf`);
 }
 
 /** Parse MLF .xls/.xlsx and return Master_Loan_Filter rows */
