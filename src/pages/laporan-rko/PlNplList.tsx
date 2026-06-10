@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, Upload, Edit, Trash2, FileSpreadsheet, Database } from 'lucide-react';
+import { Plus, Upload, Edit, Trash2, FileSpreadsheet, FileText, Database } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { PageHeader } from '@/components/shared/PageHeader';
@@ -14,7 +14,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { toast } from '@/hooks/use-toast';
-import { periodeLabel, parseMlfFile, exportPlNplToExcel, formatTanggalLengkap } from '@/lib/rkoExport';
+import { periodeLabel, parseMlfFile, exportPlNplToExcel, exportPlNplToPdf, formatTanggalLengkap, type PlNplItemRow } from '@/lib/rkoExport';
 
 interface LaporanRow {
   id: string;
@@ -110,13 +110,11 @@ export default function PlNplList() {
     }
   };
 
-  const handleExport = async (id: string) => {
+  const fetchExportData = async (id: string): Promise<{ lap: any; items: PlNplItemRow[] } | null> => {
     const { data: lap } = await supabase.from('pl_to_npl_laporan').select('*').eq('id', id).single();
     const { data: items } = await supabase.from('pl_to_npl_item').select('*').eq('laporan_id', id).order('urutan');
-    if (!lap) return;
-    exportPlNplToExcel({
-      periode: lap.periode, mlfJobdate: lap.mlf_jobdate,
-      items: (items || []).map((it, idx) => ({
+    if (!lap) return null;
+    const mapped: PlNplItemRow[] = (items || []).map((it, idx) => ({
         no: idx + 1,
         no_loan: it.no_loan || '', kolektabilitas: it.kolektabilitas || '',
         nama_debitur: it.nama_debitur || '', no_pk: it.no_pk || '',
@@ -126,8 +124,19 @@ export default function PlNplList() {
         tunggakan_pokok: Number(it.tunggakan_pokok || 0), tunggakan_bunga: Number(it.tunggakan_bunga || 0),
         proyeksi_tw: it.proyeksi_tw || '', jenis_kredit: it.jenis_kredit || '',
         alasan_npl: it.alasan_npl || '',
-      })),
-    });
+    }));
+    return { lap, items: mapped };
+  };
+
+  const handleExportExcel = async (id: string) => {
+    const d = await fetchExportData(id);
+    if (!d) return;
+    await exportPlNplToExcel({ periode: d.lap.periode, mlfJobdate: d.lap.mlf_jobdate, items: d.items });
+  };
+  const handleExportPdf = async (id: string) => {
+    const d = await fetchExportData(id);
+    if (!d) return;
+    exportPlNplToPdf({ periode: d.lap.periode, mlfJobdate: d.lap.mlf_jobdate, items: d.items });
   };
 
   const handleDelete = async () => {
@@ -196,8 +205,11 @@ export default function PlNplList() {
                 <TableCell className="text-center">{r.item_count}</TableCell>
                 <TableCell>
                   <div className="flex gap-1">
-                    <Button size="sm" variant="ghost" onClick={() => handleExport(r.id)} title="Export Excel">
+                    <Button size="sm" variant="ghost" onClick={() => handleExportExcel(r.id)} title="Export Excel">
                       <FileSpreadsheet className="h-4 w-4" />
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => handleExportPdf(r.id)} title="Export PDF">
+                      <FileText className="h-4 w-4" />
                     </Button>
                     <Button size="sm" variant="ghost" asChild title="Edit">
                       <Link to={`/laporan-rko/pl-to-npl/edit/${r.id}`}><Edit className="h-4 w-4" /></Link>
