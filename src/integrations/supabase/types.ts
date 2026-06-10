@@ -38,6 +38,66 @@ export type Database = {
         }
         Relationships: []
       }
+      mlf_snapshot: {
+        Row: {
+          baki: number | null
+          brname: string | null
+          date_mature: string | null
+          date_mulai: string | null
+          id: string
+          jobdate: string | null
+          kol: string | null
+          l0lnno: string | null
+          l0name: string | null
+          l0narr: string | null
+          l0rstl: string | null
+          lytitl: string | null
+          pla: number | null
+          tungbg: number | null
+          tungpk: number | null
+          uploaded_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          baki?: number | null
+          brname?: string | null
+          date_mature?: string | null
+          date_mulai?: string | null
+          id?: string
+          jobdate?: string | null
+          kol?: string | null
+          l0lnno?: string | null
+          l0name?: string | null
+          l0narr?: string | null
+          l0rstl?: string | null
+          lytitl?: string | null
+          pla?: number | null
+          tungbg?: number | null
+          tungpk?: number | null
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          baki?: number | null
+          brname?: string | null
+          date_mature?: string | null
+          date_mulai?: string | null
+          id?: string
+          jobdate?: string | null
+          kol?: string | null
+          l0lnno?: string | null
+          l0name?: string | null
+          l0narr?: string | null
+          l0rstl?: string | null
+          lytitl?: string | null
+          pla?: number | null
+          tungbg?: number | null
+          tungpk?: number | null
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
       monitoring_jadwal: {
         Row: {
           created_at: string
@@ -187,6 +247,113 @@ export type Database = {
           },
         ]
       }
+      pl_to_npl_item: {
+        Row: {
+          alasan_npl: string | null
+          baki_debet: number | null
+          cabang: string | null
+          created_at: string
+          id: string
+          jenis_kredit: string | null
+          kolektabilitas: string | null
+          laporan_id: string
+          nama_debitur: string | null
+          no_loan: string | null
+          no_pk: string | null
+          no_rekening: string | null
+          plafon: number | null
+          proyeksi_tw: string | null
+          tanggal_mature: string | null
+          tanggal_mulai: string | null
+          tunggakan_bunga: number | null
+          tunggakan_pokok: number | null
+          updated_at: string
+          urutan: number
+        }
+        Insert: {
+          alasan_npl?: string | null
+          baki_debet?: number | null
+          cabang?: string | null
+          created_at?: string
+          id?: string
+          jenis_kredit?: string | null
+          kolektabilitas?: string | null
+          laporan_id: string
+          nama_debitur?: string | null
+          no_loan?: string | null
+          no_pk?: string | null
+          no_rekening?: string | null
+          plafon?: number | null
+          proyeksi_tw?: string | null
+          tanggal_mature?: string | null
+          tanggal_mulai?: string | null
+          tunggakan_bunga?: number | null
+          tunggakan_pokok?: number | null
+          updated_at?: string
+          urutan?: number
+        }
+        Update: {
+          alasan_npl?: string | null
+          baki_debet?: number | null
+          cabang?: string | null
+          created_at?: string
+          id?: string
+          jenis_kredit?: string | null
+          kolektabilitas?: string | null
+          laporan_id?: string
+          nama_debitur?: string | null
+          no_loan?: string | null
+          no_pk?: string | null
+          no_rekening?: string | null
+          plafon?: number | null
+          proyeksi_tw?: string | null
+          tanggal_mature?: string | null
+          tanggal_mulai?: string | null
+          tunggakan_bunga?: number | null
+          tunggakan_pokok?: number | null
+          updated_at?: string
+          urutan?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pl_to_npl_item_laporan_id_fkey"
+            columns: ["laporan_id"]
+            isOneToOne: false
+            referencedRelation: "pl_to_npl_laporan"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pl_to_npl_laporan: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          mlf_jobdate: string | null
+          periode: string
+          tanggal_laporan: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          mlf_jobdate?: string | null
+          periode: string
+          tanggal_laporan?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          mlf_jobdate?: string | null
+          periode?: string
+          tanggal_laporan?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -254,6 +421,144 @@ export type Database = {
             columns: ["taksasi_id"]
             isOneToOne: false
             referencedRelation: "taksasi"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subrogasi_debitur: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          nama_cabang: string | null
+          nama_debitur: string
+          nik: string | null
+          nilai_subrogasi: number
+          no_loan: string
+          no_perjanjian_kredit: string | null
+          no_premi_asuransi: string | null
+          produk: string | null
+          tahun_pencairan: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          nama_cabang?: string | null
+          nama_debitur: string
+          nik?: string | null
+          nilai_subrogasi?: number
+          no_loan: string
+          no_perjanjian_kredit?: string | null
+          no_premi_asuransi?: string | null
+          produk?: string | null
+          tahun_pencairan?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          nama_cabang?: string | null
+          nama_debitur?: string
+          nik?: string | null
+          nilai_subrogasi?: number
+          no_loan?: string
+          no_perjanjian_kredit?: string | null
+          no_premi_asuransi?: string | null
+          produk?: string | null
+          tahun_pencairan?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subrogasi_laporan: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          nama_kantor: string
+          periode: string
+          tanggal_laporan: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          nama_kantor?: string
+          periode: string
+          tanggal_laporan?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          nama_kantor?: string
+          periode?: string
+          tanggal_laporan?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subrogasi_laporan_item: {
+        Row: {
+          akumulasi_pembayaran: number
+          created_at: string
+          debitur_id: string
+          hasil_kesepakatan: string | null
+          id: string
+          konfirmasi_asuransi: string | null
+          konfirmasi_cabang: string | null
+          laporan_id: string
+          sisa_subrogasi: number
+          tanggal_pembayaran: string | null
+          updated_at: string
+          urutan: number
+        }
+        Insert: {
+          akumulasi_pembayaran?: number
+          created_at?: string
+          debitur_id: string
+          hasil_kesepakatan?: string | null
+          id?: string
+          konfirmasi_asuransi?: string | null
+          konfirmasi_cabang?: string | null
+          laporan_id: string
+          sisa_subrogasi?: number
+          tanggal_pembayaran?: string | null
+          updated_at?: string
+          urutan?: number
+        }
+        Update: {
+          akumulasi_pembayaran?: number
+          created_at?: string
+          debitur_id?: string
+          hasil_kesepakatan?: string | null
+          id?: string
+          konfirmasi_asuransi?: string | null
+          konfirmasi_cabang?: string | null
+          laporan_id?: string
+          sisa_subrogasi?: number
+          tanggal_pembayaran?: string | null
+          updated_at?: string
+          urutan?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subrogasi_laporan_item_debitur_id_fkey"
+            columns: ["debitur_id"]
+            isOneToOne: false
+            referencedRelation: "subrogasi_debitur"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subrogasi_laporan_item_laporan_id_fkey"
+            columns: ["laporan_id"]
+            isOneToOne: false
+            referencedRelation: "subrogasi_laporan"
             referencedColumns: ["id"]
           },
         ]

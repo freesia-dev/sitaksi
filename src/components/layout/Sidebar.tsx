@@ -18,7 +18,10 @@ import {
   ClipboardCheck,
   CalendarClock,
   BarChart3,
-  ListChecks
+  ListChecks,
+  FileBarChart,
+  ShieldAlert,
+  TrendingDown
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -62,6 +65,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   const [taksasiOpen, setTaksasiOpen] = useState(true);
   const [configOpen, setConfigOpen] = useState(false);
   const [monitoringOpen, setMonitoringOpen] = useState(false);
+  const [rkoOpen, setRkoOpen] = useState(false);
 
   // Single menu items
   const singleMenuItems: MenuItem[] = [
@@ -69,12 +73,6 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       label: 'Dashboard',
       icon: LayoutDashboard,
       href: '/dashboard',
-      show: true,
-    },
-    {
-      label: 'Riwayat',
-      icon: FileText,
-      href: '/riwayat',
       show: true,
     },
     {
@@ -109,6 +107,12 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
         href: '/list/kendaraan',
         show: true,
       },
+      {
+        label: 'Riwayat',
+        icon: FileText,
+        href: '/riwayat',
+        show: true,
+      },
     ],
   };
 
@@ -121,6 +125,17 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       { label: 'Daftar Kunjungan', icon: ListChecks, href: '/monitoring', show: true },
       { label: 'Jadwal Kunjungan', icon: CalendarClock, href: '/monitoring/jadwal', show: true },
       { label: 'Dashboard', icon: BarChart3, href: '/monitoring/dashboard', show: true },
+    ],
+  };
+
+  // Grouped menu - Laporan RKO
+  const rkoGroup: MenuGroup = {
+    label: 'Laporan RKO',
+    icon: FileBarChart,
+    show: isOfficerOrAdmin || isDemo,
+    items: [
+      { label: 'Laporan Subrogasi', icon: ShieldAlert, href: '/laporan-rko/subrogasi', show: true },
+      { label: 'Laporan PL to NPL', icon: TrendingDown, href: '/laporan-rko/pl-to-npl', show: true },
     ],
   };
 
@@ -253,14 +268,14 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
         {/* Monitoring Group */}
         {renderMenuGroup(monitoringGroup, monitoringOpen, setMonitoringOpen)}
 
-        {/* Riwayat */}
-        {renderMenuItem(singleMenuItems[1])}
+        {/* Laporan RKO Group */}
+        {renderMenuGroup(rkoGroup, rkoOpen, setRkoOpen)}
         
         {/* Konfigurasi Group */}
         {renderMenuGroup(configGroup, configOpen, setConfigOpen)}
         
         {/* Tentang */}
-        {renderMenuItem(singleMenuItems[2])}
+        {renderMenuItem(singleMenuItems[1])}
       </nav>
 
       {/* User & Logout */}

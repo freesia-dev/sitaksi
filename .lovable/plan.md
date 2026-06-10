@@ -1,70 +1,79 @@
-## Modul Monitoring Debitur
+# Rencana: Restruktur Menu + Grup "Laporan RKO"
 
-Menu baru "Monitoring" untuk mencatat kunjungan ke debitur (calon, aktif, menunggak, restrukturisasi) lengkap dengan Berita Acara Kunjungan PDF berkop & TTD, dashboard statistik, dan reminder jadwal kunjungan.
+## 1. Sidebar
+- Pindahkan **Riwayat** ke grup **Taksasi** (posisi paling bawah dalam grup, setelah Kendaraan).
+- Tambah grup baru **Laporan RKO** (icon: FileBarChart) berisi:
+  - Laporan Subrogasi
+  - Laporan PL to NPL
 
-### 1. Sidebar & Routing
-- Tambahkan grup menu **Monitoring** di `src/components/layout/Sidebar.tsx` (icon `ClipboardCheck`) dengan sub-menu:
-  - Daftar Kunjungan (`/monitoring`)
-  - Jadwal & Reminder (`/monitoring/jadwal`)
-  - Dashboard Monitoring (`/monitoring/dashboard`)
-- Register route lazy di `src/App.tsx`. Semua role (Officer, Admin, Pimpinan) bisa akses.
+## 2. Database (3 tabel baru)
 
-### 2. Database (1 migrasi)
-Tabel **`monitoring_kunjungan`** (kolom domain):
-- `kategori` enum: `prospek` | `aktif` | `menunggak` | `restrukturisasi`
-- `tanggal_kunjungan`, `jam_kunjungan`
-- `nama_debitur`, `no_rekening`, `no_hp`, `alamat`
-- `plafond`, `baki_debet`, `tunggakan_pokok`, `tunggakan_bunga`, `hari_tunggakan`
-- `tujuan_kunjungan`, `kondisi_usaha`, `kondisi_agunan`, `hasil_kunjungan`
-- `rencana_tindak_lanjut`, `komitmen_bayar_nominal`, `komitmen_bayar_tanggal`
-- `foto_kunjungan` (text[] path Storage)
-- `taksasi_id` (nullable, link ke `taksasi`)
-- `officer_nama`, `pimpinan_nama` (snapshot TTD)
-- `status` enum: `draft` | `final`
-- `user_id`, `created_at`, `updated_at`
-- Index: `(user_id)`, `(kategori)`, `(tanggal_kunjungan)`
-- GRANT untuk `authenticated` + `service_role`; RLS: semua user authenticated boleh `SELECT/INSERT/UPDATE/DELETE` (sesuai jawaban "semua user").
-- Trigger `update_updated_at_column`.
+**a. `subrogasi_debitur`** — master debitur subrogasi (sekali input, dipakai ulang tiap bulan)
+- nama_debitur, no_loan, produk, nik, no_premi_asuransi, no_perjanjian_kredit, nilai_subrogasi, tahun_pencairan, nama_cabang
+- field statis: jarang berubah
 
-Tabel **`monitoring_jadwal`** (reminder):
-- `tanggal_rencana`, `jam_rencana`, `nama_debitur`, `no_rekening`, `kategori`, `keterangan`, `status` (`scheduled`|`done`|`canceled`), `user_id`.
-- Sama-sama RLS authenticated.
+**b. `subrogasi_laporan`** — header laporan per bulan
+- periode (YYYY-MM), nama_kantor, tanggal_laporan, created_by
 
-Storage bucket baru: **`monitoring`** (public) untuk foto kunjungan.
+**c. `subrogasi_laporan_item`** — baris per debitur per bulan
+- laporan_id → subrogasi_laporan
+- debitur_id → subrogasi_debitur
+- field yang berubah tiap bulan: tanggal_pembayaran, akumulasi_pembayaran, sisa_subrogasi (auto = nilai − akumulasi), konfirmasi_asuransi, konfirmasi_cabang, hasil_kesepakatan
 
-### 3. Halaman & Komponen
-- `src/pages/monitoring/MonitoringList.tsx` — tabel dengan filter kategori + search + tombol "Tambah Kunjungan" & "Cetak BA".
-- `src/pages/monitoring/MonitoringForm.tsx` — form tambah/edit kunjungan; tab: Data Debitur → Hasil Kunjungan → Tindak Lanjut → Foto.
-- `src/pages/monitoring/MonitoringDetail.tsx` — preview A4 + tombol Edit Preview & Cetak (pakai `A4PageWrapper` yang sudah ada).
-- `src/pages/monitoring/MonitoringJadwal.tsx` — list jadwal kunjungan + tombol tandai selesai; badge merah untuk yang lewat tanggal.
-- `src/pages/monitoring/MonitoringDashboard.tsx` — stat cards (total kunjungan bulan ini, per kategori, per officer) + chart bar bulanan + chart pie kategori (pakai `recharts`).
+**d. `mlf_snapshot`** — data MLF terakhir di-upload (sekali per upload, replace seluruh data)
+- Field: jobdate, l0lnno (no_loan), kol, l0name (nama), l0narr (no_pk), date, date1, l0rstl (no_rek), pla (plafon), baki, tungpk, tungbg, lytitl (jenis kredit), brname (cabang)
+- Index pada l0lnno + l0name untuk pencarian cepat
+- Tabel di-truncate & re-insert saat upload baru
 
-### 4. Komponen Export PDF
-`src/components/export/ExportBeritaAcaraKunjungan.tsx`:
-- **KOP**: logo Bankaltimtara + "PT. BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA — KCP TELIHAN" + alamat (mengikuti style cover yang ada).
-- Judul: **BERITA ACARA KUNJUNGAN DEBITUR** + nomor BA otomatis (`BA-MON/{YYYY}/{MM}/{seq}`).
-- Section: Identitas Debitur (tabel) → Data Kredit (plafond/baki debet/tunggakan) → Hasil Kunjungan & Kondisi Usaha → Foto Dokumentasi (grid 2 kolom) → Rencana Tindak Lanjut & Komitmen Bayar.
-- Footer TTD 2 kolom: **Officer Relationship Kredit** (kiri) & **Pimpinan KCP Telihan** (kanan), nama di-pull dari form.
-- Bungkus di `A4PageWrapper` agar konsisten dengan modul taksasi; reuse pola `handlePrint` dari `DetailTaksasi.tsx`.
+**e. `pl_to_npl_laporan`** — laporan PL to NPL
+- periode, mlf_jobdate (tanggal data MLF yang dipakai), created_by
 
-### 5. Dashboard Monitoring (fitur tambahan yang dipilih)
-- Stat cards: Total Kunjungan, Kunjungan Bulan Ini, Menunggak, Komitmen Bayar Terkumpul (Rp).
-- Bar chart: kunjungan per bulan (12 bulan terakhir).
-- Pie chart: distribusi kategori kunjungan.
-- Table top 5 officer paling aktif.
+**f. `pl_to_npl_item`** — debitur yang diproyeksikan masuk NPL
+- laporan_id, snapshot semua field MLF + proyeksi_tw (TW1/TW2/TW3/TW4), alasan_masuk_npl
 
-### 6. Reminder & Jadwal (fitur tambahan yang dipilih)
-- Halaman jadwal dengan kalender sederhana (list per minggu).
-- Badge notifikasi di sidebar item "Monitoring" jika ada jadwal hari ini / tertunggak.
-- Optional ringan: query `monitoring_jadwal` di Dashboard utama untuk widget "Kunjungan Hari Ini".
+Semua tabel di-RLS: authenticated + is_approved bisa CRUD miliknya sendiri; Admin/Pimpinan bisa lihat semua.
 
-### 7. Detail Teknis
-- Form pakai `react-hook-form` + `zod` (pola sama dengan `TaksasiTanah.tsx`).
-- Format mata uang pakai `CurrencyInput` yang sudah ada.
-- Foto upload pakai `CloudImageUploader` (bucket `monitoring`).
-- Print/PDF pakai window.print + style print yang sudah dipoles di `DetailTaksasi.tsx` (extract jadi util `src/lib/printA4.ts` agar reusable).
-- Tipe TypeScript baru di `src/types/index.ts`: `MonitoringKunjungan`, `MonitoringJadwal`, `KategoriKunjungan`.
+## 3. Halaman & Alur
 
-### File Plan
-**Baru:** `src/pages/monitoring/{MonitoringList,MonitoringForm,MonitoringDetail,MonitoringJadwal,MonitoringDashboard}.tsx`, `src/components/export/ExportBeritaAcaraKunjungan.tsx`, `src/lib/printA4.ts`, migrasi DB, bucket `monitoring`.
-**Diubah:** `src/App.tsx`, `src/components/layout/Sidebar.tsx`, `src/types/index.ts`, `src/pages/Dashboard.tsx` (widget reminder), `src/pages/DetailTaksasi.tsx` (refactor pakai `printA4.ts`).
+### Laporan Subrogasi (`/laporan-rko/subrogasi`)
+- **List**: daftar laporan per bulan (Periode, Jumlah Debitur, Total Sisa, Aksi: Edit / Export / Hapus)
+- **Form Baru**:
+  - Pilih periode (bulan/tahun) + nama kantor (default: KCP Telihan)
+  - Tabel item: tombol **+ Pilih Debitur** → modal dengan Combobox cari debitur eksisting + tombol "Tambah Debitur Baru" (buka form input lengkap)
+  - Saat pilih debitur eksisting → field statis auto-isi, user tinggal isi field bulanan
+  - Sisa Subrogasi = Nilai − Akumulasi (auto)
+- **Export Excel**: replikasi layout file contoh (header 4 baris, kolom 1-16, footer "Bontang, [tgl] / PT. BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA / KANTOR CABANG PEMBANTU TELIHAN")
+
+### Laporan PL to NPL (`/laporan-rko/pl-to-npl`)
+- **Upload MLF**: tombol di pojok kanan atas — upload .xls/.xlsx → parse sheet `Master_Loan_Filter` → simpan ke `mlf_snapshot` (replace). Tampilkan info: "Data MLF terakhir: [tanggal JOBDATE], [jumlah] debitur"
+- **List laporan**: per periode (Q1-2026, Q2-2026, dst)
+- **Form Baru**:
+  - Pilih periode laporan
+  - Tabel item dengan tombol **+ Tambah Debitur**:
+    - Combobox search by nama/no loan dari mlf_snapshot
+    - Pilih → semua field MLF (no_loan, kol, nama, no_pk, tgl_mulai, tgl_mature, no_rek, plafon, baki, tunggakan pokok, tunggakan bunga, jenis kredit) auto-fill (read-only, snapshot)
+    - User isi: Proyeksi (dropdown TW1/TW2/TW3/TW4) + Alasan masuk NPL (textarea)
+- **Export Excel**: tabel dengan kolom sesuai 14 field yang diminta user
+
+## 4. Output format
+- Subrogasi: Excel (.xlsx) sesuai template — pakai library `xlsx` (sudah terpakai di project? cek dulu) atau implementasi via export ke .xlsx baru. Header kop + footer tanda tangan diikutkan.
+- PL to NPL: Excel (.xlsx) dengan header sederhana.
+- (PDF bisa ditambah nanti kalau perlu — fokus Excel dulu karena ini laporan internal yang biasanya diolah lagi)
+
+## 5. Library
+- Cek `package.json` apakah sudah ada `xlsx`. Jika belum, install `xlsx` (SheetJS) untuk:
+  - Parse MLF di client (upload → parse → kirim ke backend)
+  - Generate Excel export
+
+## 6. Routing (`src/App.tsx`)
+- `/laporan-rko/subrogasi` → list
+- `/laporan-rko/subrogasi/new`, `/laporan-rko/subrogasi/edit/:id`
+- `/laporan-rko/pl-to-npl` → list  
+- `/laporan-rko/pl-to-npl/new`, `/laporan-rko/pl-to-npl/edit/:id`
+
+## Catatan
+- Subrogasi: dirancang supaya bulan ke-2 dst hanya pilih debitur lama + isi 4-5 field yang berubah. Bulan pertama input lengkap.
+- MLF di-upload sekali, semua laporan PL-to-NPL bulan berikutnya tinggal pakai data MLF terbaru.
+- Aku akan pakai format Excel saja untuk export (sesuai dengan workflow yang ada di file contohmu). Kalau nanti perlu PDF, tinggal ditambahkan.
+
+Bilang **lanjut** kalau setuju, atau koreksi bagian yang perlu diubah.
