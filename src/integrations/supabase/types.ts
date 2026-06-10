@@ -427,6 +427,7 @@ export type Database = {
       }
       subrogasi_debitur: {
         Row: {
+          asuransi: string
           created_at: string
           created_by: string | null
           id: string
@@ -442,6 +443,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          asuransi?: string
           created_at?: string
           created_by?: string | null
           id?: string
@@ -457,6 +459,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          asuransi?: string
           created_at?: string
           created_by?: string | null
           id?: string
