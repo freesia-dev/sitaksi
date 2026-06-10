@@ -33,6 +33,7 @@ interface Debitur {
   nilai_subrogasi: number;
   tahun_pencairan: number | null;
   nama_cabang: string | null;
+  asuransi: 'askrida' | 'jamkrindo';
 }
 
 interface Item {
@@ -53,6 +54,7 @@ function blankDebiturForm(): Omit<Debitur, 'id'> & { id?: string } {
     nama_debitur: '', no_loan: '', produk: 'PERSONAL LOAN PNSD', nik: '',
     no_premi_asuransi: '', no_perjanjian_kredit: '', nilai_subrogasi: 0,
     tahun_pencairan: null, nama_cabang: 'PT. BPD Kaltim Kaltara Kantor Cabang Pembantu Telihan',
+    asuransi: 'askrida',
   };
 }
 
@@ -288,6 +290,7 @@ export default function SubrogasiForm() {
                       <p className="text-xs text-muted-foreground">
                         No Loan: {it.debitur.no_loan} • Nilai: {fmtRp(Number(it.debitur.nilai_subrogasi))}
                         {it.debitur.tahun_pencairan && ` • Tahun: ${it.debitur.tahun_pencairan}`}
+                        {` • Asuransi: ${it.debitur.asuransi === 'jamkrindo' ? 'Jamkrindo' : 'Askrida'}`}
                       </p>
                     </div>
                     <Button size="sm" variant="ghost" onClick={() => removeItem(it._localId)}>
@@ -395,6 +398,17 @@ export default function SubrogasiForm() {
             <div className="md:col-span-2">
               <Label>Nama Debitur *</Label>
               <Input value={newDebitur.nama_debitur} onChange={(e) => setNewDebitur({ ...newDebitur, nama_debitur: e.target.value })} />
+            </div>
+            <div className="md:col-span-2">
+              <Label>Jenis Asuransi *</Label>
+              <select
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                value={newDebitur.asuransi}
+                onChange={(e) => setNewDebitur({ ...newDebitur, asuransi: e.target.value as 'askrida' | 'jamkrindo' })}
+              >
+                <option value="askrida">Askrida</option>
+                <option value="jamkrindo">Jamkrindo</option>
+              </select>
             </div>
             <div>
               <Label>No Loan *</Label>

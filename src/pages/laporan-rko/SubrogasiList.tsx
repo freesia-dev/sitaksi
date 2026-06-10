@@ -83,6 +83,7 @@ export default function SubrogasiList() {
       tanggalLaporan: lap.tanggal_laporan,
       items: (items || []).map((it: any, idx: number) => ({
         no: idx + 1,
+        asuransi: (it.subrogasi_debitur?.asuransi || 'askrida') as 'askrida' | 'jamkrindo',
         nama_debitur: it.subrogasi_debitur?.nama_debitur || '',
         no_loan: it.subrogasi_debitur?.no_loan || '',
         produk: it.subrogasi_debitur?.produk || '',
@@ -109,7 +110,7 @@ export default function SubrogasiList() {
     <div>
       <PageHeader
         title="Laporan Subrogasi"
-        description="Laporan Subrogasi Asuransi Askrida per bulan."
+        description="Laporan Subrogasi Asuransi (Askrida & Jamkrindo) per bulan."
         actions={
           <Button onClick={() => navigate('/laporan-rko/subrogasi/new')}>
             <Plus className="mr-2 h-4 w-4" />Buat Laporan

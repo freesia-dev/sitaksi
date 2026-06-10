@@ -1,0 +1,1 @@
+ALTER TABLE public.subrogasi_debitur ADD COLUMN IF NOT EXISTS asuransi TEXT NOT NULL DEFAULT 'askrida' CHECK (asuransi IN ('askrida','jamkrindo'));
