@@ -290,6 +290,7 @@ export default function SubrogasiForm() {
                       <p className="text-xs text-muted-foreground">
                         No Loan: {it.debitur.no_loan} • Nilai: {fmtRp(Number(it.debitur.nilai_subrogasi))}
                         {it.debitur.tahun_pencairan && ` • Tahun: ${it.debitur.tahun_pencairan}`}
+                        {` • Asuransi: ${it.debitur.asuransi === 'jamkrindo' ? 'Jamkrindo' : 'Askrida'}`}
                       </p>
                     </div>
                     <Button size="sm" variant="ghost" onClick={() => removeItem(it._localId)}>
