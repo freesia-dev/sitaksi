@@ -83,6 +83,7 @@ export default function SubrogasiList() {
       tanggalLaporan: lap.tanggal_laporan,
       items: (items || []).map((it: any, idx: number) => ({
         no: idx + 1,
+        asuransi: (it.subrogasi_debitur?.asuransi || 'askrida') as 'askrida' | 'jamkrindo',
         nama_debitur: it.subrogasi_debitur?.nama_debitur || '',
         no_loan: it.subrogasi_debitur?.no_loan || '',
         produk: it.subrogasi_debitur?.produk || '',
