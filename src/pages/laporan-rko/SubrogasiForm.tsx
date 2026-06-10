@@ -33,6 +33,7 @@ interface Debitur {
   nilai_subrogasi: number;
   tahun_pencairan: number | null;
   nama_cabang: string | null;
+  asuransi: 'askrida' | 'jamkrindo';
 }
 
 interface Item {
@@ -53,6 +54,7 @@ function blankDebiturForm(): Omit<Debitur, 'id'> & { id?: string } {
     nama_debitur: '', no_loan: '', produk: 'PERSONAL LOAN PNSD', nik: '',
     no_premi_asuransi: '', no_perjanjian_kredit: '', nilai_subrogasi: 0,
     tahun_pencairan: null, nama_cabang: 'PT. BPD Kaltim Kaltara Kantor Cabang Pembantu Telihan',
+    asuransi: 'askrida',
   };
 }
 
