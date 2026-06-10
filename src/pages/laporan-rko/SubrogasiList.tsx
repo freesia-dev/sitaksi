@@ -110,7 +110,7 @@ export default function SubrogasiList() {
     <div>
       <PageHeader
         title="Laporan Subrogasi"
-        description="Laporan Subrogasi Asuransi Askrida per bulan."
+        description="Laporan Subrogasi Asuransi (Askrida & Jamkrindo) per bulan."
         actions={
           <Button onClick={() => navigate('/laporan-rko/subrogasi/new')}>
             <Plus className="mr-2 h-4 w-4" />Buat Laporan
