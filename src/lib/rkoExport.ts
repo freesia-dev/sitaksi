@@ -20,6 +20,7 @@ export function formatTanggalLengkap(d: string | Date): string {
 
 export interface SubrogasiItemRow {
   no: number;
+  asuransi?: 'askrida' | 'jamkrindo';
   nama_debitur: string;
   no_loan: string;
   produk: string;
