@@ -102,12 +102,12 @@ export default function SubrogasiList() {
   const handleExportExcel = async (id: string) => {
     const d = await fetchExportData(id);
     if (!d) return;
-    await exportSubrogasiToExcel({ periode: d.lap.periode, namaKantor: d.lap.nama_kantor, tanggalLaporan: d.lap.tanggal_laporan, items: d.items });
+    await exportSubrogasiToExcel({ periode: d.lap.periode, namaKantor: d.lap.nama_kantor, tanggalLaporan: d.lap.tanggal_laporan, namaPemimpin: d.lap.nama_pemimpin || '', items: d.items });
   };
   const handleExportPdf = async (id: string) => {
     const d = await fetchExportData(id);
     if (!d) return;
-    exportSubrogasiToPdf({ periode: d.lap.periode, namaKantor: d.lap.nama_kantor, tanggalLaporan: d.lap.tanggal_laporan, items: d.items });
+    exportSubrogasiToPdf({ periode: d.lap.periode, namaKantor: d.lap.nama_kantor, tanggalLaporan: d.lap.tanggal_laporan, namaPemimpin: d.lap.nama_pemimpin || '', items: d.items });
   };
 
   const fmtRp = (n: number) =>
