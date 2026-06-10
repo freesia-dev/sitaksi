@@ -399,6 +399,17 @@ export default function SubrogasiForm() {
               <Label>Nama Debitur *</Label>
               <Input value={newDebitur.nama_debitur} onChange={(e) => setNewDebitur({ ...newDebitur, nama_debitur: e.target.value })} />
             </div>
+            <div className="md:col-span-2">
+              <Label>Jenis Asuransi *</Label>
+              <select
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                value={newDebitur.asuransi}
+                onChange={(e) => setNewDebitur({ ...newDebitur, asuransi: e.target.value as 'askrida' | 'jamkrindo' })}
+              >
+                <option value="askrida">Askrida</option>
+                <option value="jamkrindo">Jamkrindo</option>
+              </select>
+            </div>
             <div>
               <Label>No Loan *</Label>
               <Input value={newDebitur.no_loan} onChange={(e) => setNewDebitur({ ...newDebitur, no_loan: e.target.value })} />
