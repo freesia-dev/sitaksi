@@ -221,8 +221,9 @@ export function exportSubrogasiToPdf(opts: {
   namaKantor: string;
   tanggalLaporan: string;
   items: SubrogasiItemRow[];
+  namaPemimpin?: string;
 }) {
-  const { periode, namaKantor, tanggalLaporan, items } = opts;
+  const { periode, namaKantor, tanggalLaporan, items, namaPemimpin } = opts;
   const periodeLbl = periodeLabel(periode);
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
 
@@ -310,19 +311,27 @@ export function exportSubrogasiToPdf(opts: {
       doc.addPage();
       y = 20;
     }
+    const cx = pageW / 2;
     doc.setFont('helvetica', 'italic'); doc.setFontSize(9);
-    doc.text(`Bontang, ${formatTanggalLengkap(tanggalLaporan)}`, pageW - 15, y, { align: 'right' });
+    doc.text(`Bontang, ${formatTanggalLengkap(tanggalLaporan)}`, cx, y, { align: 'center' });
     y += 5;
     doc.setFont('helvetica', 'bold');
-    doc.text('PT. BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA', pageW - 15, y, { align: 'right' });
+    doc.text('PT. BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA', cx, y, { align: 'center' });
     y += 4;
-    doc.text(namaKantor.toUpperCase(), pageW - 15, y, { align: 'right' });
+    doc.text(namaKantor.toUpperCase(), cx, y, { align: 'center' });
     y += 4;
     doc.setFont('helvetica', 'normal');
-    doc.text('Pemimpin,', pageW - 15, y, { align: 'right' });
+    doc.text('Pemimpin,', cx, y, { align: 'center' });
     y += 20;
     doc.setFont('helvetica', 'bold');
-    doc.text('(_________________________)', pageW - 15, y, { align: 'right' });
+    if (namaPemimpin) {
+      doc.text(namaPemimpin, cx, y, { align: 'center' });
+      const w = doc.getTextWidth(namaPemimpin);
+      doc.setLineWidth(0.3);
+      doc.line(cx - w / 2 - 2, y + 1.5, cx + w / 2 + 2, y + 1.5);
+    } else {
+      doc.text('(_________________________)', cx, y, { align: 'center' });
+    }
   };
 
   let isFirst = true;
