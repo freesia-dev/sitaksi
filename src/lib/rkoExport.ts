@@ -64,8 +64,9 @@ export async function exportSubrogasiToExcel(opts: {
   namaKantor: string;
   tanggalLaporan: string;
   items: SubrogasiItemRow[];
+  namaPemimpin?: string;
 }) {
-  const { periode, namaKantor, tanggalLaporan, items } = opts;
+  const { periode, namaKantor, tanggalLaporan, items, namaPemimpin } = opts;
   const periodeLbl = periodeLabel(periode);
   const wb = new ExcelJS.Workbook();
   wb.creator = 'SiTaksi';
@@ -196,8 +197,8 @@ export async function exportSubrogasiToExcel(opts: {
   // Footer signature block
   const addSig = (text: string, opts: { bold?: boolean; italic?: boolean } = {}) => {
     const r = ws.addRow([]);
-    ws.mergeCells(`L${r.number}:${lastCol}${r.number}`);
-    const c = ws.getCell(`L${r.number}`);
+    ws.mergeCells(`A${r.number}:${lastCol}${r.number}`);
+    const c = ws.getCell(`A${r.number}`);
     c.value = text;
     c.alignment = { horizontal: 'center' };
     c.font = { bold: opts.bold, italic: opts.italic, size: 10 };
@@ -207,7 +208,7 @@ export async function exportSubrogasiToExcel(opts: {
   addSig(namaKantor.toUpperCase(), { bold: true });
   addSig('Pemimpin,');
   ws.addRow([]); ws.addRow([]); ws.addRow([]);
-  addSig('(_________________________)', { bold: true });
+  addSig(namaPemimpin ? namaPemimpin : '(_________________________)', { bold: true });
 
   const buf = await wb.xlsx.writeBuffer();
   saveBlob(new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
