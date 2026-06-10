@@ -56,40 +56,47 @@ export function exportSubrogasiToExcel(opts: {
     'Hasil Kesepakatan dengan Asuransi',
   ];
 
-  const aoa: (string | number | null)[][] = [
-    ['Data Subrogasi Asuransi Askrida'],
-    ['PT. BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA'],
-    [namaKantor],
-    [`Periode Data ${periodeLbl}`],
-    [],
-    headerRow,
-  ];
+  const aoa: (string | number | null)[][] = [];
 
-  items.forEach((it) => {
-    aoa.push([
-      it.no,
-      it.nama_debitur,
-      it.no_loan,
-      it.produk,
-      it.nik,
-      it.no_premi_asuransi,
-      it.no_perjanjian_kredit,
-      it.nilai_subrogasi,
-      it.tahun_pencairan,
-      it.tanggal_pembayaran ? formatTanggalLengkap(it.tanggal_pembayaran) : '',
-      it.akumulasi_pembayaran || null,
-      it.sisa_subrogasi || null,
-      it.nama_cabang,
-      it.konfirmasi_asuransi,
-      it.konfirmasi_cabang,
-      it.hasil_kesepakatan,
-    ]);
-  });
+  const askrida = items.filter((it) => (it.asuransi || 'askrida') === 'askrida');
+  const jamkrindo = items.filter((it) => it.asuransi === 'jamkrindo');
 
-  // Footer
-  aoa.push([]);
-  aoa.push([]);
-  const footerCol = 11; // column L (0-indexed = 11)
+  const pushSection = (title: string, rows: SubrogasiItemRow[]) => {
+    aoa.push([title]);
+    aoa.push(['PT. BPD KALTIM KALTARA']);
+    aoa.push([namaKantor]);
+    aoa.push([`Periode Data ${periodeLbl}`]);
+    aoa.push([]);
+    aoa.push(headerRow);
+    rows.forEach((it, i) => {
+      aoa.push([
+        i + 1,
+        it.nama_debitur,
+        it.no_loan,
+        it.produk,
+        it.nik,
+        it.no_premi_asuransi,
+        it.no_perjanjian_kredit,
+        it.nilai_subrogasi || null,
+        it.tahun_pencairan,
+        it.tanggal_pembayaran ? formatTanggalLengkap(it.tanggal_pembayaran) : '',
+        it.akumulasi_pembayaran || null,
+        it.sisa_subrogasi || null,
+        it.nama_cabang,
+        it.konfirmasi_asuransi,
+        it.konfirmasi_cabang,
+        it.hasil_kesepakatan,
+      ]);
+    });
+    aoa.push([]);
+    aoa.push([]);
+  };
+
+  pushSection('Data Subrogasi Asuransi Askrida', askrida);
+  pushSection('Data Subrogasi Asuransi Jamkrindo', jamkrindo);
+
+  // Footer (signature block at column L = index 11)
+  const footerCol = 11;
   const padded = (text: string) => {
     const r: (string | number | null)[] = new Array(footerCol).fill('');
     r.push(text);
@@ -98,6 +105,7 @@ export function exportSubrogasiToExcel(opts: {
   aoa.push(padded(`Bontang, ${formatTanggalLengkap(tanggalLaporan)}`));
   aoa.push(padded('PT. BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA'));
   aoa.push(padded(namaKantor.toUpperCase()));
+  aoa.push(padded('Pemimpin,'));
 
   const ws = XLSX.utils.aoa_to_sheet(aoa);
   // Column widths
