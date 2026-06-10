@@ -70,6 +70,7 @@ export default function SubrogasiForm() {
   const [periode, setPeriode] = useState(currentPeriode);
   const [namaKantor, setNamaKantor] = useState(DEFAULT_KANTOR);
   const [tanggalLaporan, setTanggalLaporan] = useState(today);
+  const [namaPemimpin, setNamaPemimpin] = useState('');
   const [items, setItems] = useState<Item[]>([]);
 
   const [debiturList, setDebiturList] = useState<Debitur[]>([]);
@@ -99,6 +100,7 @@ export default function SubrogasiForm() {
         setPeriode(lap.periode);
         setNamaKantor(lap.nama_kantor);
         setTanggalLaporan(lap.tanggal_laporan);
+        setNamaPemimpin((lap as any).nama_pemimpin || '');
       }
       const { data: its } = await supabase
         .from('subrogasi_laporan_item')
@@ -186,13 +188,14 @@ export default function SubrogasiForm() {
       let laporanId = id;
       if (!isEdit) {
         const { data, error } = await supabase.from('subrogasi_laporan').insert({
-          periode, nama_kantor: namaKantor, tanggal_laporan: tanggalLaporan, created_by: user.id,
+          periode, nama_kantor: namaKantor, tanggal_laporan: tanggalLaporan,
+          nama_pemimpin: namaPemimpin || null, created_by: user.id,
         }).select().single();
         if (error) throw error;
         laporanId = data.id;
       } else {
         const { error } = await supabase.from('subrogasi_laporan')
-          .update({ periode, nama_kantor: namaKantor, tanggal_laporan: tanggalLaporan })
+          .update({ periode, nama_kantor: namaKantor, tanggal_laporan: tanggalLaporan, nama_pemimpin: namaPemimpin || null })
           .eq('id', id);
         if (error) throw error;
         // delete old items
@@ -261,6 +264,14 @@ export default function SubrogasiForm() {
           <div>
             <Label>Nama Kantor</Label>
             <Input value={namaKantor} onChange={(e) => setNamaKantor(e.target.value)} />
+          </div>
+          <div className="md:col-span-3">
+            <Label>Nama Pemimpin</Label>
+            <Input
+              value={namaPemimpin}
+              onChange={(e) => setNamaPemimpin(e.target.value)}
+              placeholder="cth: Budi Santoso, S.E. — akan tampil di kolom tanda tangan"
+            />
           </div>
         </div>
       </Card>

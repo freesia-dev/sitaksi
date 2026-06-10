@@ -330,6 +330,7 @@ export type Database = {
           created_by: string
           id: string
           mlf_jobdate: string | null
+          nama_pemimpin: string | null
           periode: string
           tanggal_laporan: string
           updated_at: string
@@ -339,6 +340,7 @@ export type Database = {
           created_by: string
           id?: string
           mlf_jobdate?: string | null
+          nama_pemimpin?: string | null
           periode: string
           tanggal_laporan?: string
           updated_at?: string
@@ -348,6 +350,7 @@ export type Database = {
           created_by?: string
           id?: string
           mlf_jobdate?: string | null
+          nama_pemimpin?: string | null
           periode?: string
           tanggal_laporan?: string
           updated_at?: string
@@ -482,6 +485,7 @@ export type Database = {
           created_by: string
           id: string
           nama_kantor: string
+          nama_pemimpin: string | null
           periode: string
           tanggal_laporan: string
           updated_at: string
@@ -491,6 +495,7 @@ export type Database = {
           created_by: string
           id?: string
           nama_kantor?: string
+          nama_pemimpin?: string | null
           periode: string
           tanggal_laporan?: string
           updated_at?: string
@@ -500,6 +505,7 @@ export type Database = {
           created_by?: string
           id?: string
           nama_kantor?: string
+          nama_pemimpin?: string | null
           periode?: string
           tanggal_laporan?: string
           updated_at?: string

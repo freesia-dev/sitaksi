@@ -73,6 +73,9 @@ export default function PlNplForm() {
   const [periode, setPeriode] = useState(today.substring(0, 7));
   const [tanggalLaporan, setTanggalLaporan] = useState(today);
   const [mlfJobdate, setMlfJobdate] = useState<string | null>(null);
+  const DEFAULT_KANTOR = 'Kantor Cabang Pembantu Telihan Bontang';
+  const [namaKantor, setNamaKantor] = useState(DEFAULT_KANTOR);
+  const [namaPemimpin, setNamaPemimpin] = useState('');
   const [items, setItems] = useState<Item[]>([]);
   const [saving, setSaving] = useState(false);
 
@@ -97,6 +100,8 @@ export default function PlNplForm() {
         setPeriode(lap.periode);
         setTanggalLaporan(lap.tanggal_laporan);
         setMlfJobdate(lap.mlf_jobdate);
+        setNamaKantor((lap as any).nama_kantor || DEFAULT_KANTOR);
+        setNamaPemimpin((lap as any).nama_pemimpin || '');
       }
       const { data: its } = await supabase.from('pl_to_npl_item').select('*').eq('laporan_id', id).order('urutan');
       if (its) setItems(its.map((it) => ({
@@ -172,13 +177,14 @@ export default function PlNplForm() {
       let laporanId = id;
       if (!isEdit) {
         const { data, error } = await supabase.from('pl_to_npl_laporan').insert({
-          periode, tanggal_laporan: tanggalLaporan, mlf_jobdate: mlfJobdate, created_by: user.id,
+          periode, tanggal_laporan: tanggalLaporan, mlf_jobdate: mlfJobdate,
+          nama_pemimpin: namaPemimpin || null, created_by: user.id,
         }).select().single();
         if (error) throw error;
         laporanId = data.id;
       } else {
         const { error } = await supabase.from('pl_to_npl_laporan')
-          .update({ periode, tanggal_laporan: tanggalLaporan, mlf_jobdate: mlfJobdate })
+          .update({ periode, tanggal_laporan: tanggalLaporan, mlf_jobdate: mlfJobdate, nama_pemimpin: namaPemimpin || null })
           .eq('id', id);
         if (error) throw error;
         await supabase.from('pl_to_npl_item').delete().eq('laporan_id', id);
@@ -238,6 +244,14 @@ export default function PlNplForm() {
           <div>
             <Label>Data MLF per</Label>
             <Input value={mlfJobdate ? formatTanggalLengkap(mlfJobdate) : '-'} disabled />
+          </div>
+          <div className="md:col-span-3">
+            <Label>Nama Pemimpin</Label>
+            <Input
+              value={namaPemimpin}
+              onChange={(e) => setNamaPemimpin(e.target.value)}
+              placeholder="cth: Budi Santoso, S.E. — akan tampil di kolom tanda tangan"
+            />
           </div>
         </div>
       </Card>

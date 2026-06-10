@@ -131,12 +131,22 @@ export default function PlNplList() {
   const handleExportExcel = async (id: string) => {
     const d = await fetchExportData(id);
     if (!d) return;
-    await exportPlNplToExcel({ periode: d.lap.periode, mlfJobdate: d.lap.mlf_jobdate, items: d.items });
+    await exportPlNplToExcel({
+      periode: d.lap.periode, mlfJobdate: d.lap.mlf_jobdate, items: d.items,
+      tanggalLaporan: d.lap.tanggal_laporan,
+      namaKantor: 'Kantor Cabang Pembantu Telihan Bontang',
+      namaPemimpin: d.lap.nama_pemimpin || '',
+    });
   };
   const handleExportPdf = async (id: string) => {
     const d = await fetchExportData(id);
     if (!d) return;
-    exportPlNplToPdf({ periode: d.lap.periode, mlfJobdate: d.lap.mlf_jobdate, items: d.items });
+    exportPlNplToPdf({
+      periode: d.lap.periode, mlfJobdate: d.lap.mlf_jobdate, items: d.items,
+      tanggalLaporan: d.lap.tanggal_laporan,
+      namaKantor: 'Kantor Cabang Pembantu Telihan Bontang',
+      namaPemimpin: d.lap.nama_pemimpin || '',
+    });
   };
 
   const handleDelete = async () => {
