@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { PageHeader } from '@/components/shared/PageHeader';
@@ -8,11 +8,19 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Plus, Check, Trash2, CalendarClock, AlertCircle } from 'lucide-react';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from '@/components/ui/command';
+import { Plus, Check, Trash2, CalendarClock, AlertCircle, ChevronsUpDown, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { formatDate } from '@/types';
 import { KATEGORI_LABEL, KATEGORI_COLOR, KategoriKunjungan, MonitoringJadwal, JadwalStatus } from '@/types/monitoring';
 import { cn } from '@/lib/utils';
+
+interface DebiturItem {
+  nama_debitur: string;
+  no_loan: string | null;
+  kategori: KategoriKunjungan;
+}
 
 export default function MonitoringJadwalPage() {
   const { user } = useAuth();
@@ -20,6 +28,9 @@ export default function MonitoringJadwalPage() {
   const [items, setItems] = useState<MonitoringJadwal[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const [debiturOpen, setDebiturOpen] = useState(false);
+  const [debiturList, setDebiturList] = useState<DebiturItem[]>([]);
+  const [debiturLoading, setDebiturLoading] = useState(false);
   const [form, setForm] = useState({
     tanggal_rencana: new Date().toISOString().slice(0, 10),
     jam_rencana: '',
@@ -39,7 +50,39 @@ export default function MonitoringJadwalPage() {
     setItems((data || []) as MonitoringJadwal[]);
     setLoading(false);
   };
+
+  const loadDebitur = async () => {
+    setDebiturLoading(true);
+    const { data, error } = await supabase
+      .from('monitoring_kunjungan')
+      .select('nama_debitur, no_loan, kategori, created_at')
+      .order('created_at', { ascending: false });
+    if (!error && data) {
+      const seen = new Set<string>();
+      const unique: DebiturItem[] = [];
+      data.forEach((d: any) => {
+        const key = d.nama_debitur?.toLowerCase().trim() || '';
+        if (key && !seen.has(key)) {
+          seen.add(key);
+          unique.push({
+            nama_debitur: d.nama_debitur,
+            no_loan: d.no_loan,
+            kategori: d.kategori as KategoriKunjungan,
+          });
+        }
+      });
+      setDebiturList(unique);
+    }
+    setDebiturLoading(false);
+  };
+
   useEffect(() => { load(); }, []);
+
+  useEffect(() => {
+    if (open) {
+      loadDebitur();
+    }
+  }, [open]);
 
   const handleAdd = async () => {
     if (!user || !form.nama_debitur.trim()) return;
@@ -53,7 +96,14 @@ export default function MonitoringJadwalPage() {
     } else {
       toast({ title: 'Jadwal ditambahkan' });
       setOpen(false);
-      setForm({ ...form, nama_debitur: '', no_loan: '', keterangan: '' });
+      setForm({
+        tanggal_rencana: new Date().toISOString().slice(0, 10),
+        jam_rencana: '',
+        nama_debitur: '',
+        no_loan: '',
+        kategori: 'aktif',
+        keterangan: '',
+      });
       load();
     }
   };
@@ -70,7 +120,21 @@ export default function MonitoringJadwalPage() {
     load();
   };
 
+  const selectDebitur = (debitur: DebiturItem) => {
+    setForm(prev => ({
+      ...prev,
+      nama_debitur: debitur.nama_debitur,
+      no_loan: debitur.no_loan || '',
+      kategori: debitur.kategori,
+    }));
+    setDebiturOpen(false);
+  };
+
   const today = new Date().toISOString().slice(0, 10);
+
+  const displayLabel = form.nama_debitur
+    ? `${form.nama_debitur}${form.no_loan ? ` (${form.no_loan})` : ''}`
+    : 'Cari atau ketik nama debitur…';
 
   return (
     <div className="space-y-6">
@@ -139,14 +203,65 @@ export default function MonitoringJadwalPage() {
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader><DialogTitle>Tambah Jadwal Kunjungan</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5"><Label>Tanggal</Label><Input type="date" value={form.tanggal_rencana} onChange={e => setForm({ ...form, tanggal_rencana: e.target.value })} /></div>
               <div className="space-y-1.5"><Label>Jam</Label><Input type="time" value={form.jam_rencana} onChange={e => setForm({ ...form, jam_rencana: e.target.value })} /></div>
             </div>
-            <div className="space-y-1.5"><Label>Nama Debitur *</Label><Input value={form.nama_debitur} onChange={e => setForm({ ...form, nama_debitur: e.target.value })} /></div>
+
+            <div className="space-y-1.5">
+              <Label>Nama Debitur *</Label>
+              <Popover open={debiturOpen} onOpenChange={setDebiturOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={debiturOpen}
+                    className="w-full justify-between font-normal h-10"
+                  >
+                    <span className={cn("truncate", !form.nama_debitur && "text-muted-foreground")}>
+                      {displayLabel}
+                    </span>
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Cari nama debitur…" />
+                    <CommandList>
+                      <CommandEmpty>
+                        {debiturLoading ? 'Memuat data…' : 'Tidak ditemukan'}
+                      </CommandEmpty>
+                      <CommandGroup>
+                        {debiturList.map((d) => (
+                          <CommandItem
+                            key={d.nama_debitur}
+                            value={d.nama_debitur}
+                            onSelect={() => selectDebitur(d)}
+                          >
+                            <div className="flex flex-col">
+                              <span className="font-medium">{d.nama_debitur}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {d.no_loan || '—'} · {KATEGORI_LABEL[d.kategori]}
+                              </span>
+                            </div>
+                            <Check
+                              className={cn(
+                                "ml-auto h-4 w-4",
+                                form.nama_debitur === d.nama_debitur ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5"><Label>No. Loan</Label><Input value={form.no_loan} onChange={e => setForm({ ...form, no_loan: e.target.value })} /></div>
               <div className="space-y-1.5">
