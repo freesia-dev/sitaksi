@@ -373,8 +373,11 @@ export async function exportPlNplToExcel(opts: {
   periode: string;
   mlfJobdate?: string | null;
   items: PlNplItemRow[];
+  namaKantor?: string;
+  tanggalLaporan?: string;
+  namaPemimpin?: string;
 }) {
-  const { periode, mlfJobdate, items } = opts;
+  const { periode, mlfJobdate, items, namaKantor, tanggalLaporan, namaPemimpin } = opts;
   const periodeLbl = periodeLabel(periode);
   const wb = new ExcelJS.Workbook();
   wb.creator = 'SiTaksi';
@@ -466,6 +469,23 @@ export async function exportPlNplToExcel(opts: {
     });
   }
 
+  // Signature block (centered)
+  ws.addRow([]); ws.addRow([]);
+  const addSig = (text: string, sopts: { bold?: boolean; italic?: boolean } = {}) => {
+    const r = ws.addRow([]);
+    ws.mergeCells(`A${r.number}:${lastCol}${r.number}`);
+    const c = ws.getCell(`A${r.number}`);
+    c.value = text;
+    c.alignment = { horizontal: 'center' };
+    c.font = { bold: sopts.bold, italic: sopts.italic, size: 10 };
+  };
+  if (tanggalLaporan) addSig(`Bontang, ${formatTanggalLengkap(tanggalLaporan)}`, { italic: true });
+  addSig('PT. BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA', { bold: true });
+  if (namaKantor) addSig(namaKantor.toUpperCase(), { bold: true });
+  addSig('Pemimpin,');
+  ws.addRow([]); ws.addRow([]); ws.addRow([]);
+  addSig(namaPemimpin ? namaPemimpin : '(_________________________)', { bold: true });
+
   const buf = await wb.xlsx.writeBuffer();
   saveBlob(new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
     `Laporan_PL_to_NPL_${periodeLbl.replace(' ', '_')}.xlsx`);
@@ -475,8 +495,11 @@ export function exportPlNplToPdf(opts: {
   periode: string;
   mlfJobdate?: string | null;
   items: PlNplItemRow[];
+  namaKantor?: string;
+  tanggalLaporan?: string;
+  namaPemimpin?: string;
 }) {
-  const { periode, mlfJobdate, items } = opts;
+  const { periode, mlfJobdate, items, namaKantor, tanggalLaporan, namaPemimpin } = opts;
   const periodeLbl = periodeLabel(periode);
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
   const pageW = doc.internal.pageSize.getWidth();
@@ -536,6 +559,37 @@ export function exportPlNplToPdf(opts: {
     },
     margin: { left: 10, right: 10 },
   });
+
+  // Centered signature block
+  {
+    const finalY = (doc as any).lastAutoTable?.finalY || 40;
+    const pageH = doc.internal.pageSize.getHeight();
+    let y = finalY + 8;
+    if (y > pageH - 40) { doc.addPage(); y = 20; }
+    const cx = pageW / 2;
+    doc.setTextColor(0, 0, 0);
+    if (tanggalLaporan) {
+      doc.setFont('helvetica', 'italic'); doc.setFontSize(9);
+      doc.text(`Bontang, ${formatTanggalLengkap(tanggalLaporan)}`, cx, y, { align: 'center' });
+      y += 5;
+    }
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
+    doc.text('PT. BANK PEMBANGUNAN DAERAH KALIMANTAN TIMUR DAN KALIMANTAN UTARA', cx, y, { align: 'center' });
+    y += 4;
+    if (namaKantor) { doc.text(namaKantor.toUpperCase(), cx, y, { align: 'center' }); y += 4; }
+    doc.setFont('helvetica', 'normal');
+    doc.text('Pemimpin,', cx, y, { align: 'center' });
+    y += 20;
+    doc.setFont('helvetica', 'bold');
+    if (namaPemimpin) {
+      doc.text(namaPemimpin, cx, y, { align: 'center' });
+      const w = doc.getTextWidth(namaPemimpin);
+      doc.setLineWidth(0.3);
+      doc.line(cx - w / 2 - 2, y + 1.5, cx + w / 2 + 2, y + 1.5);
+    } else {
+      doc.text('(_________________________)', cx, y, { align: 'center' });
+    }
+  }
 
   const pageCount = doc.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
