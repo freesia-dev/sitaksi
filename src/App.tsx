@@ -33,6 +33,10 @@ const MonitoringForm = lazy(() => import("@/pages/monitoring/MonitoringForm"));
 const MonitoringDetail = lazy(() => import("@/pages/monitoring/MonitoringDetail"));
 const MonitoringJadwal = lazy(() => import("@/pages/monitoring/MonitoringJadwal"));
 const MonitoringDashboard = lazy(() => import("@/pages/monitoring/MonitoringDashboard"));
+const SubrogasiList = lazy(() => import("@/pages/laporan-rko/SubrogasiList"));
+const SubrogasiForm = lazy(() => import("@/pages/laporan-rko/SubrogasiForm"));
+const PlNplList = lazy(() => import("@/pages/laporan-rko/PlNplList"));
+const PlNplForm = lazy(() => import("@/pages/laporan-rko/PlNplForm"));
 
 // Optimized QueryClient with caching
 const queryClient = new QueryClient({
@@ -93,6 +97,12 @@ const App = () => (
                   <Route path="/monitoring/jadwal" element={<MonitoringJadwal />} />
                   <Route path="/monitoring/dashboard" element={<MonitoringDashboard />} />
                   <Route path="/monitoring/:id" element={<MonitoringDetail />} />
+                  <Route path="/laporan-rko/subrogasi" element={<SubrogasiList />} />
+                  <Route path="/laporan-rko/subrogasi/new" element={<SubrogasiForm />} />
+                  <Route path="/laporan-rko/subrogasi/edit/:id" element={<SubrogasiForm />} />
+                  <Route path="/laporan-rko/pl-to-npl" element={<PlNplList />} />
+                  <Route path="/laporan-rko/pl-to-npl/new" element={<PlNplForm />} />
+                  <Route path="/laporan-rko/pl-to-npl/edit/:id" element={<PlNplForm />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>
