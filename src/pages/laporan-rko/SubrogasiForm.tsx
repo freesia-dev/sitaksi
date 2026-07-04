@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Check, ChevronsUpDown, Save, UserPlus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
@@ -36,12 +36,18 @@ interface Debitur {
   asuransi: 'askrida' | 'jamkrindo';
 }
 
+interface Payment {
+  _localId: string;
+  tanggal_pembayaran: string;
+  jumlah_pembayaran: string;
+  keterangan: string;
+}
+
 interface Item {
   id?: string;
   _localId: string;
   debitur: Debitur;
-  tanggal_pembayaran: string;
-  akumulasi_pembayaran: string;
+  payments: Payment[];
   konfirmasi_asuransi: string;
   konfirmasi_cabang: string;
   hasil_kesepakatan: string;
@@ -60,6 +66,8 @@ function blankDebiturForm(): Omit<Debitur, 'id'> & { id?: string } {
 
 export default function SubrogasiForm() {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
+  const duplicateFrom = searchParams.get('from');
   const navigate = useNavigate();
   const { user } = useAuth();
   const isEdit = !!id;
@@ -93,33 +101,64 @@ export default function SubrogasiForm() {
 
   // Load existing if editing
   useEffect(() => {
-    if (!id) return;
+    if (!id && !duplicateFrom) return;
+    const sourceId = id || duplicateFrom!;
     (async () => {
-      const { data: lap } = await supabase.from('subrogasi_laporan').select('*').eq('id', id).single();
-      if (lap) {
+      const { data: lap } = await supabase.from('subrogasi_laporan').select('*').eq('id', sourceId).single();
+      if (lap && id) {
         setPeriode(lap.periode);
         setNamaKantor(lap.nama_kantor);
         setTanggalLaporan(lap.tanggal_laporan);
+        setNamaPemimpin((lap as any).nama_pemimpin || '');
+      } else if (lap && duplicateFrom) {
+        // Duplicating: keep current periode/date but copy kantor & pemimpin
+        setNamaKantor(lap.nama_kantor);
         setNamaPemimpin((lap as any).nama_pemimpin || '');
       }
       const { data: its } = await supabase
         .from('subrogasi_laporan_item')
         .select('*, subrogasi_debitur(*)')
-        .eq('laporan_id', id).order('urutan');
+        .eq('laporan_id', sourceId).order('urutan');
       if (its) {
-        setItems(its.map((it: any) => ({
-          id: it.id,
-          _localId: it.id,
+        const itemIds = its.map((it: any) => it.id);
+        const { data: pays } = await supabase
+          .from('subrogasi_pembayaran' as any)
+          .select('*')
+          .in('item_id', itemIds)
+          .order('urutan');
+        const paysByItem: Record<string, any[]> = {};
+        (pays || []).forEach((p: any) => {
+          (paysByItem[p.item_id] ||= []).push(p);
+        });
+        setItems(its.map((it: any) => {
+          const itemPays = paysByItem[it.id] || [];
+          // Fallback: if no pembayaran rows exist yet, seed from legacy akumulasi field
+          const payments: Payment[] = itemPays.length > 0
+            ? itemPays.map((p: any) => ({
+                _localId: crypto.randomUUID(),
+                tanggal_pembayaran: p.tanggal_pembayaran || '',
+                jumlah_pembayaran: String(p.jumlah_pembayaran || 0),
+                keterangan: p.keterangan || '',
+              }))
+            : (Number(it.akumulasi_pembayaran) > 0 || it.tanggal_pembayaran ? [{
+                _localId: crypto.randomUUID(),
+                tanggal_pembayaran: it.tanggal_pembayaran || '',
+                jumlah_pembayaran: String(it.akumulasi_pembayaran || 0),
+                keterangan: '',
+              }] : []);
+          return {
+          id: id ? it.id : undefined,
+          _localId: crypto.randomUUID(),
           debitur: it.subrogasi_debitur,
-          tanggal_pembayaran: it.tanggal_pembayaran || '',
-          akumulasi_pembayaran: String(it.akumulasi_pembayaran || 0),
+          payments,
           konfirmasi_asuransi: it.konfirmasi_asuransi || '',
           konfirmasi_cabang: it.konfirmasi_cabang || '',
           hasil_kesepakatan: it.hasil_kesepakatan || '',
-        })));
+          };
+        }));
       }
     })();
-  }, [id]);
+  }, [id, duplicateFrom]);
 
   const addItemFromExisting = () => {
     if (!selectedDebitur) return;
@@ -130,8 +169,7 @@ export default function SubrogasiForm() {
     setItems((prev) => [...prev, {
       _localId: crypto.randomUUID(),
       debitur: selectedDebitur,
-      tanggal_pembayaran: '',
-      akumulasi_pembayaran: '0',
+      payments: [],
       konfirmasi_asuransi: '',
       konfirmasi_cabang: '',
       hasil_kesepakatan: '',
@@ -158,8 +196,7 @@ export default function SubrogasiForm() {
     setItems((prev) => [...prev, {
       _localId: crypto.randomUUID(),
       debitur: data as Debitur,
-      tanggal_pembayaran: '',
-      akumulasi_pembayaran: '0',
+      payments: [],
       konfirmasi_asuransi: '',
       konfirmasi_cabang: '',
       hasil_kesepakatan: '',
@@ -176,6 +213,33 @@ export default function SubrogasiForm() {
   const removeItem = (localId: string) => {
     setItems((prev) => prev.filter((it) => it._localId !== localId));
   };
+
+  const addPayment = (localId: string) => {
+    setItems((prev) => prev.map((it) => it._localId === localId ? {
+      ...it,
+      payments: [...it.payments, {
+        _localId: crypto.randomUUID(),
+        tanggal_pembayaran: '',
+        jumlah_pembayaran: '0',
+        keterangan: '',
+      }],
+    } : it));
+  };
+  const updatePayment = (itemLocalId: string, payLocalId: string, patch: Partial<Payment>) => {
+    setItems((prev) => prev.map((it) => it._localId === itemLocalId ? {
+      ...it,
+      payments: it.payments.map((p) => p._localId === payLocalId ? { ...p, ...patch } : p),
+    } : it));
+  };
+  const removePayment = (itemLocalId: string, payLocalId: string) => {
+    setItems((prev) => prev.map((it) => it._localId === itemLocalId ? {
+      ...it,
+      payments: it.payments.filter((p) => p._localId !== payLocalId),
+    } : it));
+  };
+
+  const sumPayments = (payments: Payment[]) =>
+    payments.reduce((s, p) => s + Number(p.jumlah_pembayaran || 0), 0);
 
   const handleSave = async () => {
     if (!user) return;
@@ -202,13 +266,18 @@ export default function SubrogasiForm() {
         await supabase.from('subrogasi_laporan_item').delete().eq('laporan_id', id);
       }
       const rows = items.map((it, idx) => {
-        const ak = Number(it.akumulasi_pembayaran || 0);
+        const ak = sumPayments(it.payments);
         const sisa = Number(it.debitur.nilai_subrogasi || 0) - ak;
+        const lastPayDate = it.payments
+          .map((p) => p.tanggal_pembayaran)
+          .filter(Boolean)
+          .sort()
+          .pop() || null;
         return {
           laporan_id: laporanId,
           debitur_id: it.debitur.id,
           urutan: idx + 1,
-          tanggal_pembayaran: it.tanggal_pembayaran || null,
+          tanggal_pembayaran: lastPayDate,
           akumulasi_pembayaran: ak,
           sisa_subrogasi: sisa,
           konfirmasi_asuransi: it.konfirmasi_asuransi || null,
@@ -216,8 +285,30 @@ export default function SubrogasiForm() {
           hasil_kesepakatan: it.hasil_kesepakatan || null,
         };
       });
-      const { error: e2 } = await supabase.from('subrogasi_laporan_item').insert(rows);
+      const { data: insertedItems, error: e2 } = await supabase
+        .from('subrogasi_laporan_item').insert(rows).select();
       if (e2) throw e2;
+
+      // Insert payments per item (match by urutan)
+      const paymentRows: any[] = [];
+      (insertedItems || []).forEach((ins: any) => {
+        const src = items[ins.urutan - 1];
+        if (!src) return;
+        src.payments.forEach((p, pIdx) => {
+          paymentRows.push({
+            item_id: ins.id,
+            urutan: pIdx + 1,
+            tanggal_pembayaran: p.tanggal_pembayaran || null,
+            jumlah_pembayaran: Number(p.jumlah_pembayaran || 0),
+            keterangan: p.keterangan || null,
+          });
+        });
+      });
+      if (paymentRows.length > 0) {
+        const { error: e3 } = await supabase
+          .from('subrogasi_pembayaran' as any).insert(paymentRows);
+        if (e3) throw e3;
+      }
       toast({ title: isEdit ? 'Laporan diperbarui' : 'Laporan disimpan' });
       navigate('/laporan-rko/subrogasi');
     } catch (e: any) {
@@ -231,14 +322,14 @@ export default function SubrogasiForm() {
     new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
 
   const totalSisa = useMemo(() =>
-    items.reduce((s, it) => s + (Number(it.debitur.nilai_subrogasi || 0) - Number(it.akumulasi_pembayaran || 0)), 0),
+    items.reduce((s, it) => s + (Number(it.debitur.nilai_subrogasi || 0) - sumPayments(it.payments)), 0),
     [items]);
 
   return (
     <div className="space-y-6">
       <PageHeader
         title={isEdit ? 'Edit Laporan Subrogasi' : 'Buat Laporan Subrogasi'}
-        description={isEdit ? 'Perbarui data laporan.' : 'Pilih debitur dari master atau tambahkan baru.'}
+        description={isEdit ? 'Perbarui data laporan.' : (duplicateFrom ? 'Menduplikat laporan sebelumnya — silakan sesuaikan periode dan pembayaran.' : 'Pilih debitur dari master atau tambahkan baru.')}
         actions={
           <>
             <Button variant="outline" onClick={() => navigate('/laporan-rko/subrogasi')}>
@@ -292,7 +383,8 @@ export default function SubrogasiForm() {
         ) : (
           <div className="space-y-4">
             {items.map((it, idx) => {
-              const sisa = Number(it.debitur.nilai_subrogasi || 0) - Number(it.akumulasi_pembayaran || 0);
+              const ak = sumPayments(it.payments);
+              const sisa = Number(it.debitur.nilai_subrogasi || 0) - ak;
               return (
                 <Card key={it._localId} className="p-4 border-l-4 border-l-primary">
                   <div className="flex items-start justify-between mb-3">
@@ -308,22 +400,50 @@ export default function SubrogasiForm() {
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>
+                  <div className="space-y-3">
+                    <div className="rounded-md border bg-muted/30 p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <Label className="text-xs font-semibold">Riwayat Pembayaran ({it.payments.length})</Label>
+                        <Button size="sm" variant="outline" onClick={() => addPayment(it._localId)}>
+                          <Plus className="mr-1 h-3 w-3" />Tambah Pembayaran
+                        </Button>
+                      </div>
+                      {it.payments.length === 0 ? (
+                        <p className="text-xs text-muted-foreground py-2">Belum ada pembayaran. Klik "Tambah Pembayaran" untuk mencatat.</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {it.payments.map((p, pIdx) => (
+                            <div key={p._localId} className="grid grid-cols-1 md:grid-cols-[auto_1fr_1fr_1.5fr_auto] gap-2 items-end bg-background p-2 rounded border">
+                              <div className="text-xs font-semibold text-muted-foreground pb-2">#{pIdx + 1}</div>
+                              <div>
+                                <Label className="text-xs">Tanggal</Label>
+                                <Input type="date" value={p.tanggal_pembayaran}
+                                  onChange={(e) => updatePayment(it._localId, p._localId, { tanggal_pembayaran: e.target.value })} />
+                              </div>
+                              <div>
+                                <Label className="text-xs">Jumlah</Label>
+                                <CurrencyInput value={p.jumlah_pembayaran}
+                                  onChange={(v) => updatePayment(it._localId, p._localId, { jumlah_pembayaran: v })} />
+                              </div>
+                              <div>
+                                <Label className="text-xs">Keterangan</Label>
+                                <Input value={p.keterangan}
+                                  onChange={(e) => updatePayment(it._localId, p._localId, { keterangan: e.target.value })}
+                                  placeholder="opsional" />
+                              </div>
+                              <Button size="sm" variant="ghost" onClick={() => removePayment(it._localId, p._localId)}>
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      <div className="mt-2 pt-2 border-t flex justify-between text-xs">
+                        <span className="text-muted-foreground">Total Pembayaran: <span className="font-mono font-semibold text-foreground">{fmtRp(ak)}</span></span>
+                        <span className="text-muted-foreground">Sisa Subrogasi: <span className="font-mono font-semibold text-foreground">{fmtRp(sisa)}</span></span>
+                      </div>
+                    </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
-                      <Label className="text-xs">Tanggal Pembayaran</Label>
-                      <Input type="date" value={it.tanggal_pembayaran}
-                        onChange={(e) => updateItem(it._localId, { tanggal_pembayaran: e.target.value })} />
-                    </div>
-                    <div>
-                      <Label className="text-xs">Akumulasi Pembayaran</Label>
-                      <CurrencyInput value={it.akumulasi_pembayaran}
-                        onChange={(v) => updateItem(it._localId, { akumulasi_pembayaran: v })} />
-                    </div>
-                    <div className="md:col-span-2">
-                      <p className="text-xs text-muted-foreground">
-                        Sisa Subrogasi: <span className="font-mono font-semibold text-foreground">{fmtRp(sisa)}</span>
-                      </p>
-                    </div>
                     <div>
                       <Label className="text-xs">Konfirmasi Asuransi</Label>
                       <Input value={it.konfirmasi_asuransi}
@@ -340,6 +460,7 @@ export default function SubrogasiForm() {
                       <Textarea rows={2} value={it.hasil_kesepakatan}
                         onChange={(e) => updateItem(it._localId, { hasil_kesepakatan: e.target.value })} />
                     </div>
+                  </div>
                   </div>
                 </Card>
               );
