@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, Edit, Trash2, FileSpreadsheet, FileText } from 'lucide-react';
+import { Plus, Edit, Trash2, FileSpreadsheet, FileText, Copy } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/button';
@@ -153,6 +153,11 @@ export default function SubrogasiList() {
                     </Button>
                     <Button size="sm" variant="ghost" onClick={() => handleExportPdf(r.id)} title="Export PDF">
                       <FileText className="h-4 w-4" />
+                    </Button>
+                    <Button size="sm" variant="ghost"
+                      onClick={() => navigate(`/laporan-rko/subrogasi/new?from=${r.id}`)}
+                      title="Duplikat ke Laporan Baru">
+                      <Copy className="h-4 w-4" />
                     </Button>
                     <Button size="sm" variant="ghost" asChild title="Edit">
                       <Link to={`/laporan-rko/subrogasi/edit/${r.id}`}>
