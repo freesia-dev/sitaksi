@@ -572,6 +572,47 @@ export type Database = {
           },
         ]
       }
+      subrogasi_pembayaran: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string
+          jumlah_pembayaran: number
+          keterangan: string | null
+          tanggal_pembayaran: string | null
+          updated_at: string
+          urutan: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id: string
+          jumlah_pembayaran?: number
+          keterangan?: string | null
+          tanggal_pembayaran?: string | null
+          updated_at?: string
+          urutan?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string
+          jumlah_pembayaran?: number
+          keterangan?: string | null
+          tanggal_pembayaran?: string | null
+          updated_at?: string
+          urutan?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subrogasi_pembayaran_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "subrogasi_laporan_item"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       taksasi: {
         Row: {
           alamat_debitur: string | null
