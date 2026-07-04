@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Plus, Trash2, Check, ChevronsUpDown, Save, UserPlus, Copy } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Check, ChevronsUpDown, Save, UserPlus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { PageHeader } from '@/components/shared/PageHeader';
