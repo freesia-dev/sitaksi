@@ -14,7 +14,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { toast } from '@/hooks/use-toast';
-import { periodeLabel, parseMlfFile, exportPlNplToExcel, exportPlNplToPdf, formatTanggalLengkap, type PlNplItemRow } from '@/lib/rkoExport';
+import { periodeLabel, parseMlfFile, mlfDateToIso, exportPlNplToExcel, exportPlNplToPdf, formatTanggalLengkap, type PlNplItemRow } from '@/lib/rkoExport';
 
 interface LaporanRow {
   id: string;
@@ -65,21 +65,23 @@ export default function PlNplList() {
       // Wipe existing snapshot
       await supabase.from('mlf_snapshot').delete().neq('id', '00000000-0000-0000-0000-000000000000');
 
-      const toIso = (v: any): string | null => {
-        if (!v) return null;
-        if (v instanceof Date) return v.toISOString().substring(0, 10);
-        const d = new Date(v);
-        return isNaN(d.getTime()) ? null : d.toISOString().substring(0, 10);
-      };
+      const toIso = mlfDateToIso;
       const toNum = (v: any): number | null => {
         if (v === null || v === undefined || v === '') return null;
-        const n = Number(v);
+        // Strings may contain "1,234.56" or "1.234,56" — strip thousands sep
+        let s = typeof v === 'string' ? v.trim().replace(/\s/g, '') : v;
+        if (typeof s === 'string') {
+          // If both comma & dot present, assume Indonesian: "." thousands, "," decimal
+          if (s.includes(',') && s.includes('.')) s = s.replace(/\./g, '').replace(',', '.');
+          else if (s.includes(',') && !s.includes('.')) s = s.replace(',', '.');
+        }
+        const n = Number(s);
         return isNaN(n) ? null : n;
       };
       const records = rows.map((r) => ({
         jobdate: toIso(r.JOBDATE),
         brname: r.BRNAME || null,
-        kol: r.kol !== null && r.kol !== undefined ? String(r.kol) : null,
+        kol: r.KOL !== null && r.KOL !== undefined ? String(r.KOL) : null,
         lytitl: r.LYTITL || null,
         l0lnno: r.L0LNNO ? String(r.L0LNNO) : null,
         l0name: r.L0NAME || null,
@@ -89,8 +91,8 @@ export default function PlNplList() {
         l0rstl: r.L0RSTL ? String(r.L0RSTL) : null,
         pla: toNum(r.PLA),
         baki: toNum(r.BAKI),
-        tungpk: toNum(r.TUNGPK),
-        tungbg: toNum(r.TUNGBG),
+        tungpk: toNum(r.TUNGPK ?? r.TUNGGAKANPOKOK ?? r.TUNGGAKAN_POKOK),
+        tungbg: toNum(r.TUNGBG ?? r.TUNGGAKANBUNGA ?? r.TUNGGAKAN_BUNGA),
         uploaded_by: user.id,
       }));
 

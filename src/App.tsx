@@ -37,6 +37,7 @@ const SubrogasiList = lazy(() => import("@/pages/laporan-rko/SubrogasiList"));
 const SubrogasiForm = lazy(() => import("@/pages/laporan-rko/SubrogasiForm"));
 const PlNplList = lazy(() => import("@/pages/laporan-rko/PlNplList"));
 const PlNplForm = lazy(() => import("@/pages/laporan-rko/PlNplForm"));
+const NplExistingList = lazy(() => import("@/pages/laporan-rko/NplExistingList"));
 
 // Optimized QueryClient with caching
 const queryClient = new QueryClient({
@@ -103,6 +104,7 @@ const App = () => (
                   <Route path="/laporan-rko/pl-to-npl" element={<PlNplList />} />
                   <Route path="/laporan-rko/pl-to-npl/new" element={<PlNplForm />} />
                   <Route path="/laporan-rko/pl-to-npl/edit/:id" element={<PlNplForm />} />
+                  <Route path="/laporan-rko/npl-existing" element={<NplExistingList />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>

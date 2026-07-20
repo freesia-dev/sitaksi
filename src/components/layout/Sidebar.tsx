@@ -21,7 +21,8 @@ import {
   ListChecks,
   FileBarChart,
   ShieldAlert,
-  TrendingDown
+  TrendingDown,
+  AlertOctagon
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -136,6 +137,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
     items: [
       { label: 'Laporan Subrogasi', icon: ShieldAlert, href: '/laporan-rko/subrogasi', show: true },
       { label: 'Laporan PL to NPL', icon: TrendingDown, href: '/laporan-rko/pl-to-npl', show: true },
+      { label: 'Laporan NPL Existing', icon: AlertOctagon, href: '/laporan-rko/npl-existing', show: true },
     ],
   };
 
