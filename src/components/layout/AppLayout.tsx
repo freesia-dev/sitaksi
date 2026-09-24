@@ -2,6 +2,7 @@ import React, { useState, lazy, Suspense } from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Sidebar } from './Sidebar';
+import { SessionTimeoutDialog } from './SessionTimeoutDialog';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 
@@ -52,6 +53,7 @@ export function AppLayout() {
           <Outlet />
         </div>
       </main>
+      <SessionTimeoutDialog />
     </div>
   );
 }

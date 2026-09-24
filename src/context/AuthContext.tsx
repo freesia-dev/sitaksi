@@ -20,36 +20,51 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signup: (email: string, password: string, nama: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
+  /** true satu menit sebelum sesi berakhir karena tidak ada aktivitas */
+  idleWarning: boolean;
+  extendSession: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const IDLE_TIMEOUT = 15 * 60 * 1000; // 15 minutes in milliseconds
+const IDLE_TIMEOUT = 15 * 60 * 1000; // 15 menit tanpa aktivitas → logout
+const IDLE_WARNING = 60 * 1000; // peringatan muncul 1 menit sebelumnya
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const warningRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [idleWarning, setIdleWarning] = useState(false);
+
+  const clearIdleTimers = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    if (warningRef.current) clearTimeout(warningRef.current);
+    timeoutRef.current = null;
+    warningRef.current = null;
+  };
 
   const logout = useCallback(async () => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
+    clearIdleTimers();
+    setIdleWarning(false);
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
   }, []);
 
   const resetIdleTimer = useCallback(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
+    clearIdleTimers();
+    setIdleWarning(false);
     if (user) {
+      warningRef.current = setTimeout(() => setIdleWarning(true), IDLE_TIMEOUT - IDLE_WARNING);
       timeoutRef.current = setTimeout(() => {
         logout();
-        alert('Sesi Anda telah berakhir karena tidak aktif selama 15 menit. Silakan login kembali.');
+        try {
+          sessionStorage.setItem('sitaksi_sesi_habis', '1');
+        } catch {
+          /* penyimpanan tidak tersedia — pesan di halaman login dilewati */
+        }
       }, IDLE_TIMEOUT);
     }
   }, [user, logout]);
@@ -148,9 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
+      clearIdleTimers();
       events.forEach(event => {
         document.removeEventListener(event, handleActivity);
       });
@@ -209,8 +222,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading,
     login, 
     signup,
-    logout 
-  }), [user, session, isLoading, login, signup, logout]);
+    logout,
+    idleWarning,
+    extendSession: resetIdleTimer,
+  }), [user, session, isLoading, login, signup, logout, idleWarning, resetIdleTimer]);
 
   return (
     <AuthContext.Provider value={contextValue}>
