@@ -38,6 +38,10 @@ import logoSitaksiOnly from '@/assets/logo-sitaksi-only.png';
 interface SidebarProps {
   isCollapsed: boolean;
   onToggle: () => void;
+  /** 'panel' = ditampilkan di dalam menu geser (HP), tanpa posisi tetap */
+  variant?: 'fixed' | 'panel';
+  /** Dipanggil setelah pengguna memilih menu (untuk menutup menu geser) */
+  onNavigate?: () => void;
 }
 
 interface MenuItem {
@@ -54,7 +58,9 @@ interface MenuGroup {
   show: boolean;
 }
 
-export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
+export function Sidebar({ isCollapsed: collapsedProp, onToggle, variant = 'fixed', onNavigate }: SidebarProps) {
+  const isPanel = variant === 'panel';
+  const isCollapsed = isPanel ? false : collapsedProp;
   const { user, logout } = useAuth();
   const location = useLocation();
 
@@ -84,36 +90,16 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
     },
   ];
 
-  // Grouped menu - Taksasi
+  // Grouped menu - Taksasi (satu halaman daftar dengan filter jenis)
   const taksasiGroup: MenuGroup = {
     label: 'Taksasi',
     icon: FolderOpen,
     show: isOfficerOrAdmin || isDemo,
     items: [
-      {
-        label: 'Tanah',
-        icon: Home,
-        href: '/list/tanah',
-        show: true,
-      },
-      {
-        label: 'Tanah & Bangunan',
-        icon: Building2,
-        href: '/list/tanah-bangunan',
-        show: true,
-      },
-      {
-        label: 'Kendaraan',
-        icon: Car,
-        href: '/list/kendaraan',
-        show: true,
-      },
-      {
-        label: 'Riwayat',
-        icon: FileText,
-        href: '/riwayat',
-        show: true,
-      },
+      { label: 'Semua Taksasi', icon: FileText, href: '/taksasi', show: true },
+      { label: 'Tanah', icon: Home, href: '/taksasi?jenis=tanah', show: true },
+      { label: 'Tanah & Bangunan', icon: Building2, href: '/taksasi?jenis=tanah-bangunan', show: true },
+      { label: 'Kendaraan', icon: Car, href: '/taksasi?jenis=kendaraan', show: true },
     ],
   };
 
@@ -162,12 +148,15 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
     ].filter(item => item.show),
   };
 
+  const isActiveHref = (href: string) => location.pathname + location.search === href;
+
   const renderMenuItem = (item: MenuItem) => {
-    const isActive = location.pathname === item.href;
+    const isActive = isActiveHref(item.href);
     return (
       <Link
         key={item.href}
         to={item.href}
+        onClick={onNavigate}
         className={cn(
           "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group",
           isActive
@@ -186,7 +175,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   const renderMenuGroup = (group: MenuGroup, isOpen: boolean, setIsOpen: (open: boolean) => void) => {
     if (!group.show) return null;
     
-    const hasActiveItem = group.items.some(item => location.pathname === item.href);
+    const hasActiveItem = group.items.some(item => isActiveHref(item.href));
 
     if (isCollapsed) {
       // When collapsed, show items directly
@@ -227,8 +216,10 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 z-40 h-screen bg-sidebar transition-all duration-300 flex flex-col",
-        isCollapsed ? "w-20" : "w-64"
+        "bg-sidebar flex flex-col",
+        isPanel
+          ? "h-full w-full"
+          : cn("fixed left-0 top-0 z-40 h-screen transition-all duration-300 hidden md:flex", isCollapsed ? "w-20" : "w-64")
       )}
     >
       {/* Header */}
@@ -252,12 +243,13 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       </div>
 
       {/* Toggle Button */}
-      <button
+      {!isPanel && <button
         onClick={onToggle}
+        aria-label={isCollapsed ? 'Lebarkan menu' : 'Ciutkan menu'}
         className="absolute -right-3 top-20 w-6 h-6 bg-sidebar-primary text-sidebar-primary-foreground rounded-full flex items-center justify-center shadow-elevated hover:scale-110 transition-transform"
       >
         {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-      </button>
+      </button>}
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto custom-scrollbar">

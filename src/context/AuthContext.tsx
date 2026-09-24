@@ -114,34 +114,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   // Setup auth state listener
+  // isLoading baru false setelah profil selesai dimuat. Dulu isLoading false
+  // lebih dulu sehingga halaman sempat menganggap user belum login, dialihkan
+  // ke /login, lalu ke /dashboard — refresh atau buka tautan langsung ke
+  // halaman mana pun selalu berakhir di Dashboard.
   useEffect(() => {
-    // Set up auth state listener FIRST
+    let aktif = true;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
-        
         if (session?.user) {
-          // Defer profile fetch with setTimeout to avoid deadlock
-          setTimeout(() => {
-            fetchUserProfile(session.user.id, session.user.email || '');
+          // Ditunda dengan setTimeout untuk menghindari deadlock di callback auth
+          setTimeout(async () => {
+            await fetchUserProfile(session.user.id, session.user.email || '');
+            if (aktif) setIsLoading(false);
           }, 0);
         } else {
           setUser(null);
+          setIsLoading(false);
         }
-        setIsLoading(false);
       }
     );
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       if (session?.user) {
-        fetchUserProfile(session.user.id, session.user.email || '');
+        await fetchUserProfile(session.user.id, session.user.email || '');
       }
-      setIsLoading(false);
+      if (aktif) setIsLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      aktif = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   // Setup idle detection

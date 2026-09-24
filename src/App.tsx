@@ -15,11 +15,8 @@ const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const TaksasiTanah = lazy(() => import("@/pages/forms/TaksasiTanah"));
 const TaksasiTanahBangunan = lazy(() => import("@/pages/forms/TaksasiTanahBangunan"));
 const TaksasiKendaraan = lazy(() => import("@/pages/forms/TaksasiKendaraan"));
-const TaksasiTanahList = lazy(() => import("@/pages/lists/TaksasiTanahList"));
-const TaksasiTanahBangunanList = lazy(() => import("@/pages/lists/TaksasiTanahBangunanList"));
-const TaksasiKendaraanList = lazy(() => import("@/pages/lists/TaksasiKendaraanList"));
-const Riwayat = lazy(() => import("@/pages/Riwayat"));
 
+const TaksasiList = lazy(() => import("@/pages/TaksasiList"));
 const AdminUsers = lazy(() => import("@/pages/AdminUsers"));
 const Profile = lazy(() => import("@/pages/Profile"));
 const DetailTaksasi = lazy(() => import("@/pages/DetailTaksasi"));
@@ -80,9 +77,11 @@ const App = () => (
                 <Route element={<AppLayout />}>
                   <Route path="/dashboard" element={<Dashboard />} />
                   {/* List pages */}
-                  <Route path="/list/tanah" element={<TaksasiTanahList />} />
-                  <Route path="/list/tanah-bangunan" element={<TaksasiTanahBangunanList />} />
-                  <Route path="/list/kendaraan" element={<TaksasiKendaraanList />} />
+                  <Route path="/taksasi" element={<TaksasiList />} />
+                  {/* Alamat lama tetap bekerja */}
+                  <Route path="/list/tanah" element={<Navigate to="/taksasi?jenis=tanah" replace />} />
+                  <Route path="/list/tanah-bangunan" element={<Navigate to="/taksasi?jenis=tanah-bangunan" replace />} />
+                  <Route path="/list/kendaraan" element={<Navigate to="/taksasi?jenis=kendaraan" replace />} />
                   {/* Form pages */}
                   <Route path="/taksasi/tanah/new" element={<KunciPerHalaman><TaksasiTanah /></KunciPerHalaman>} />
                   <Route path="/taksasi/tanah-bangunan/new" element={<KunciPerHalaman><TaksasiTanahBangunan /></KunciPerHalaman>} />
@@ -90,7 +89,7 @@ const App = () => (
                   <Route path="/taksasi/tanah/edit/:id" element={<KunciPerHalaman><TaksasiTanah /></KunciPerHalaman>} />
                   <Route path="/taksasi/tanah-bangunan/edit/:id" element={<KunciPerHalaman><TaksasiTanahBangunan /></KunciPerHalaman>} />
                   <Route path="/taksasi/kendaraan/edit/:id" element={<KunciPerHalaman><TaksasiKendaraan /></KunciPerHalaman>} />
-                  <Route path="/riwayat" element={<Riwayat />} />
+                  <Route path="/riwayat" element={<Navigate to="/taksasi" replace />} />
                   
                   <Route path="/admin/users" element={<AdminUsers />} />
                   <Route path="/profile" element={<Profile />} />
