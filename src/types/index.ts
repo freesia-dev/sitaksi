@@ -409,8 +409,11 @@ export const formatTerbilang = (nilai: number): string => {
 };
 
 // Generate document number with user-provided number
-export const generateNomorDokumen = (cabang: string = 'TLH', nomorInput?: string): string => {
-  const now = new Date();
+export const generateNomorDokumen = (cabang: string = 'TLH', nomorInput?: string, tanggal?: string): string => {
+  // Bulan & tahun mengikuti tanggal penilaian (sama dengan yang ditampilkan di form),
+  // bukan tanggal hari ini saat tombol simpan ditekan.
+  const parsed = tanggal ? new Date(tanggal) : new Date();
+  const now = isNaN(parsed.getTime()) ? new Date() : parsed;
   const bulanRomawi = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
   const nomor = nomorInput ? nomorInput.padStart(3, '0') : Math.floor(Math.random() * 1000).toString().padStart(3, '0');
   return `${nomor}/F-3/BPD-${cabang}/${bulanRomawi[now.getMonth()]}/${now.getFullYear()}`;

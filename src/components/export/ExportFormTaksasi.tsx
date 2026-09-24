@@ -91,8 +91,12 @@ export function ExportFormTaksasi({ taksasi, logo }: ExportFormTaksasiProps) {
   const detailKendaraan = isKendaraan ? taksasi.detail_agunan as DetailAgunanKendaraan : null;
   const detailTanah = isTanah ? taksasi.detail_agunan as DetailAgunanTanahSimple : null;
   const detailTB = isTB ? taksasi.detail_agunan as DetailAgunanTBSimple : null;
+  // Taksasi Tanah yang dibuat setelah Sept 2026 juga menyimpan rincian per bidang
+  // (tanah_list, marketability) dengan bentuk yang sama seperti Tanah & Bangunan.
+  const detailRinci = (isTB || isTanah) ? taksasi.detail_agunan as DetailAgunanTBSimple : null;
 
-  const tanahList: TanahItemData[] = detailTB?.tanah_list || [];
+  const tanahList: TanahItemData[] = detailRinci?.tanah_list || [];
+  const punyaRincian = isTB || (isTanah && tanahList.length > 0);
   const bangunanList: BangunanItemData[] = detailTB?.bangunan_list || [];
 
   // Build safety margin items for tanah
@@ -144,7 +148,7 @@ export function ExportFormTaksasi({ taksasi, logo }: ExportFormTaksasiProps) {
           <h2 className="font-bold text-lg border-b pb-2">I. UMUM</h2>
           <table className="w-full text-sm">
             <tbody>
-              <Row label="Jenis Agunan" value={isKendaraan ? detailKendaraan?.jenis : taksasi.jenis_agunan.toUpperCase()} />
+              <Row label="Jenis Agunan" value={isKendaraan ? ((detailKendaraan as { kategori_agunan?: string } | null)?.kategori_agunan || detailKendaraan?.jenis) : taksasi.jenis_agunan.toUpperCase()} />
               <Row label="Petugas Yang Melakukan Penilaian" value={<>{taksasi.petugas} <span className="text-muted-foreground ml-4">{taksasi.jabatan_petugas}</span></>} />
               <Row label="Tanggal Penilaian" value={formatDate(taksasi.tanggal)} />
               <Row label="Nama Calon Debitur / Debitur" value={taksasi.nama_nasabah} />
@@ -180,7 +184,7 @@ export function ExportFormTaksasi({ taksasi, logo }: ExportFormTaksasiProps) {
           )}
 
           {/* === TANAH ONLY === */}
-          {isTanah && detailTanah && (
+          {isTanah && detailTanah && tanahList.length === 0 && (
             <table className="w-full text-sm">
               <tbody>
                 <Row label="Luas Tanah" value={`${detailTanah.luas_tanah} m²`} />
@@ -190,7 +194,7 @@ export function ExportFormTaksasi({ taksasi, logo }: ExportFormTaksasiProps) {
           )}
 
           {/* === TANAH & BANGUNAN - Rich Data === */}
-          {isTB && tanahList.length > 0 && (
+          {punyaRincian && tanahList.length > 0 && (
             <>
               {tanahList.map((t, idx) => (
                 <div key={idx} className="mb-4">
@@ -371,7 +375,7 @@ export function ExportFormTaksasi({ taksasi, logo }: ExportFormTaksasiProps) {
           )}
 
           {/* TB: Harga Pembanding Tables */}
-          {isTB && tanahList.length > 0 && (
+          {punyaRincian && tanahList.length > 0 && (
             <>
               {tanahList.map((t, idx) => (
                 t.harga_pembanding && t.harga_pembanding.length > 0 && (
@@ -457,7 +461,7 @@ export function ExportFormTaksasi({ taksasi, logo }: ExportFormTaksasiProps) {
         </div>
 
         {/* IV. SAFETY MARGIN DETAIL (TB) */}
-        {isTB && (hasTanahSafety || hasBangunanSafety) && (
+        {punyaRincian && (hasTanahSafety || hasBangunanSafety) && (
           <div className="space-y-3">
             <h2 className="font-bold text-lg border-b pb-2">IV. ANALISA SAFETY MARGIN</h2>
             {tanahList.map((t, idx) => {
@@ -486,19 +490,19 @@ export function ExportFormTaksasi({ taksasi, logo }: ExportFormTaksasiProps) {
         )}
 
         {/* V. MARKETABILITY (TB) */}
-        {isTB && detailTB?.marketability && (
+        {punyaRincian && detailRinci?.marketability && (
           <div className="space-y-3">
             <h2 className="font-bold text-lg border-b pb-2">{hasTanahSafety || hasBangunanSafety ? 'V' : 'IV'}. MARKETABILITY</h2>
             <table className="w-full text-sm">
               <tbody>
-                <Row label="Tingkat Marketability" value={<span className="capitalize font-medium">{detailTB.marketability.replace(/_/g, ' ')}</span>} />
+                <Row label="Tingkat Marketability" value={<span className="capitalize font-medium">{detailRinci.marketability.replace(/_/g, ' ')}</span>} />
               </tbody>
             </table>
-            {detailTB.catatan_marketability && detailTB.catatan_marketability.filter(c => c).length > 0 && (
+            {detailRinci.catatan_marketability && detailRinci.catatan_marketability.filter(c => c).length > 0 && (
               <div className="text-sm">
                 <p className="font-medium mb-1">Catatan:</p>
                 <ul className="list-disc pl-6 space-y-1">
-                  {detailTB.catatan_marketability.filter(c => c).map((c, i) => (
+                  {detailRinci.catatan_marketability.filter(c => c).map((c, i) => (
                     <li key={i}>{c}</li>
                   ))}
                 </ul>
