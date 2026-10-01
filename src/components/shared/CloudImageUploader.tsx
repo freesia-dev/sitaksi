@@ -6,11 +6,17 @@ import { uploadDokumentasi } from '@/lib/storage';
 import { Camera, X, Loader2, Upload, ImageOff, Check, Pencil } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/AuthContext';
+import { ambilLokasi, siapkanFoto } from '@/lib/fotoLapangan';
 
 // Re-export LabeledImage type for compatibility
 export interface LabeledImage {
   url: string;
   label: string;
+  /** Waktu foto (ISO) dan koordinat perangkat saat diunggah — ada untuk foto baru */
+  waktu?: string;
+  lat?: number;
+  lng?: number;
 }
 
 interface ImageWithFallbackProps {
@@ -73,6 +79,7 @@ export function CloudImageUploader({
   const [editLabel, setEditLabel] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -92,22 +99,14 @@ export function CloudImageUploader({
 
     setUploading(true);
     const newImages: LabeledImage[] = [];
+    // Lokasi diminta sekali per batch, dipakai untuk watermark semua foto
+    const lokasi = await ambilLokasi();
 
     for (let i = 0; i < filesToUpload.length; i++) {
       const file = filesToUpload[i];
       setUploadingIndex(images.length + i);
       
       try {
-        // Validate file size (max 10MB for cloud storage)
-        if (file.size > 10 * 1024 * 1024) {
-          toast({
-            title: 'File terlalu besar',
-            description: `${file.name} melebihi 10MB`,
-            variant: 'destructive',
-          });
-          continue;
-        }
-
         // Validate file type
         if (!file.type.startsWith('image/')) {
           toast({
@@ -118,9 +117,28 @@ export function CloudImageUploader({
           continue;
         }
 
-        const result = await uploadDokumentasi(file, taksasiId);
+        // Kompres + watermark (waktu, petugas, GPS) sebelum upload
+        const siap = await siapkanFoto(file, { petugas: user?.nama, lokasi });
+        const fileUpload = siap.file;
+
+        // Validate file size (max 10MB for cloud storage)
+        if (fileUpload.size > 10 * 1024 * 1024) {
+          toast({
+            title: 'File terlalu besar',
+            description: `${file.name} melebihi 10MB`,
+            variant: 'destructive',
+          });
+          continue;
+        }
+
+        const result = await uploadDokumentasi(fileUpload, taksasiId);
         const defaultLabel = defaultLabels[images.length + newImages.length] || `Foto ${images.length + newImages.length + 1}`;
-        newImages.push({ url: result.url, label: defaultLabel });
+        newImages.push({
+          url: result.url,
+          label: defaultLabel,
+          waktu: siap.waktu,
+          ...(siap.lokasi ? { lat: siap.lokasi.lat, lng: siap.lokasi.lng } : {}),
+        });
       } catch (error: any) {
         toast({
           title: 'Upload gagal',

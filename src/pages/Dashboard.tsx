@@ -38,10 +38,9 @@ export default function Dashboard() {
   const isAdmin = user?.role === 'Admin';
   const isOfficerOrAdmin = user?.role === 'Officer' || user?.role === 'Admin';
 
-  const [isSendingReport, setIsSendingReport] = useState(false);
-
   // Data based on role
-  const displayList = isPimpinan ? taksasiList : getTaksasiByUser(user?.id || '');
+  // Admin & pimpinan melihat semua taksasi; officer hanya miliknya
+  const displayList = isPimpinan || isAdmin ? taksasiList : getTaksasiByUser(user?.id || '');
   const totalNilai = displayList.reduce((acc, t) => acc + t.nilai_taksasi, 0);
   const totalLikuidasi = displayList.reduce((acc, t) => acc + t.nilai_likuidasi, 0);
 
@@ -54,37 +53,6 @@ export default function Dashboard() {
 
   const recentTaksasi = displayList.slice(0, 5);
 
-  // Send monthly report handler
-  const handleSendMonthlyReport = async () => {
-    setIsSendingReport(true);
-    try {
-      // Get last month's date range
-      const now = new Date();
-      const startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      const endDate = new Date(now.getFullYear(), now.getMonth(), 0);
-
-      const { data, error } = await supabase.functions.invoke('send-monthly-report', {
-        body: {
-          startDate: startDate.toISOString(),
-          endDate: endDate.toISOString(),
-        },
-      });
-
-      if (error) throw error;
-
-      if (data?.success) {
-        toast.success(`Laporan berhasil dikirim ke ${data.recipientCount} admin!`);
-      } else {
-        toast.error(data?.message || 'Gagal mengirim laporan');
-      }
-    } catch (error: any) {
-      console.error('Error sending report:', error);
-      toast.error(error.message || 'Gagal mengirim laporan bulanan');
-    } finally {
-      setIsSendingReport(false);
-    }
-  };
-
   return (
     <div className="space-y-6">
       <PageHeader
@@ -93,12 +61,13 @@ export default function Dashboard() {
       />
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
         <StatCard
           title="Total Taksasi"
           value={displayList.length}
           icon={FileText}
           variant="primary"
+          className="col-span-2 lg:col-span-1"
         />
         <StatCard
           title="Tanah"
@@ -122,46 +91,12 @@ export default function Dashboard() {
           value={formatCurrency(totalNilai)}
           icon={Wallet}
           variant="warning"
+          className="col-span-2 lg:col-span-1"
         />
       </div>
 
-      {/* Storage Monitor & Report Button for Admin */}
-      {isAdmin && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <StorageMonitor />
-          <div className="p-5 rounded-xl border bg-card shadow-card">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <Mail className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold">Laporan Bulanan</h3>
-                <p className="text-sm text-muted-foreground">Kirim rekap taksasi via email</p>
-              </div>
-            </div>
-            <p className="text-sm text-muted-foreground mb-4">
-              Kirim laporan rekap taksasi bulan lalu ke semua email admin yang terdaftar.
-            </p>
-            <Button 
-              onClick={handleSendMonthlyReport} 
-              disabled={isSendingReport}
-              className="w-full"
-            >
-              {isSendingReport ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Mengirim...
-                </>
-              ) : (
-                <>
-                  <Mail className="mr-2 h-4 w-4" />
-                  Kirim Laporan Bulan Lalu
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
-      )}
+      {/* Pemakaian penyimpanan foto (admin) */}
+      {isAdmin && <StorageMonitor />}
 
       {/* Quick Actions for Officer - hidden for Demo */}
       {isOfficerOrAdmin && !isDemo && (
@@ -236,7 +171,7 @@ export default function Dashboard() {
       <div className="rounded-xl border bg-card shadow-card overflow-hidden">
         <div className="p-5 border-b flex items-center justify-between">
           <h3 className="font-semibold">Taksasi Terbaru</h3>
-          <Link to="/riwayat">
+          <Link to="/taksasi">
             <Button variant="ghost" size="sm">
               Lihat Semua <ArrowRight className="ml-1" size={16} />
             </Button>

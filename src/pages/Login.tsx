@@ -45,6 +45,21 @@ export default function Login() {
     }
   }, [isAuthenticated, authLoading, navigate]);
 
+  // Pesan setelah logout otomatis karena tidak aktif
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem('sitaksi_sesi_habis')) {
+        sessionStorage.removeItem('sitaksi_sesi_habis');
+        toast({
+          title: 'Sesi berakhir',
+          description: 'Anda keluar otomatis karena tidak aktif selama 15 menit. Silakan masuk lagi.',
+        });
+      }
+    } catch {
+      /* penyimpanan tidak tersedia */
+    }
+  }, [toast]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});

@@ -20,36 +20,51 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signup: (email: string, password: string, nama: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
+  /** true satu menit sebelum sesi berakhir karena tidak ada aktivitas */
+  idleWarning: boolean;
+  extendSession: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const IDLE_TIMEOUT = 15 * 60 * 1000; // 15 minutes in milliseconds
+const IDLE_TIMEOUT = 15 * 60 * 1000; // 15 menit tanpa aktivitas → logout
+const IDLE_WARNING = 60 * 1000; // peringatan muncul 1 menit sebelumnya
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const warningRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [idleWarning, setIdleWarning] = useState(false);
+
+  const clearIdleTimers = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    if (warningRef.current) clearTimeout(warningRef.current);
+    timeoutRef.current = null;
+    warningRef.current = null;
+  };
 
   const logout = useCallback(async () => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
+    clearIdleTimers();
+    setIdleWarning(false);
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
   }, []);
 
   const resetIdleTimer = useCallback(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
+    clearIdleTimers();
+    setIdleWarning(false);
     if (user) {
+      warningRef.current = setTimeout(() => setIdleWarning(true), IDLE_TIMEOUT - IDLE_WARNING);
       timeoutRef.current = setTimeout(() => {
         logout();
-        alert('Sesi Anda telah berakhir karena tidak aktif selama 15 menit. Silakan login kembali.');
+        try {
+          sessionStorage.setItem('sitaksi_sesi_habis', '1');
+        } catch {
+          /* penyimpanan tidak tersedia — pesan di halaman login dilewati */
+        }
       }, IDLE_TIMEOUT);
     }
   }, [user, logout]);
@@ -99,34 +114,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   // Setup auth state listener
+  // isLoading baru false setelah profil selesai dimuat. Dulu isLoading false
+  // lebih dulu sehingga halaman sempat menganggap user belum login, dialihkan
+  // ke /login, lalu ke /dashboard — refresh atau buka tautan langsung ke
+  // halaman mana pun selalu berakhir di Dashboard.
   useEffect(() => {
-    // Set up auth state listener FIRST
+    let aktif = true;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
-        
         if (session?.user) {
-          // Defer profile fetch with setTimeout to avoid deadlock
-          setTimeout(() => {
-            fetchUserProfile(session.user.id, session.user.email || '');
+          // Ditunda dengan setTimeout untuk menghindari deadlock di callback auth
+          setTimeout(async () => {
+            await fetchUserProfile(session.user.id, session.user.email || '');
+            if (aktif) setIsLoading(false);
           }, 0);
         } else {
           setUser(null);
+          setIsLoading(false);
         }
-        setIsLoading(false);
       }
     );
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       if (session?.user) {
-        fetchUserProfile(session.user.id, session.user.email || '');
+        await fetchUserProfile(session.user.id, session.user.email || '');
       }
-      setIsLoading(false);
+      if (aktif) setIsLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      aktif = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   // Setup idle detection
@@ -148,9 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
+      clearIdleTimers();
       events.forEach(event => {
         document.removeEventListener(event, handleActivity);
       });
@@ -209,8 +229,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading,
     login, 
     signup,
-    logout 
-  }), [user, session, isLoading, login, signup, logout]);
+    logout,
+    idleWarning,
+    extendSession: resetIdleTimer,
+  }), [user, session, isLoading, login, signup, logout, idleWarning, resetIdleTimer]);
 
   return (
     <AuthContext.Provider value={contextValue}>

@@ -15,6 +15,8 @@ export function StorageMonitor() {
     setError(null);
     try {
       const data = await getStorageStats();
+      // Respons tidak lengkap (mis. fungsi error) jangan sampai membuat dashboard crash
+      if (!data || typeof data.used_mb !== 'number') throw new Error('Statistik penyimpanan tidak tersedia');
       setStats(data);
     } catch (err: any) {
       setError(err.message || 'Failed to load storage stats');
@@ -103,7 +105,7 @@ export function StorageMonitor() {
             "font-semibold",
             isCritical ? "text-destructive" : isWarning ? "text-warning" : "text-foreground"
           )}>
-            {stats?.used_mb.toFixed(1)} MB / {stats?.total_mb} MB
+            {(stats?.used_mb ?? 0).toFixed(1)} MB / {stats?.total_mb} MB
           </span>
         </div>
         

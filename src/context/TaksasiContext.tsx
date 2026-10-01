@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 interface TaksasiContextType {
   taksasiList: Taksasi[];
   isLoading: boolean;
-  addTaksasi: (taksasi: Omit<Taksasi, 'id'>) => Promise<void>;
+  addTaksasi: (taksasi: Omit<Taksasi, 'id'>) => Promise<boolean>;
   updateTaksasi: (id: string, updates: Partial<Taksasi>) => Promise<boolean>;
   deleteTaksasi: (id: string) => Promise<void>;
   getTaksasiByUser: (userId: string) => Taksasi[];
@@ -79,9 +79,10 @@ export function TaksasiProvider({ children }: { children: ReactNode }) {
         no_hp: item.no_hp || '',
         nilai_pasar: Number(item.nilai_pasar) || 0,
         nilai_taksasi: Number(item.nilai_taksasi) || 0,
-        nilai_taksasi_pembulatan: Number(item.nilai_taksasi) || 0,
+        // Pembulatan (kendaraan) disimpan di detail_agunan; data lama belum punya → pakai nilai asli
+        nilai_taksasi_pembulatan: Number(item.detail_agunan?.nilai_taksasi_pembulatan ?? item.nilai_taksasi) || 0,
         nilai_likuidasi: Number(item.nilai_likuidasi) || 0,
-        nilai_likuidasi_pembulatan: Number(item.nilai_likuidasi) || 0,
+        nilai_likuidasi_pembulatan: Number(item.detail_agunan?.nilai_likuidasi_pembulatan ?? item.nilai_likuidasi) || 0,
         safety_margin: item.detail_agunan?.safety_margin || 0,
         terbilang: item.detail_agunan?.terbilang || '',
         status: item.status === 'disetujui' ? 'disetujui' : item.status === 'ditolak' ? 'ditolak' : 'draft',
@@ -97,7 +98,8 @@ export function TaksasiProvider({ children }: { children: ReactNode }) {
         jabatan_pimpinan: item.tim_penilai?.jabatan_pimpinan || '',
         tim_penilai: item.tim_penilai?.members || [],
         keterangan: item.keterangan || '',
-        marketability: item.marketability || ''
+        marketability: item.marketability || item.detail_agunan?.marketability || '',
+        catatan_marketability: item.detail_agunan?.catatan_marketability || [],
       }));
 
       setTaksasiList(transformedData);
@@ -120,7 +122,7 @@ export function TaksasiProvider({ children }: { children: ReactNode }) {
         description: 'Anda harus login untuk menambah data',
         variant: 'destructive'
       });
-      return;
+      return false;
     }
 
     try {
@@ -171,7 +173,7 @@ export function TaksasiProvider({ children }: { children: ReactNode }) {
           description: 'Gagal menyimpan data taksasi: ' + error.message,
           variant: 'destructive'
         });
-        return;
+        return false;
       }
 
       toast({
@@ -181,6 +183,7 @@ export function TaksasiProvider({ children }: { children: ReactNode }) {
 
       // Refresh the list
       await fetchTaksasi();
+      return true;
     } catch (error: any) {
       console.error('Error adding taksasi:', error);
       toast({
@@ -188,6 +191,7 @@ export function TaksasiProvider({ children }: { children: ReactNode }) {
         description: 'Gagal menyimpan data taksasi',
         variant: 'destructive'
       });
+      return false;
     }
   }, [session?.user, toast, fetchTaksasi]);
 

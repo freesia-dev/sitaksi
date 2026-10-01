@@ -1,9 +1,9 @@
-import { Suspense, lazy } from "react";
+import React, { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { TaksasiProvider } from "@/context/TaksasiContext";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -15,14 +15,8 @@ const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const TaksasiTanah = lazy(() => import("@/pages/forms/TaksasiTanah"));
 const TaksasiTanahBangunan = lazy(() => import("@/pages/forms/TaksasiTanahBangunan"));
 const TaksasiKendaraan = lazy(() => import("@/pages/forms/TaksasiKendaraan"));
-const EditTaksasiTanah = lazy(() => import("@/pages/forms/EditTaksasiTanah"));
-const EditTaksasiTanahBangunan = lazy(() => import("@/pages/forms/EditTaksasiTanahBangunan"));
-const EditTaksasiKendaraan = lazy(() => import("@/pages/forms/EditTaksasiKendaraan"));
-const TaksasiTanahList = lazy(() => import("@/pages/lists/TaksasiTanahList"));
-const TaksasiTanahBangunanList = lazy(() => import("@/pages/lists/TaksasiTanahBangunanList"));
-const TaksasiKendaraanList = lazy(() => import("@/pages/lists/TaksasiKendaraanList"));
-const Riwayat = lazy(() => import("@/pages/Riwayat"));
 
+const TaksasiList = lazy(() => import("@/pages/TaksasiList"));
 const AdminUsers = lazy(() => import("@/pages/AdminUsers"));
 const Profile = lazy(() => import("@/pages/Profile"));
 const DetailTaksasi = lazy(() => import("@/pages/DetailTaksasi"));
@@ -38,6 +32,13 @@ const SubrogasiForm = lazy(() => import("@/pages/laporan-rko/SubrogasiForm"));
 const PlNplList = lazy(() => import("@/pages/laporan-rko/PlNplList"));
 const PlNplForm = lazy(() => import("@/pages/laporan-rko/PlNplForm"));
 const NplExistingList = lazy(() => import("@/pages/laporan-rko/NplExistingList"));
+
+// Form tambah & edit memakai komponen yang sama; kunci per alamat supaya
+// pindah dari "edit A" ke "tambah baru" (atau "edit B") selalu mulai dari form bersih.
+const KunciPerHalaman = ({ children }: { children: React.ReactNode }) => {
+  const { pathname } = useLocation();
+  return <React.Fragment key={pathname}>{children}</React.Fragment>;
+};
 
 // Optimized QueryClient with caching
 const queryClient = new QueryClient({
@@ -76,34 +77,36 @@ const App = () => (
                 <Route element={<AppLayout />}>
                   <Route path="/dashboard" element={<Dashboard />} />
                   {/* List pages */}
-                  <Route path="/list/tanah" element={<TaksasiTanahList />} />
-                  <Route path="/list/tanah-bangunan" element={<TaksasiTanahBangunanList />} />
-                  <Route path="/list/kendaraan" element={<TaksasiKendaraanList />} />
+                  <Route path="/taksasi" element={<TaksasiList />} />
+                  {/* Alamat lama tetap bekerja */}
+                  <Route path="/list/tanah" element={<Navigate to="/taksasi?jenis=tanah" replace />} />
+                  <Route path="/list/tanah-bangunan" element={<Navigate to="/taksasi?jenis=tanah-bangunan" replace />} />
+                  <Route path="/list/kendaraan" element={<Navigate to="/taksasi?jenis=kendaraan" replace />} />
                   {/* Form pages */}
-                  <Route path="/taksasi/tanah/new" element={<TaksasiTanah />} />
-                  <Route path="/taksasi/tanah-bangunan/new" element={<TaksasiTanahBangunan />} />
-                  <Route path="/taksasi/kendaraan/new" element={<TaksasiKendaraan />} />
-                  <Route path="/taksasi/tanah/edit/:id" element={<EditTaksasiTanah />} />
-                  <Route path="/taksasi/tanah-bangunan/edit/:id" element={<EditTaksasiTanahBangunan />} />
-                  <Route path="/taksasi/kendaraan/edit/:id" element={<EditTaksasiKendaraan />} />
-                  <Route path="/riwayat" element={<Riwayat />} />
+                  <Route path="/taksasi/tanah/new" element={<KunciPerHalaman><TaksasiTanah /></KunciPerHalaman>} />
+                  <Route path="/taksasi/tanah-bangunan/new" element={<KunciPerHalaman><TaksasiTanahBangunan /></KunciPerHalaman>} />
+                  <Route path="/taksasi/kendaraan/new" element={<KunciPerHalaman><TaksasiKendaraan /></KunciPerHalaman>} />
+                  <Route path="/taksasi/tanah/edit/:id" element={<KunciPerHalaman><TaksasiTanah /></KunciPerHalaman>} />
+                  <Route path="/taksasi/tanah-bangunan/edit/:id" element={<KunciPerHalaman><TaksasiTanahBangunan /></KunciPerHalaman>} />
+                  <Route path="/taksasi/kendaraan/edit/:id" element={<KunciPerHalaman><TaksasiKendaraan /></KunciPerHalaman>} />
+                  <Route path="/riwayat" element={<Navigate to="/taksasi" replace />} />
                   
                   <Route path="/admin/users" element={<AdminUsers />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/taksasi/:id" element={<DetailTaksasi />} />
                   <Route path="/about" element={<About />} />
                   <Route path="/monitoring" element={<MonitoringList />} />
-                  <Route path="/monitoring/new" element={<MonitoringForm />} />
-                  <Route path="/monitoring/edit/:id" element={<MonitoringForm />} />
+                  <Route path="/monitoring/new" element={<KunciPerHalaman><MonitoringForm /></KunciPerHalaman>} />
+                  <Route path="/monitoring/edit/:id" element={<KunciPerHalaman><MonitoringForm /></KunciPerHalaman>} />
                   <Route path="/monitoring/jadwal" element={<MonitoringJadwal />} />
                   <Route path="/monitoring/dashboard" element={<MonitoringDashboard />} />
                   <Route path="/monitoring/:id" element={<MonitoringDetail />} />
                   <Route path="/laporan-rko/subrogasi" element={<SubrogasiList />} />
-                  <Route path="/laporan-rko/subrogasi/new" element={<SubrogasiForm />} />
-                  <Route path="/laporan-rko/subrogasi/edit/:id" element={<SubrogasiForm />} />
+                  <Route path="/laporan-rko/subrogasi/new" element={<KunciPerHalaman><SubrogasiForm /></KunciPerHalaman>} />
+                  <Route path="/laporan-rko/subrogasi/edit/:id" element={<KunciPerHalaman><SubrogasiForm /></KunciPerHalaman>} />
                   <Route path="/laporan-rko/pl-to-npl" element={<PlNplList />} />
-                  <Route path="/laporan-rko/pl-to-npl/new" element={<PlNplForm />} />
-                  <Route path="/laporan-rko/pl-to-npl/edit/:id" element={<PlNplForm />} />
+                  <Route path="/laporan-rko/pl-to-npl/new" element={<KunciPerHalaman><PlNplForm /></KunciPerHalaman>} />
+                  <Route path="/laporan-rko/pl-to-npl/edit/:id" element={<KunciPerHalaman><PlNplForm /></KunciPerHalaman>} />
                   <Route path="/laporan-rko/npl-existing" element={<NplExistingList />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
